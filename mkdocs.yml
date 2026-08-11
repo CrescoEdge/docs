@@ -1,6 +1,7 @@
 site_name: Cresco Documentation
 site_description: The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.
 site_author: CrescoEdge
+site_url: https://crescoedge.github.io/docs/
 repo_url: https://github.com/CrescoEdge/agent
 repo_name: CrescoEdge/agent
 edit_uri: ""
