@@ -2313,6 +2313,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../design/health-check-design/" class="md-nav__link">
         
   
@@ -2530,9 +2586,9 @@ for most; the exhaustive list is the <strong><a href="../../reference/configurat
 (180+ parameters).</p>
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <p>Every setting is read through <code>plugin.getConfig().get&lt;Type&gt;Param("name", default)</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">brokerPort</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">().</span><span class="na">getIntegerParam</span><span class="p">(</span><span class="s">&quot;broker_port&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">32010</span><span class="p">);</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">boolean</span><span class="w"> </span><span class="n">secure</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">().</span><span class="na">getBooleanParam</span><span class="p">(</span><span class="s">&quot;broker_security_enabled&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">String</span><span class="w"> </span><span class="n">tenant</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">().</span><span class="na">getStringParam</span><span class="p">(</span><span class="s">&quot;tenant_id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">brokerPort</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">().</span><span class="na">getIntegerParam</span><span class="p">(</span><span class="s">"broker_port"</span><span class="p">,</span><span class="w"> </span><span class="mi">32010</span><span class="p">);</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">boolean</span><span class="w"> </span><span class="n">secure</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">().</span><span class="na">getBooleanParam</span><span class="p">(</span><span class="s">"broker_security_enabled"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">String</span><span class="w"> </span><span class="n">tenant</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">().</span><span class="na">getStringParam</span><span class="p">(</span><span class="s">"tenant_id"</span><span class="p">,</span><span class="w"> </span><span class="s">"default"</span><span class="p">);</span>
 </code></pre></div>
 <p>Resolution order is <strong>system property → config map → baked-in default</strong>. Two principles hold throughout the
 codebase:</p>

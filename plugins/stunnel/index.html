@@ -2357,6 +2357,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../design/health-check-design/" class="md-nav__link">
         
   
@@ -2632,7 +2688,7 @@
 </tr>
 <tr>
 <td>Java files</td>
-<td>8</td>
+<td>9</td>
 </tr>
 <tr>
 <td>Loaded</td>
@@ -2644,7 +2700,7 @@
 </tr>
 <tr>
 <td>Transport</td>
-<td>Raw bytes as JMS <code>BytesMessage</code> over <code>TopicType.GLOBAL</code>.</td>
+<td>Raw bytes as JMS <code>BytesMessage</code> over <code>TopicType.GLOBAL</code>, one consumer per tunnel (see <a href="../../design/stunnel-dataplane-design/">data path design</a>).</td>
 </tr>
 <tr>
 <td>Socket I/O</td>
@@ -2654,6 +2710,10 @@
 </table>
 <h2 id="how-a-tunnel-works">How a tunnel works<a class="headerlink" href="#how-a-tunnel-works" title="Permanent link">&para;</a></h2>
 <p>A tunnel has a <strong>SRC</strong> side (a local TCP listener accepting connections) and a <strong>DST</strong> side (a Netty client connecting to the real target). Bytes accepted on the SRC socket are wrapped as <code>BytesMessage</code>s and published on <code>TopicType.GLOBAL</code>; the DST side reassembles them and writes them to the target socket, and vice versa. Tunnel configs are persisted so tunnels auto-reconnect after a restart.</p>
+<p>Each message carries <code>stunnel_id</code>, <code>client_id</code> and <code>direction</code> properties. A tunnel opens <strong>one</strong>
+dataplane consumer per direction and demultiplexes to per-client handlers in Java, so opening a
+session is a map insert rather than a JMS listener attach. Ordering, buffering and the bounds on
+every wait are covered in <a href="../../design/stunnel-dataplane-design/">stunnel Data Path Design</a>.</p>
 <h2 id="key-classes">Key classes<a class="headerlink" href="#key-classes" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2670,6 +2730,10 @@
 <tr>
 <td><code>SocketController</code></td>
 <td>The core: Netty event loops, tunnel lifecycle, config persistence, health checks, and reconnection. <code>startSrcTunnel</code>/<code>createDstTunnel</code>/<code>createDstSession</code>, <code>connectWithRetry</code>, <code>startHealthCheck</code>, <code>checkStartUpConfig</code> (rescan + reconnect at startup), teardown, and an inner <code>ReconnectTask</code>.</td>
+</tr>
+<tr>
+<td><code>TunnelDemux</code></td>
+<td>One dataplane consumer per tunnel per direction (selector <code>stunnel_id</code> + <code>direction</code>), dispatching to per-client handlers by <code>client_id</code>. Buffers a client's payload between <code>expect()</code> and <code>register()</code> so a session's first bytes cannot be lost, and drains that backlog without reordering.</td>
 </tr>
 <tr>
 <td><code>SrcChannelInitializer</code> / <code>DstChannelInitializer</code></td>
@@ -2715,7 +2779,15 @@
 </table>
 <p>EXEC actions (type <code>EXEC</code>): <code>tunnelhealthcheck</code>, <code>listtunnels</code>, <code>gettunnelstatus</code>, <code>gettunnelconfig</code>.</p>
 <h2 id="health-checking">Health checking<a class="headerlink" href="#health-checking" title="Permanent link">&para;</a></h2>
-<p><code>SocketController.startHealthCheck</code> runs every ~5s. Recent byte activity is treated as proof-of-life; otherwise it issues an active <code>tunnelhealthcheck</code> RPC. Two consecutive failures trigger a tunnel rebuild. On startup, <code>checkStartUpConfig</code> rescans persisted configs and reconnects tunnels.</p>
+<p><code>SocketController.startHealthCheck</code> runs per SRC tunnel on a <strong>fixed delay</strong> (default 5s,
+<code>stunnel_health_check_interval_sec</code>) so a slow probe cannot queue an overdue one behind it. Recent
+byte activity is treated as proof-of-life; otherwise it issues a <code>tunnelhealthcheck</code> RPC bounded by
+<code>stunnel_health_probe_timeout_ms</code> (default 10s; a per-tunnel <code>watchdog_timeout</code> overrides it).</p>
+<p>After <code>stunnel_health_failure_threshold</code> consecutive failures (default 3) it sends <strong>one further
+verification probe</strong> before tearing down — teardown closes every client session on the tunnel, and
+the counted failures may all have been probes sent into a stall that has since cleared. Teardown
+leaves the persisted config in place, so <code>ReconnectTask</code> rebuilds the tunnel. On startup,
+<code>checkStartUpConfig</code> rescans persisted configs and reconnects tunnels.</p>
 <h2 id="configuration-read">Configuration read<a class="headerlink" href="#configuration-read" title="Permanent link">&para;</a></h2>
 <p>Per-tunnel config keys:</p>
 <table>
@@ -2760,7 +2832,7 @@
 <tr>
 <td><code>watchdog_timeout</code></td>
 <td>—</td>
-<td>Health-check timeout.</td>
+<td>Health-probe RPC budget in ms for this tunnel; overrides <code>stunnel_health_probe_timeout_ms</code>.</td>
 </tr>
 <tr>
 <td><code>performance_report_rate</code></td>
@@ -2797,15 +2869,52 @@
 <tr>
 <td><code>stunnel_read_chunk_bytes</code></td>
 <td><code>262144</code></td>
-<td>Max adaptive read chunk (256 KB).</td>
+<td>Max adaptive read chunk (256 KB), and so the max size of one dataplane payload message.</td>
 </tr>
 <tr>
 <td><code>stunnel_write_high_water_bytes</code></td>
 <td><code>2097152</code></td>
 <td>Write-buffer high-water mark for backpressure (2 MB).</td>
 </tr>
+<tr>
+<td><code>stunnel_health_check_interval_sec</code></td>
+<td><code>5</code></td>
+<td>Tunnel health-check period (seconds), scheduled as a fixed delay.</td>
+</tr>
+<tr>
+<td><code>stunnel_health_failure_threshold</code></td>
+<td><code>3</code></td>
+<td>Consecutive failures before the verification probe and teardown.</td>
+</tr>
+<tr>
+<td><code>stunnel_health_probe_timeout_ms</code></td>
+<td><code>10000</code></td>
+<td>RPC budget for a health probe; per-tunnel <code>watchdog_timeout</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>stunnel_dst_init_timeout_ms</code></td>
+<td><code>10000</code></td>
+<td>RPC budget for <code>configdstsession</code> when a client connects.</td>
+</tr>
+<tr>
+<td><code>stunnel_dst_init_max_concurrent</code></td>
+<td><code>64</code></td>
+<td>Concurrent DST session initiations; excess connects fail fast.</td>
+</tr>
+<tr>
+<td><code>stunnel_demux_buffer_max</code></td>
+<td><code>256</code></td>
+<td>Messages buffered per client before its handler registers; overflow fails that session.</td>
+</tr>
+<tr>
+<td><code>stunnel_demux_open_timeout_ms</code></td>
+<td><code>15000</code></td>
+<td>Bound on opening a tunnel's dataplane consumer.</td>
+</tr>
 </tbody>
 </table>
+<p>How these interact is covered in
+<a href="../../design/stunnel-dataplane-design/">stunnel Data Path Design</a>.</p>
 <p>See <a href="../../getting-started/configuration/">Configuration</a>.</p>
 <h2 id="path-tracing-existence-beacons">Path tracing &amp; existence beacons<a class="headerlink" href="#path-tracing-existence-beacons" title="Permanent link">&para;</a></h2>
 <p>Because tunnel bytes ride the JMS data plane, transit nodes never see them — only the brokers do. stunnel makes the full path observable and pushes it on a subscribable stream (<code>cresco_msg_type="stunnel_trace"</code>):</p>
@@ -2829,6 +2938,7 @@ observability:</p>
 </ul>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="../../design/stunnel-dataplane-design/">stunnel Data Path Design</a> — session lifecycle, demux, ordering, failure modes.</li>
 <li><a href="../../architecture/tunnel-tracing/">Tunnel Path Tracing &amp; Push Observability</a> — hop tracing, the <code>stunnel_trace</code> stream, per-link bandwidth, and connector auto-scaling.</li>
 <li><a href="../../architecture/dataplane/">Data Plane</a> — the JMS transport tunneled bytes travel over.</li>
 <li><a href="../../architecture/metrics/">Metrics &amp; Measurements</a> — <code>PerformanceMonitor</code> throughput reporting.</li>

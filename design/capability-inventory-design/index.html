@@ -2211,6 +2211,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../health-check-design/" class="md-nav__link">
         
   
@@ -2658,13 +2714,13 @@ in code + sparse comments. The action surface is completely opaque to any caller
 <h2 id="2-descriptor-model-iocrescolibrarycapability">2. Descriptor model — <code>io.cresco.library.capability</code><a class="headerlink" href="#2-descriptor-model-iocrescolibrarycapability" title="Permanent link">&para;</a></h2>
 <p>Each action → an <code>ActionDescriptor</code> with two faces:</p>
 <p><strong>LLM-facing (Anthropic tool spec):</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;cresco_global_listagents&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;List agents in the fabric, optionally filtered by region. Use before targeting a command to discover which agents are online. Agents are the unit of plugin placement.&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;input_schema&quot;</span><span class="p">:{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span><span class="nt">&quot;properties&quot;</span><span class="p">:{</span><span class="nt">&quot;action_region&quot;</span><span class="p">:{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Region filter; omit for all.&quot;</span><span class="p">}},</span><span class="nt">&quot;required&quot;</span><span class="p">:[]}</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"cresco_global_listagents"</span><span class="p">,</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="s2">"List agents in the fabric, optionally filtered by region. Use before targeting a command to discover which agents are online. Agents are the unit of plugin placement."</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"input_schema"</span><span class="p">:{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"object"</span><span class="p">,</span><span class="nt">"properties"</span><span class="p">:{</span><span class="nt">"action_region"</span><span class="p">:{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"string"</span><span class="p">,</span><span class="nt">"description"</span><span class="p">:</span><span class="s2">"Region filter; omit for all."</span><span class="p">}},</span><span class="nt">"required"</span><span class="p">:[]}</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <strong>Cresco binding (how a runner invokes it):</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;msg_type&quot;</span><span class="p">:</span><span class="s2">&quot;EXEC&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="s2">&quot;global&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;listagents&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;routing_params&quot;</span><span class="p">:[],</span><span class="w"> </span><span class="nt">&quot;returns&quot;</span><span class="p">:{</span><span class="nt">&quot;agentslist&quot;</span><span class="p">:</span><span class="s2">&quot;compressed JSON {agents:[...]}&quot;</span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"msg_type"</span><span class="p">:</span><span class="s2">"EXEC"</span><span class="p">,</span><span class="w"> </span><span class="nt">"target"</span><span class="p">:</span><span class="s2">"global"</span><span class="p">,</span><span class="w"> </span><span class="nt">"action"</span><span class="p">:</span><span class="s2">"listagents"</span><span class="p">,</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"routing_params"</span><span class="p">:[],</span><span class="w"> </span><span class="nt">"returns"</span><span class="p">:{</span><span class="nt">"agentslist"</span><span class="p">:</span><span class="s2">"compressed JSON {agents:[...]}"</span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <code>target</code> ∈ {global, regional, agent, plugin}; <code>routing_params</code> names identity params a caller must
 supply to route (plugin actions need region+agent+pluginid). This is what lets a generic runner build the

@@ -2546,6 +2546,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../design/health-check-design/" class="md-nav__link">
         
   
@@ -3113,11 +3169,11 @@ cross-language conformance suite.</p>
 <p>Constructing a <code>clientlib</code> wires up the transport and the interface objects but does <strong>not</strong>
 open the socket. Call <code>connect()</code> to establish the connection:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;connected:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">connected</span><span class="p">())</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"connected:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">connected</span><span class="p">())</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="c1"># ... use the client ...</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;failed to connect&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"failed to connect"</span><span class="p">)</span>
 </code></pre></div>
 <p>Under the hood, <code>connect()</code> opens <code>wss://{host}:{port}/api/apisocket</code>, authenticates with the
 service key, verifies the socket is live, and reads the mesh identity (region / agent / plugin)
@@ -3159,7 +3215,7 @@ exit (including on exception). It raises <code>ConnectionError</code> if the con
 established:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">&quot;your-service-key&quot;</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">connection</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_region_list</span><span class="p">())</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># connection is closed automatically here</span>
@@ -3168,7 +3224,7 @@ established:</p>
 <p>By default certificate verification is disabled, because Cresco agents commonly present
 self-signed certificates. If your deployment uses certificates trusted by the local trust
 store, enable verification:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">&quot;your-service-key&quot;</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <hr />
 <h2 id="async-model">Async model<a class="headerlink" href="#async-model" title="Permanent link">&para;</a></h2>
@@ -3564,8 +3620,8 @@ contract.</p>
 <p>Example of a direct RPC through <code>messaging</code> (equivalent to the higher-level helpers):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_controller_msgevent</span><span class="p">(</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="kc">True</span><span class="p">,</span>                       <span class="c1"># is_rpc: block for the reply</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="s2">&quot;EXEC&quot;</span><span class="p">,</span>                     <span class="c1"># MsgEvent type</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;listregions&quot;</span><span class="p">},</span>  <span class="c1"># payload</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="s2">"EXEC"</span><span class="p">,</span>                     <span class="c1"># MsgEvent type</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"listregions"</span><span class="p">},</span>  <span class="c1"># payload</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
 </code></pre></div>
 <h3 id="dataplane"><code>dataplane</code><a class="headerlink" href="#dataplane" title="Permanent link">&para;</a></h3>
@@ -3714,38 +3770,38 @@ log lines from a target agent to your callback.</p>
 (<code>StandardExamples.java</code>). Set <code>HOST</code>, <code>PORT</code>, and <code>SERVICE_KEY</code> for your environment.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">HOST</span> <span class="o">=</span> <span class="s2">&quot;127.0.0.1&quot;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">HOST</span> <span class="o">=</span> <span class="s2">"127.0.0.1"</span>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">PORT</span> <span class="o">=</span> <span class="mi">8282</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">SERVICE_KEY</span> <span class="o">=</span> <span class="s2">&quot;a-service-key&quot;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">SERVICE_KEY</span> <span class="o">=</span> <span class="s2">"a-service-key"</span>
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">new_client</span><span class="p">():</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a connected client, or None if the connection failed.&quot;&quot;&quot;</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="sd">"""Create a connected client, or None if the connection failed."""</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="n">SERVICE_KEY</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to connect&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Failed to connect"</span><span class="p">)</span>
 <a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="k">return</span> <span class="kc">None</span>
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">return</span> <span class="n">client</span>
 </code></pre></div>
 <h3 id="connect-and-list-the-mesh">Connect and list the mesh<a class="headerlink" href="#connect-and-list-the-mesh" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_connect</span><span class="p">():</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Connect, print API identity, list regions and agents, disconnect.&quot;&quot;&quot;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="sd">"""Connect, print API identity, list regions and agents, disconnect."""</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="k">return</span>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="c1"># Identity of the agent hosting the wsapi plugin.</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;region:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_region_name</span><span class="p">())</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;agent :&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_agent_name</span><span class="p">())</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;plugin:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_plugin_name</span><span class="p">())</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"region:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_region_name</span><span class="p">())</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"agent :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_agent_name</span><span class="p">())</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"plugin:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_plugin_name</span><span class="p">())</span>
 <a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
 <a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="c1"># Identity of the global controller.</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;global region:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_global_region</span><span class="p">())</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;global agent :&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_global_agent</span><span class="p">())</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"global region:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_global_region</span><span class="p">())</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"global agent :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_global_agent</span><span class="p">())</span>
 <a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>
 <a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>    <span class="c1"># List the regions and the agents in the mesh.</span>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;regions:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_region_list</span><span class="p">())</span>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;agents :&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_agent_list</span><span class="p">())</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"regions:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_region_list</span><span class="p">())</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"agents :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_agent_list</span><span class="p">())</span>
 <a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>
 <a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>
@@ -3754,29 +3810,29 @@ log lines from a target agent to your callback.</p>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_pipeline</span><span class="p">():</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Submit a CADL pipeline, poll until active, fetch info/export, remove it.&quot;&quot;&quot;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="sd">"""Submit a CADL pipeline, poll until active, fetch info/export, remove it."""</span>
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>        <span class="k">return</span>
 <a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
 <a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="c1"># A minimal CADL pipeline.</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="n">cadl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pipeline_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;pipeline_name&quot;</span><span class="p">:</span> <span class="s2">&quot;example-pipeline&quot;</span><span class="p">,</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>            <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;edges&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="n">cadl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"pipeline_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"pipeline_name"</span><span class="p">:</span> <span class="s2">"example-pipeline"</span><span class="p">,</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>            <span class="s2">"nodes"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"edges"</span><span class="p">:</span> <span class="p">[]}</span>
 <a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    <span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">submit_pipeline</span><span class="p">(</span><span class="n">cadl</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>  <span class="c1"># tenant 0</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">pipeline_id</span> <span class="o">=</span> <span class="n">reply</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gpipeline_id&quot;</span><span class="p">)</span>
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;submitted pipeline:&quot;</span><span class="p">,</span> <span class="n">pipeline_id</span><span class="p">)</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    <span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">submit_pipeline</span><span class="p">(</span><span class="n">cadl</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span>  <span class="c1"># tenant 0</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">pipeline_id</span> <span class="o">=</span> <span class="n">reply</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gpipeline_id"</span><span class="p">)</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"submitted pipeline:"</span><span class="p">,</span> <span class="n">pipeline_id</span><span class="p">)</span>
 <a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>
 <a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="c1"># Poll until the pipeline is active (status code 10).</span>
 <a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
 <a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>        <span class="n">status</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_status</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">)</span>
-<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status:&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"status:"</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
 <a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
 <a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>            <span class="k">break</span>
 <a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>
-<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;info  :&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_info</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">))</span>
-<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;export:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_export</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">))</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"info  :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_info</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">))</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"export:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_export</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">))</span>
 <a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>
 <a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>    <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">remove_pipeline</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">)</span>
 <a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -3785,43 +3841,43 @@ log lines from a target agent to your callback.</p>
 <p>Use the <code>messaging</code> interface directly for actions not wrapped by a helper. This RPC lists the
 regions, exactly like <code>globalcontroller.get_region_list()</code> does internally:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_rpc</span><span class="p">():</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Send an EXEC RPC to the global controller and read the reply dict.&quot;&quot;&quot;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="sd">"""Send an EXEC RPC to the global controller and read the reply dict."""</span>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        <span class="k">return</span>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_controller_msgevent</span><span class="p">(</span>
 <a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="kc">True</span><span class="p">,</span>                        <span class="c1"># is_rpc -&gt; block for the reply</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>        <span class="s2">&quot;EXEC&quot;</span><span class="p">,</span>                      <span class="c1"># MsgEvent type</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>        <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;listregions&quot;</span><span class="p">},</span>   <span class="c1"># payload</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>        <span class="s2">"EXEC"</span><span class="p">,</span>                      <span class="c1"># MsgEvent type</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>        <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"listregions"</span><span class="p">},</span>   <span class="c1"># payload</span>
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="p">)</span>
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reply keys:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"reply keys:"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 <a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
 <a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    <span class="c1"># Fire-and-forget (is_rpc=False) returns None and does not wait.</span>
 <a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_agent_msgevent</span><span class="p">(</span>
-<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>        <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;CONFIG&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;restartframework&quot;</span><span class="p">},</span>
-<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>        <span class="s2">&quot;my-region&quot;</span><span class="p">,</span> <span class="s2">&quot;my-agent&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>        <span class="kc">False</span><span class="p">,</span> <span class="s2">"CONFIG"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"restartframework"</span><span class="p">},</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>        <span class="s2">"my-region"</span><span class="p">,</span> <span class="s2">"my-agent"</span><span class="p">,</span>
 <a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="p">)</span>
 <a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>
 <h3 id="manage-a-plugin-on-an-agent">Manage a plugin on an agent<a class="headerlink" href="#manage-a-plugin-on-an-agent" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_plugin_lifecycle</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">jar_file_path</span><span class="p">):</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Pull + add a plugin to an agent, inspect it, then remove it.&quot;&quot;&quot;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">"""Pull + add a plugin to an agent, inspect it, then remove it."""</span>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        <span class="k">return</span>
 <a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="c1"># Upload the plugin jar to the agent&#39;s repo, then add it as a plugin.</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;repo pull:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">repo_pull_plugin_agent</span><span class="p">(</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="c1"># Upload the plugin jar to the agent's repo, then add it as a plugin.</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"repo pull:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">repo_pull_plugin_agent</span><span class="p">(</span>
 <a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>        <span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">jar_file_path</span><span class="p">))</span>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">configparams</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pluginname&quot;</span><span class="p">:</span> <span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="s2">&quot;jarfile&quot;</span><span class="p">:</span> <span class="n">jar_file_path</span><span class="p">}</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">configparams</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"pluginname"</span><span class="p">:</span> <span class="s2">"example"</span><span class="p">,</span> <span class="s2">"jarfile"</span><span class="p">:</span> <span class="n">jar_file_path</span><span class="p">}</span>
 <a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="n">added</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">add_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">configparams</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">plugin_id</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pluginid&quot;</span><span class="p">)</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;added plugin:&quot;</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">)</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">plugin_id</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pluginid"</span><span class="p">)</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"added plugin:"</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">)</span>
 <a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    <span class="c1"># Inspect the agent&#39;s plugins.</span>
-<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;plugins:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">list_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">))</span>
-<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status :&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">status_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">))</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    <span class="c1"># Inspect the agent's plugins.</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"plugins:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">list_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">))</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"status :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">status_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">))</span>
 <a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>
 <a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">remove_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">)</span>
 <a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -3831,25 +3887,25 @@ regions, exactly like <code>globalcontroller.get_region_list()</code> does inter
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_dataplane</span><span class="p">(</span><span class="n">stream_query</span><span class="p">):</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Open a dataplane, receive via callback, send text + binary + fragmented data.&quot;&quot;&quot;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="sd">"""Open a dataplane, receive via callback, send text + binary + fragmented data."""</span>
 <a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="k">return</span>
 <a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
 <a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dataplane recv:&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"dataplane recv:"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
 <a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
 <a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="n">dp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataplane</span><span class="p">(</span><span class="n">stream_query</span><span class="p">,</span> <span class="n">on_message</span><span class="p">)</span>
 <a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># allow the stream to activate</span>
 <a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>
-<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;hello dataplane&quot;</span><span class="p">)</span>            <span class="c1"># text frame</span>
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_binary</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01\x02\x03</span><span class="s2">&quot;</span><span class="p">)</span>   <span class="c1"># binary frame</span>
-<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_partial</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;part-1&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>     <span class="c1"># append a fragment</span>
-<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_partial</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;part-2&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>      <span class="c1"># flush the fragmented message</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">"hello dataplane"</span><span class="p">)</span>            <span class="c1"># text frame</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_binary</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x01\x02\x03</span><span class="s2">"</span><span class="p">)</span>   <span class="c1"># binary frame</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_partial</span><span class="p">(</span><span class="sa">b</span><span class="s2">"part-1"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>     <span class="c1"># append a fragment</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_partial</span><span class="p">(</span><span class="sa">b</span><span class="s2">"part-2"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>      <span class="c1"># flush the fragmented message</span>
 <a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>
-<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;metrics:&quot;</span><span class="p">,</span> <span class="n">dp</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">())</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"metrics:"</span><span class="p">,</span> <span class="n">dp</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">())</span>
 <a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close_dataplane</span><span class="p">(</span><span class="n">stream_query</span><span class="p">)</span>
 <a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>
@@ -3858,37 +3914,37 @@ regions, exactly like <code>globalcontroller.get_region_list()</code> does inter
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_logstreamer</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">):</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach a log streamer, set the config, raise one base class to Trace.&quot;&quot;&quot;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="sd">"""Attach a log streamer, set the config, raise one base class to Trace."""</span>
 <a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="k">return</span>
 <a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
 <a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;log:&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"log:"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
 <a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
-<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="n">ls</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_logstreamer</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="n">on_message</span><span class="p">)</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="n">ls</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_logstreamer</span><span class="p">(</span><span class="s2">"example"</span><span class="p">,</span> <span class="n">on_message</span><span class="p">)</span>
 <a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
 <a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
-<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">update_config_class</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="s2">&quot;Trace&quot;</span><span class="p">,</span> <span class="s2">&quot;io.cresco.agent&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">update_config_class</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="s2">"Trace"</span><span class="p">,</span> <span class="s2">"io.cresco.agent"</span><span class="p">)</span>
 <a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>
-<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close_logstreamer</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close_logstreamer</span><span class="p">(</span><span class="s2">"example"</span><span class="p">)</span>
 <a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>
 <h3 id="restart-an-agent-guarded">Restart an agent (guarded)<a class="headerlink" href="#restart-an-agent-guarded" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_admin</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">):</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the target controller, then restart its framework (guarded).&quot;&quot;&quot;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="sd">"""Check the target controller, then restart its framework (guarded)."""</span>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
 <a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>        <span class="k">return</span>
 <a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
 <a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">is_controller_active</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">):</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;controller status:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">get_controller_status</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">))</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"controller status:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">get_controller_status</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">))</span>
 <a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>        <span class="n">client</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">restartframework</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
 <a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;controller not active on&quot;</span><span class="p">,</span> <span class="n">dst_region</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"controller not active on"</span><span class="p">,</span> <span class="n">dst_region</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
 <a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
 <a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>

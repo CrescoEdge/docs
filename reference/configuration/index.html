@@ -2512,6 +2512,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../design/health-check-design/" class="md-nav__link">
         
   
@@ -3335,7 +3391,19 @@ subsystems on or off.</p>
 <td><code>broker_bridge_prefetch</code></td>
 <td>int</td>
 <td><code>100</code></td>
-<td>Prefetch limit on each inter-broker bridge connector.</td>
+<td>Prefetch limit on the <strong>control</strong> inter-broker bridge connector.</td>
+</tr>
+<tr>
+<td><code>broker_bridge_prefetch_data</code></td>
+<td>int</td>
+<td><code>10</code></td>
+<td>Prefetch limit on <strong>data</strong> bridge connectors, bounding how much bulk is committed ahead of later traffic on the data socket.</td>
+</tr>
+<tr>
+<td><code>broker_control_bridge_split</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Split each broker bridge group by destination type: connector 0 forwards queues only (the MsgEvent control fabric), connectors 1..N topics only (the data plane). See <a href="../../design/control-dataplane-isolation/">Control/Data Plane Isolation</a>.</td>
 </tr>
 <tr>
 <td><code>broker_bridge_decrease_consumer_priority</code></td>
@@ -3652,10 +3720,28 @@ in several watchers with the same defaults shown.</p>
 <td>Watchdog period (ms) recorded on node records persisted to the controller DB.</td>
 </tr>
 <tr>
+<td><code>watchdog_scan_multiplier</code></td>
+<td>long</td>
+<td><code>3</code></td>
+<td>Multiplier on <code>watchdog_interval</code> setting the node-status scan cadence. Falls back to <code>period_multiplier</code> when unset.</td>
+</tr>
+<tr>
+<td><code>watchdog_stale_multiplier</code></td>
+<td>int</td>
+<td><code>10</code></td>
+<td>Multiplier on a node's <code>watchdog_period</code> setting the staleness threshold. Falls back to <code>period_multiplier</code> when unset.</td>
+</tr>
+<tr>
 <td><code>period_multiplier</code></td>
 <td>int / long</td>
 <td><code>10</code> (int) / <code>3</code> (long)¹</td>
-<td>Multiplier applied to a base period for staleness/interval math. ¹Read as <code>int 10</code> in health watchers and <code>long 3</code> in the DB interface.</td>
+<td><strong>Legacy.</strong> Fallback for the two multipliers above, kept for existing configs. ¹Its two readers historically used different defaults — that ambiguity is why the split keys exist; prefer them.</td>
+</tr>
+<tr>
+<td><code>state_update_full_resend_ticks</code></td>
+<td>int</td>
+<td><code>4</code></td>
+<td>Force a full config export every N state-update ticks, so a lost first export self-heals instead of leaving a node's rows missing at its parent.</td>
 </tr>
 <tr>
 <td><code>retrywait</code></td>
@@ -4200,13 +4286,31 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.</p>
 <td><code>queue_prefetch_limit</code></td>
 <td>int</td>
 <td><code>100</code></td>
-<td>Consumer prefetch size for <strong>queue</strong> consumers.</td>
+<td>Consumer prefetch size for <strong>queue</strong> consumers (the control inboxes).</td>
 </tr>
 <tr>
 <td><code>topic_prefetch_limit</code></td>
 <td>int</td>
 <td><code>100</code></td>
 <td>Consumer prefetch size for <strong>topic</strong> consumers.</td>
+</tr>
+<tr>
+<td><code>controlplane_dedicated_connection</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Give the control-plane sender its own TCP connection, so bulk payload cannot delay it at the wire. Ignored for <code>vm://</code> (in-JVM).</td>
+</tr>
+<tr>
+<td><code>agentconsumer_dedicated_connection</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Give the agent inbox consumer (all inbound control, including RPC replies) its own TCP connection. Ignored for <code>vm://</code>.</td>
+</tr>
+<tr>
+<td><code>dataplane_session_wait_sec</code></td>
+<td>int</td>
+<td><code>30</code></td>
+<td>Bound (s) on waiting for the messaging plane before a data-plane session request returns <code>null</code> instead of blocking its caller.</td>
 </tr>
 <tr>
 <td><code>prefetch_rate_multiplier</code></td>
@@ -4433,7 +4537,8 @@ key that authenticates HTTP-upgrade requests.</p>
 </table>
 <hr />
 <h2 id="stunnel-secure-tcp-tunneling">stunnel (secure TCP tunneling)<a class="headerlink" href="#stunnel-secure-tcp-tunneling" title="Permanent link">&para;</a></h2>
-<p>Socket-tuning knobs for the stunnel plugin's tunnel sockets.</p>
+<p>Socket tuning, health checking, and session/demux bounds for the stunnel plugin. See
+<a href="../../design/stunnel-dataplane-design/">stunnel Data Path Design</a> for how these interact.</p>
 <table>
 <thead>
 <tr>
@@ -4448,7 +4553,7 @@ key that authenticates HTTP-upgrade requests.</p>
 <td><code>stunnel_read_chunk_bytes</code></td>
 <td>int</td>
 <td><code>256 KB</code></td>
-<td>Max bytes per socket read on tunnel sockets.</td>
+<td>Max bytes per socket read on tunnel sockets, and so the max size of one dataplane payload message.</td>
 </tr>
 <tr>
 <td><code>stunnel_socket_buffer_bytes</code></td>
@@ -4461,6 +4566,54 @@ key that authenticates HTTP-upgrade requests.</p>
 <td>int</td>
 <td><code>2 MB</code></td>
 <td>Outbound-buffer high-water mark that triggers backpressure on a tunnel.</td>
+</tr>
+<tr>
+<td><code>stunnel_beacon_ms</code></td>
+<td>long</td>
+<td><code>3000</code></td>
+<td>Interval (ms) of the per-tunnel existence beacon on the <code>stunnel_trace</code> stream.</td>
+</tr>
+<tr>
+<td><code>stunnel_health_check_interval_sec</code></td>
+<td>long</td>
+<td><code>5</code></td>
+<td>Tunnel health-check period (seconds), scheduled as a <strong>fixed delay</strong>.</td>
+</tr>
+<tr>
+<td><code>stunnel_health_failure_threshold</code></td>
+<td>int</td>
+<td><code>3</code></td>
+<td>Consecutive health-check failures before a verification probe and tunnel teardown.</td>
+</tr>
+<tr>
+<td><code>stunnel_health_probe_timeout_ms</code></td>
+<td>long</td>
+<td><code>10000</code></td>
+<td>RPC budget (ms) for a health probe. A per-tunnel <code>watchdog_timeout</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>stunnel_dst_init_timeout_ms</code></td>
+<td>long</td>
+<td><code>10000</code></td>
+<td>RPC budget (ms) for <code>configdstsession</code> when a client connects to a SRC listener.</td>
+</tr>
+<tr>
+<td><code>stunnel_dst_init_max_concurrent</code></td>
+<td>int</td>
+<td><code>64</code></td>
+<td>Concurrent DST session initiations; connects beyond this fail fast rather than parking threads.</td>
+</tr>
+<tr>
+<td><code>stunnel_demux_buffer_max</code></td>
+<td>int</td>
+<td><code>256</code></td>
+<td>Messages buffered per client between <code>expect()</code> and handler registration; overflow fails that session.</td>
+</tr>
+<tr>
+<td><code>stunnel_demux_open_timeout_ms</code></td>
+<td>long</td>
+<td><code>15000</code></td>
+<td>Bound (ms) on opening a tunnel's dataplane consumer, so a wedged dataplane cannot park the plugin message thread.</td>
 </tr>
 </tbody>
 </table>

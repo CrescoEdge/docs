@@ -2330,6 +2330,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../design/health-check-design/" class="md-nav__link">
         
   
@@ -2564,7 +2620,7 @@
 <div class="admonition warning">
 <p class="admonition-title">The <code>bundle:bundle</code> build gotcha</p>
 <p>Each module declares <code>&lt;packaging&gt;jar&lt;/packaging&gt;</code>, but the artifact must be a real OSGi bundle or Felix cannot start it. The <code>maven-bundle-plugin</code> only rewrites the JAR when its goal is invoked <strong>explicitly</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>bundle:bundle<span class="w">      </span><span class="c1"># NOT just &quot;mvn install&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>bundle:bundle<span class="w">      </span><span class="c1"># NOT just "mvn install"</span>
 </code></pre></div>
 <p>A plain <code>mvn package</code>/<code>mvn install</code> produces a non-bundle JAR that the framework rejects. See <a href="../../getting-started/installation/">Installation &amp; Build</a>.</p>
 </div>

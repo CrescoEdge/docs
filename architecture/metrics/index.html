@@ -2319,6 +2319,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../design/health-check-design/" class="md-nav__link">
         
   
@@ -2634,9 +2690,9 @@ per-runner streams use <code>APP</code>.</p>
 </ul>
 <h2 id="the-single-plugin-contract">The single plugin contract<a class="headerlink" href="#the-single-plugin-contract" title="Permanent link">&para;</a></h2>
 <p>Every metric-bearing bundle answers the same EXEC action:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">&quot;getmetrics&quot;</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">&quot;metrics&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">&quot;status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">"getmetrics"</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"metrics"</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"status"</span><span class="p">,</span><span class="w"> </span><span class="s">"10"</span><span class="p">);</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">incoming</span><span class="p">;</span>
 </code></pre></div>
 <p><code>getAllMetrics()</code> returns <code>Map&lt;group, List&lt;row&gt;&gt;</code>. Each <strong>row</strong> is a flat <code>Map&lt;String,String&gt;</code> whose
