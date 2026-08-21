@@ -101,6 +101,8 @@ nav:
       - Broker & Data-Plane Performance: design/broker-performance.md
       - Region Federation: design/region-federation-design.md
       - Network Link Metrics & Auto-Tuning: design/link-metrics-design.md
+      - Control / Data Plane Isolation: design/control-dataplane-isolation.md
+      - stunnel Data Path: design/stunnel-dataplane-design.md
       - Health, State & Inventory: design/health-check-design.md
       - Metrics Unification: design/metrics-unification-design.md
       - Capability Inventory: design/capability-inventory-design.md

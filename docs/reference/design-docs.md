@@ -26,6 +26,8 @@ knowledge lives in one place.
 | [Broker & Data-Plane Performance](../design/broker-performance.md) | every broker/data-path performance change with measured effect and the config lever |
 | [Region Federation](../design/region-federation-design.md) | same-host region federation, identity-vs-IP self-detection |
 | [Network Link Metrics + Auto-Tuning](../design/link-metrics-design.md) | per-edge RTT/jitter/throughput/backlog, the auto-tuner control loop, the link cost model |
+| [Control / Data Plane Isolation](../design/control-dataplane-isolation.md) | why priority alone is not enough, dedicated control sockets, the queue/topic bridge split, prefetch bounds, measured effect |
+| [stunnel Data Path](../design/stunnel-dataplane-design.md) | tunnel vs session lifetimes, the per-tunnel demux, ordering guarantees, bounded waits and failure modes |
 
 ## Health, metrics & capability
 

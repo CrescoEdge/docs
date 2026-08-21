@@ -138,7 +138,9 @@ Core embedded ActiveMQ broker settings — listener, transport, persistence, and
 | `broker_temp_limit` | long | `4 GB` | Maximum disk for broker temporary (spooled) data. |
 | `broker_message_ttl` | int | `5` | Default message time-to-live, **in minutes**; expired messages are discarded. |
 | `broker_bridge_connections` | int | `1` | Number of parallel network-bridge connectors per remote peer broker (spreads load across sockets). |
-| `broker_bridge_prefetch` | int | `100` | Prefetch limit on each inter-broker bridge connector. |
+| `broker_bridge_prefetch` | int | `100` | Prefetch limit on the **control** inter-broker bridge connector. |
+| `broker_bridge_prefetch_data` | int | `10` | Prefetch limit on **data** bridge connectors, bounding how much bulk is committed ahead of later traffic on the data socket. |
+| `broker_control_bridge_split` | boolean | `true` | Split each broker bridge group by destination type: connector 0 forwards queues only (the MsgEvent control fabric), connectors 1..N topics only (the data plane). See [Control/Data Plane Isolation](../design/control-dataplane-isolation.md). |
 | `broker_bridge_decrease_consumer_priority` | boolean | `true` | Decrease a bridged consumer's priority by hop count so ActiveMQ's demand-forwarding prefers the fewest-broker-hop (direct) path. This gives [cost-aware routing](../architecture/dynamic-routing.md) a stable baseline to deliberately override when the direct link is the slow one. |
 | `broker_tls_ready_probe` | boolean | `true` | Probe the broker TLS listener for readiness before proceeding through the boot state machine. |
 | `broker_tls_ready_wait_ms` | long | `15000` | Maximum milliseconds to wait for the TLS listener to become ready when probing. |
@@ -227,7 +229,10 @@ in several watchers with the same defaults shown.
 | `watchdog_interval` | long | `15000` | Base watchdog tick interval (ms) for the state machine and region/global/agent health watchers. |
 | `watchdog_interval_delay` | long | `5000` | Initial delay (ms) before the first watchdog tick. |
 | `watchdog_period` | int | `5000` | Watchdog period (ms) recorded on node records persisted to the controller DB. |
-| `period_multiplier` | int / long | `10` (int) / `3` (long)¹ | Multiplier applied to a base period for staleness/interval math. ¹Read as `int 10` in health watchers and `long 3` in the DB interface. |
+| `watchdog_scan_multiplier` | long | `3` | Multiplier on `watchdog_interval` setting the node-status scan cadence. Falls back to `period_multiplier` when unset. |
+| `watchdog_stale_multiplier` | int | `10` | Multiplier on a node's `watchdog_period` setting the staleness threshold. Falls back to `period_multiplier` when unset. |
+| `period_multiplier` | int / long | `10` (int) / `3` (long)¹ | **Legacy.** Fallback for the two multipliers above, kept for existing configs. ¹Its two readers historically used different defaults — that ambiguity is why the split keys exist; prefer them. |
+| `state_update_full_resend_ticks` | int | `4` | Force a full config export every N state-update ticks, so a lost first export self-heals instead of leaving a node's rows missing at its parent. |
 | `retrywait` | long | `3000` | Milliseconds to wait between state-machine retry attempts. |
 | `agent_ping_interval` | long | `5000` | Milliseconds between agent-liveness pings (agent health watcher). |
 | `agent_ping_timeout` | long | `5000` | Milliseconds to wait for an agent ping response. |
@@ -369,8 +374,11 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `queue_prefetch_limit` | int | `100` | Consumer prefetch size for **queue** consumers. |
+| `queue_prefetch_limit` | int | `100` | Consumer prefetch size for **queue** consumers (the control inboxes). |
 | `topic_prefetch_limit` | int | `100` | Consumer prefetch size for **topic** consumers. |
+| `controlplane_dedicated_connection` | boolean | `true` | Give the control-plane sender its own TCP connection, so bulk payload cannot delay it at the wire. Ignored for `vm://` (in-JVM). |
+| `agentconsumer_dedicated_connection` | boolean | `true` | Give the agent inbox consumer (all inbound control, including RPC replies) its own TCP connection. Ignored for `vm://`. |
+| `dataplane_session_wait_sec` | int | `30` | Bound (s) on waiting for the messaging plane before a data-plane session request returns `null` instead of blocking its caller. |
 | `prefetch_rate_multiplier` | double | `2.5` | Multiplier on prefetch used by the pending-message-limit strategy (controls non-persistent message eviction). |
 | `queue_all_consumers_exclusive` | boolean | `true` | Make all queue consumers exclusive (one active consumer per destination). |
 | `topic_all_consumers_exclusive` | boolean | `true` | Make all topic consumers exclusive by default. |
@@ -434,13 +442,22 @@ key that authenticates HTTP-upgrade requests.
 
 ## stunnel (secure TCP tunneling)
 
-Socket-tuning knobs for the stunnel plugin's tunnel sockets.
+Socket tuning, health checking, and session/demux bounds for the stunnel plugin. See
+[stunnel Data Path Design](../design/stunnel-dataplane-design.md) for how these interact.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stunnel_read_chunk_bytes` | int | `256 KB` | Max bytes per socket read on tunnel sockets. |
+| `stunnel_read_chunk_bytes` | int | `256 KB` | Max bytes per socket read on tunnel sockets, and so the max size of one dataplane payload message. |
 | `stunnel_socket_buffer_bytes` | int | `4 MB` | TCP socket send/receive buffer size for tunnel sockets. |
 | `stunnel_write_high_water_bytes` | int | `2 MB` | Outbound-buffer high-water mark that triggers backpressure on a tunnel. |
+| `stunnel_beacon_ms` | long | `3000` | Interval (ms) of the per-tunnel existence beacon on the `stunnel_trace` stream. |
+| `stunnel_health_check_interval_sec` | long | `5` | Tunnel health-check period (seconds), scheduled as a **fixed delay**. |
+| `stunnel_health_failure_threshold` | int | `3` | Consecutive health-check failures before a verification probe and tunnel teardown. |
+| `stunnel_health_probe_timeout_ms` | long | `10000` | RPC budget (ms) for a health probe. A per-tunnel `watchdog_timeout` overrides it. |
+| `stunnel_dst_init_timeout_ms` | long | `10000` | RPC budget (ms) for `configdstsession` when a client connects to a SRC listener. |
+| `stunnel_dst_init_max_concurrent` | int | `64` | Concurrent DST session initiations; connects beyond this fail fast rather than parking threads. |
+| `stunnel_demux_buffer_max` | int | `256` | Messages buffered per client between `expect()` and handler registration; overflow fails that session. |
+| `stunnel_demux_open_timeout_ms` | long | `15000` | Bound (ms) on opening a tunnel's dataplane consumer, so a wedged dataplane cannot park the plugin message thread. |
 
 ---
 
