@@ -1830,6 +1830,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#secrets-and-fatal-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets and fatal errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#notes-on-defaults" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2943,6 +2954,17 @@
     <span class="md-ellipsis">
       
         stunnel (secure TCP tunneling)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets-and-fatal-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets and fatal errors
       
     </span>
   </a>
@@ -4249,6 +4271,24 @@ traffic across N topics for parallel inter-broker transfer.</p>
 <td>Use a dedicated broker connection per shard instead of multiplexing all shards over one session. Default is <code>true</code> when <code>dataplane_shards &gt; 1</code>, else <code>false</code>.</td>
 </tr>
 <tr>
+<td><code>dataplane_send_lanes</code></td>
+<td>int</td>
+<td><code>4</code></td>
+<td>Extra dedicated connections for <strong>unsharded</strong> data-plane sends, chosen per message by its <code>dp_lane</code> property. Topic names do not change, so agents with different lane counts interoperate; one connection caps an agent's send rate (one TLS writer).</td>
+</tr>
+<tr>
+<td><code>dataplane_shard_check_sec</code></td>
+<td>int</td>
+<td><code>5</code></td>
+<td>Period (s) of the shard-connection check: a shard whose dedicated connection is closed or whose transport failed is rebuilt and its listeners re-attached, even when nothing sends on it (controller#22).</td>
+</tr>
+<tr>
+<td><code>dataplane_stall_sec</code></td>
+<td>int</td>
+<td><code>30</code></td>
+<td>The data-plane health check WARNs when a listener has held queued messages this long without taking one (its consumer stopped draining while the connection still reports healthy). A full queue that keeps draining stays OK.</td>
+</tr>
+<tr>
 <td><code>dataplane_io_buffer_bytes</code></td>
 <td>int</td>
 <td><code>64 KB</code></td>
@@ -4298,13 +4338,25 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.</p>
 <td><code>controlplane_dedicated_connection</code></td>
 <td>boolean</td>
 <td><code>true</code></td>
-<td>Give the control-plane sender its own TCP connection, so bulk payload cannot delay it at the wire. Ignored for <code>vm://</code> (in-JVM).</td>
+<td>Give the control-plane sender its own TCP connection on a network URI, so bulk payload cannot delay it at the wire. For <code>vm://</code> see <code>controlplane_dedicated_vm</code>.</td>
 </tr>
 <tr>
 <td><code>agentconsumer_dedicated_connection</code></td>
 <td>boolean</td>
 <td><code>true</code></td>
-<td>Give the agent inbox consumer (all inbound control, including RPC replies) its own TCP connection. Ignored for <code>vm://</code>.</td>
+<td>Give the agent inbox consumer (all inbound control, including RPC replies) its own TCP connection on a network URI. For <code>vm://</code> see <code>controlplane_dedicated_vm</code>.</td>
+</tr>
+<tr>
+<td><code>controlplane_dedicated_vm</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>On an agent's own broker (<code>vm://</code>, e.g. the global controller), give the control-plane sender and the inbox their own in-JVM connections instead of sharing the data plane's (OUT-81). <code>false</code> restores the shared connection.</td>
+</tr>
+<tr>
+<td><code>controlplane_send_timeout_ms</code></td>
+<td>int</td>
+<td><code>15000</code></td>
+<td>Bound (ms) on a control-plane send over the dedicated connection: a wedged transport fails the send and the connection is rebuilt, instead of holding every sender behind it.</td>
 </tr>
 <tr>
 <td><code>dataplane_session_wait_sec</code></td>
@@ -4386,6 +4438,11 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.</p>
 </tr>
 </tbody>
 </table>
+<p><strong>Recovery of the dedicated control connections (1.3, controller#24/#25).</strong> The inbox consumer and the control-plane
+sender own their sockets, so they recover them: when the inbox's connection fails it is rebuilt off-thread with
+backoff (2 s doubling to 30 s) and resumes draining without an agent restart; a sender whose connection's transport
+died rebuilds it before its next send; and a dead transport is never reported as an active connection, so the
+fault state machine and health checks see it too.</p>
 <hr />
 <h2 id="database-controller-state-store">Database (controller state store)<a class="headerlink" href="#database-controller-state-store" title="Permanent link">&para;</a></h2>
 <p>The embedded controller DB (Derby by default). <code>db_username</code>/<code>db_password</code> have <strong>no
@@ -4429,6 +4486,12 @@ default</strong> (unset = no credentials, appropriate for the embedded Derby dri
 <td>String</td>
 <td><em>unset</em></td>
 <td>DB password. <strong>Unset = none.</strong></td>
+</tr>
+<tr>
+<td><code>db_key_file</code></td>
+<td>String</td>
+<td><em>unset</em></td>
+<td>Encrypt the controller's Derby database at rest (AES, 256-bit) with the key in this file: 64 hex characters (a raw key) or a boot password of at least 16 characters. The file must be a regular file owned by the agent's user, mode <code>0600</code> or <code>0400</code>, in a directory only that user or root can write. A database that exists in plaintext is encrypted in place at the first boot with the key (back it up first). The controller refuses to start if the file fails a check, the key is wrong, or the database is encrypted and no key is configured. <strong>Unset = no encryption</strong> (as before). Losing the key makes the database unrecoverable.</td>
 </tr>
 </tbody>
 </table>
@@ -4614,6 +4677,40 @@ key that authenticates HTTP-upgrade requests.</p>
 <td>long</td>
 <td><code>15000</code></td>
 <td>Bound (ms) on opening a tunnel's dataplane consumer, so a wedged dataplane cannot park the plugin message thread.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="secrets-and-fatal-errors">Secrets and fatal errors<a class="headerlink" href="#secrets-and-fatal-errors" title="Permanent link">&para;</a></h2>
+<p><strong>Secrets from files or the environment.</strong> A secret passed as <code>-D&lt;name&gt;=&lt;value&gt;</code> is visible to every user of the host
+in the process list. For secret parameters (the agent's <code>keystorepwd</code>, <code>truststorepwd</code>, <code>db_password</code>,
+<code>broker_security_secret</code>, <code>discovery_secret_{agent,region,global}</code>, and any plugin parameter whose name marks it as a
+secret, such as <code>wsapi_keystore_password</code> or <code>cresco_service_key</code>) the lookup order is:</p>
+<ol>
+<li><code>&lt;name&gt;_file</code>: the path of a file holding the value, given by <code>-D&lt;name&gt;_file</code>, the environment variable
+   <code>CRESCO_&lt;NAME&gt;_FILE</code>, or the configuration. The file must be owned by the process's user, mode <code>0600</code> or <code>0400</code>,
+   in a directory only that user or root can write; a configured file that fails a check stops the start.</li>
+<li>The environment variable <code>CRESCO_&lt;NAME&gt;</code> (upper case).</li>
+<li>Then, as before, <code>-D&lt;name&gt;</code>, the exact-case environment variable, the configuration.</li>
+</ol>
+<p>When a file or environment value wins, a <code>-D</code> copy is ignored and a warning is logged; values are never logged. A
+plugin that reads its own key files (GaiaKeep's <code>gfs_secret</code>, <code>core_master_key</code>, <code>tape_media_key</code>, <code>gfs_pkcs11_pin</code>)
+keeps its own rules: those names are not resolved this way.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cresco_halt_on_fatal_error</code></td>
+<td>boolean (system property or <code>CRESCO_HALT_ON_FATAL_ERROR</code>)</td>
+<td><code>true</code></td>
+<td>When any thread dies of a <code>VirtualMachineError</code> (an <code>OutOfMemoryError</code>, possibly wrapped), halt the agent JVM with exit status 70 so its supervisor restarts it, instead of leaving a process whose broker threads are gone (controller#23). Also run agents with <code>-XX:+ExitOnOutOfMemoryError</code>, which covers an OOM that code catches and swallows.</td>
 </tr>
 </tbody>
 </table>
