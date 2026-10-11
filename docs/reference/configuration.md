@@ -361,6 +361,9 @@ traffic across N topics for parallel inter-broker transfer.
 | `dataplane_shards` | int | `1` | Number of shard topics the data plane is split into (`1` = unsharded). |
 | `dataplane_shard_topic` | String | `global.event` | Base topic name for shards (e.g. `global.event.0..N-1`). |
 | `dataplane_parallel_connections` | boolean | **computed** (`shards > 1`) | Use a dedicated broker connection per shard instead of multiplexing all shards over one session. Default is `true` when `dataplane_shards > 1`, else `false`. |
+| `dataplane_send_lanes` | int | `4` | Extra dedicated connections for **unsharded** data-plane sends, chosen per message by its `dp_lane` property. Topic names do not change, so agents with different lane counts interoperate; one connection caps an agent's send rate (one TLS writer). |
+| `dataplane_shard_check_sec` | int | `5` | Period (s) of the shard-connection check: a shard whose dedicated connection is closed or whose transport failed is rebuilt and its listeners re-attached, even when nothing sends on it (controller#22). |
+| `dataplane_stall_sec` | int | `30` | The data-plane health check WARNs when a listener has held queued messages this long without taking one (its consumer stopped draining while the connection still reports healthy). A full queue that keeps draining stays OK. |
 | `dataplane_io_buffer_bytes` | int | `64 KB` | I/O buffer size for data-plane message handling (wsapi data-plane path). |
 | `journal_dir` | String | **computed** | Directory for the data-plane producer-worker journal. Default resolves to a path under the working directory / node data location. |
 | `dp-journal_dir` | String | **computed** | Directory for the data-plane service journal (KahaDB). Default resolves under the node data location. |
@@ -376,8 +379,10 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.
 |---|---|---|---|
 | `queue_prefetch_limit` | int | `100` | Consumer prefetch size for **queue** consumers (the control inboxes). |
 | `topic_prefetch_limit` | int | `100` | Consumer prefetch size for **topic** consumers. |
-| `controlplane_dedicated_connection` | boolean | `true` | Give the control-plane sender its own TCP connection, so bulk payload cannot delay it at the wire. Ignored for `vm://` (in-JVM). |
-| `agentconsumer_dedicated_connection` | boolean | `true` | Give the agent inbox consumer (all inbound control, including RPC replies) its own TCP connection. Ignored for `vm://`. |
+| `controlplane_dedicated_connection` | boolean | `true` | Give the control-plane sender its own TCP connection on a network URI, so bulk payload cannot delay it at the wire. For `vm://` see `controlplane_dedicated_vm`. |
+| `agentconsumer_dedicated_connection` | boolean | `true` | Give the agent inbox consumer (all inbound control, including RPC replies) its own TCP connection on a network URI. For `vm://` see `controlplane_dedicated_vm`. |
+| `controlplane_dedicated_vm` | boolean | `true` | On an agent's own broker (`vm://`, e.g. the global controller), give the control-plane sender and the inbox their own in-JVM connections instead of sharing the data plane's (OUT-81). `false` restores the shared connection. |
+| `controlplane_send_timeout_ms` | int | `15000` | Bound (ms) on a control-plane send over the dedicated connection: a wedged transport fails the send and the connection is rebuilt, instead of holding every sender behind it. |
 | `dataplane_session_wait_sec` | int | `30` | Bound (s) on waiting for the messaging plane before a data-plane session request returns `null` instead of blocking its caller. |
 | `prefetch_rate_multiplier` | double | `2.5` | Multiplier on prefetch used by the pending-message-limit strategy (controls non-persistent message eviction). |
 | `queue_all_consumers_exclusive` | boolean | `true` | Make all queue consumers exclusive (one active consumer per destination). |
@@ -391,6 +396,12 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.
 | `agentproducer_initial_retry_delay` | long | `500` | Initial backoff delay (ms) for send retries. |
 | `agentproducer_worker_cleanup_delay` | long | `15000` | Delay (ms) after producer init before the idle-worker cleanup task first runs. |
 | `agentproducer_worker_cleanup_interval` | long | `30000` | Interval (ms) between idle producer-worker cleanup scans. |
+
+**Recovery of the dedicated control connections (1.3, controller#24/#25).** The inbox consumer and the control-plane
+sender own their sockets, so they recover them: when the inbox's connection fails it is rebuilt off-thread with
+backoff (2 s doubling to 30 s) and resumes draining without an agent restart; a sender whose connection's transport
+died rebuilds it before its next send; and a dead transport is never reported as an active connection, so the
+fault state machine and health checks see it too.
 
 ---
 
@@ -406,6 +417,7 @@ default** (unset = no credentials, appropriate for the embedded Derby driver).
 | `db_jdbc` | String | **computed** | JDBC URL. Computed default = `jdbc:derby:<dbPath>;create=true` from the resolved DB path. |
 | `db_username` | String | *unset* | DB username. **Unset = none** (embedded Derby needs no credentials). |
 | `db_password` | String | *unset* | DB password. **Unset = none.** |
+| `db_key_file` | String | *unset* | Encrypt the controller's Derby database at rest (AES, 256-bit) with the key in this file: 64 hex characters (a raw key) or a boot password of at least 16 characters. The file must be a regular file owned by the agent's user, mode `0600` or `0400`, in a directory only that user or root can write. A database that exists in plaintext is encrypted in place at the first boot with the key (back it up first). The controller refuses to start if the file fails a check, the key is wrong, or the database is encrypted and no key is configured. **Unset = no encryption** (as before). Losing the key makes the database unrecoverable. |
 
 ---
 
@@ -458,6 +470,29 @@ Socket tuning, health checking, and session/demux bounds for the stunnel plugin.
 | `stunnel_dst_init_max_concurrent` | int | `64` | Concurrent DST session initiations; connects beyond this fail fast rather than parking threads. |
 | `stunnel_demux_buffer_max` | int | `256` | Messages buffered per client between `expect()` and handler registration; overflow fails that session. |
 | `stunnel_demux_open_timeout_ms` | long | `15000` | Bound (ms) on opening a tunnel's dataplane consumer, so a wedged dataplane cannot park the plugin message thread. |
+
+---
+
+## Secrets and fatal errors
+
+**Secrets from files or the environment.** A secret passed as `-D<name>=<value>` is visible to every user of the host
+in the process list. For secret parameters (the agent's `keystorepwd`, `truststorepwd`, `db_password`,
+`broker_security_secret`, `discovery_secret_{agent,region,global}`, and any plugin parameter whose name marks it as a
+secret, such as `wsapi_keystore_password` or `cresco_service_key`) the lookup order is:
+
+1. `<name>_file`: the path of a file holding the value, given by `-D<name>_file`, the environment variable
+   `CRESCO_<NAME>_FILE`, or the configuration. The file must be owned by the process's user, mode `0600` or `0400`,
+   in a directory only that user or root can write; a configured file that fails a check stops the start.
+2. The environment variable `CRESCO_<NAME>` (upper case).
+3. Then, as before, `-D<name>`, the exact-case environment variable, the configuration.
+
+When a file or environment value wins, a `-D` copy is ignored and a warning is logged; values are never logged. A
+plugin that reads its own key files (GaiaKeep's `gfs_secret`, `core_master_key`, `tape_media_key`, `gfs_pkcs11_pin`)
+keeps its own rules: those names are not resolved this way.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `cresco_halt_on_fatal_error` | boolean (system property or `CRESCO_HALT_ON_FATAL_ERROR`) | `true` | When any thread dies of a `VirtualMachineError` (an `OutOfMemoryError`, possibly wrapped), halt the agent JVM with exit status 70 so its supervisor restarts it, instead of leaving a process whose broker threads are gone (controller#23). Also run agents with `-XX:+ExitOnOutOfMemoryError`, which covers an OOM that code catches and swallows. |
 
 ---
 
