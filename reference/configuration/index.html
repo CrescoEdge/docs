@@ -4438,11 +4438,13 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Recovery of the dedicated control connections (1.3, controller#24/#25).</strong> The inbox consumer and the control-plane
+<p><strong>Recovery of the dedicated control connections (1.3, controller#24/#25/#26).</strong> The inbox consumer and the control-plane
 sender own their sockets, so they recover them: when the inbox's connection fails it is rebuilt off-thread with
 backoff (2 s doubling to 30 s) and resumes draining without an agent restart; a sender whose connection's transport
 died rebuilds it before its next send; and a dead transport is never reported as an active connection, so the
-fault state machine and health checks see it too.</p>
+fault state machine and health checks see it too. Only a deliberate shutdown closes a sender for good: a re-init of
+the parent link swaps in the new producer before closing the old one, and an attempt whose inbox or producer did not
+come up fails and is retried rather than leaving the agent connected but unable to answer.</p>
 <hr />
 <h2 id="database-controller-state-store">Database (controller state store)<a class="headerlink" href="#database-controller-state-store" title="Permanent link">&para;</a></h2>
 <p>The embedded controller DB (Derby by default). <code>db_username</code>/<code>db_password</code> have <strong>no
