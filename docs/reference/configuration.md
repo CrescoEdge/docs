@@ -397,11 +397,13 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.
 | `agentproducer_worker_cleanup_delay` | long | `15000` | Delay (ms) after producer init before the idle-worker cleanup task first runs. |
 | `agentproducer_worker_cleanup_interval` | long | `30000` | Interval (ms) between idle producer-worker cleanup scans. |
 
-**Recovery of the dedicated control connections (1.3, controller#24/#25).** The inbox consumer and the control-plane
+**Recovery of the dedicated control connections (1.3, controller#24/#25/#26).** The inbox consumer and the control-plane
 sender own their sockets, so they recover them: when the inbox's connection fails it is rebuilt off-thread with
 backoff (2 s doubling to 30 s) and resumes draining without an agent restart; a sender whose connection's transport
 died rebuilds it before its next send; and a dead transport is never reported as an active connection, so the
-fault state machine and health checks see it too.
+fault state machine and health checks see it too. Only a deliberate shutdown closes a sender for good: a re-init of
+the parent link swaps in the new producer before closing the old one, and an attempt whose inbox or producer did not
+come up fails and is retried rather than leaving the agent connected but unable to answer.
 
 ---
 
