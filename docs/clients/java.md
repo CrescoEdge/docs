@@ -100,8 +100,9 @@ closed and enumerated centrally.
 
 ## Submodule handles
 
-A connected client exposes five submodule fields — `api`, `admin`, `agents`,
-`globalcontroller`, and `messaging` — documented below.
+A connected client exposes six submodule fields — `api`, `admin`, `agents`,
+`globalcontroller`, `messaging`, and `stunnel` — documented below. Every public
+class and method also carries Javadoc (see [API reference (Javadoc)](#api-reference-javadoc)).
 
 ### `api`
 
@@ -214,15 +215,53 @@ See [MsgEvent](../api/msgevent.md) for the envelope structure and routing, and
 [Plugin Actions](../api/plugin-actions.md) for the action names available in
 `message_payload`.
 
+### `stunnel`
+
+Secure TCP tunnels through the [stunnel plugin](../plugins/stunnel.md), managed
+entirely from the client: no CADL pipeline and no hand-built `configsrctunnel`
+messages. A tunnel listens on `src_port` at the source agent and forwards every
+accepted connection over the data plane to `dst_host:dst_port` as seen from the
+destination agent. Plugin ids are resolved by name; every method with a trailing
+`plugin_id` argument also accepts `null` to resolve it.
+
+| Method | Plugin action | Description |
+|---|---|---|
+| `String find_plugin(region, agent)` | — | The `io.cresco.stunnel` plugin id on an agent, or `null`. |
+| `String deploy_plugin(region, agent)` / `deploy_plugin(region, agent, jar_file_path)` | `pluginadd` (+ `pluginupload`) | Ensure the plugin runs on an agent: no-op if loaded, else start the copy embedded in the agent (or upload and start a local jar). Returns the plugin id. |
+| `Map<String,String> create_tunnel(stunnel_id, src_region, src_agent, src_port, dst_region, dst_agent, dst_host, dst_port, buffer_size)` | CONFIG `configsrctunnel` | Create a tunnel. Overloads add `src_plugin_id, dst_plugin_id` and then `watchdog_timeout, performance_report_rate` (ms). A `null` id generates a UUID. Returns the resolved tunnel config on success, the plugin reply (`status`, `status_desc`) on failure. |
+| `List<Map<String,String>> get_tunnel_list(region, agent)` | EXEC `listtunnels` | `[{stunnel_id, status}]` for the tunnels on an agent. |
+| `String get_tunnel_status(region, agent, stunnel_id)` | EXEC `gettunnelstatus` | `ACTIVE`, `RECOVERING`, `DOWN` or `UNKNOWN`; `null` if not configured there. |
+| `Map<String,String> get_tunnel_config(region, agent, stunnel_id)` | EXEC `gettunnelconfig` | The persisted tunnel config. |
+| `boolean tunnel_health_check(region, agent, stunnel_id)` | EXEC `tunnelhealthcheck` | Whether the tunnel is configured on that agent. |
+| `Map<String,Object> get_metrics(region, agent)` | EXEC `getmetrics` | The plugin's live metrics. |
+| `Map<String,String> set_net_tuning(region, agent, tuning)` | CONFIG `nettuning` | Plugin-wide socket tuning: `net_socket_buffer_bytes`, `net_read_chunk_bytes`, `net_write_high_water_bytes`, `net_fc_window_bytes`, `net_trace_sample_n`. |
+| `Map<String,Object> remove_tunnel(stunnel_id, src_region, src_agent, dst_region, dst_agent)` | `removesrctunnel` + `removedsttunnel` | Remove both ends; returns `{stunnel_id, src_removal, dst_removal, fully_removed}`. |
+| `remove_src_tunnel(region, agent, stunnel_id)` / `remove_dst_tunnel(region, agent, stunnel_id)` | CONFIG `removesrctunnel` / `removedsttunnel` | Remove one end (removing the source also cascades to the destination). |
+
+Plugin replies carry `status` `"10"` (success), `"9"` (failure / not found),
+`"400"` (bad request) or `"500"` (internal error), plus `status_desc`.
+
 ### Data plane — `DataPlaneInterface`
 
 Returned by `client.get_dataplane(...)`. A data plane is its own WebSocket
-connection (`/api/dataplane`); it sends its stream query on connect and delivers
+connection (`/api/dataplane`); it sends its stream handshake on connect and delivers
 received messages to the supplied `OnMessageCallback`.
+
+The handshake (the `stream_name` argument) is either:
+
+- a **JSON stream config** such as
+  `{"ident_key":"stream_name","ident_id":"demo","io_type_key":"type","input_id":"in"}` —
+  the stream receives messages whose `ident_key` property equals `ident_id`, and
+  messages it sends are tagged with those properties; or
+- a **selector** such as `stream_name='demo'` (`ident = 'value'` terms joined by
+  `AND`, at least one equality) — receive only.
+
+`wsapi` refuses selectors that could match other streams (`OR`, `IS NULL`, ...)
+and closes the socket.
 
 | Method | Signature | Description |
 |---|---|---|
-| `send` | `void send(String message)` | Send a text message. |
+| `send` | `void send(String message)` | Send a text message (needs a JSON stream config handshake). |
 | `send` / `send_binary` | `void send(ByteBuffer buf)` / `void send_binary(ByteBuffer buf)` | Send a binary message. |
 | `send_binary_file` | `void send_binary_file(String file_path)` | Read a file and send it as a binary message. |
 | `send_partial` | `void send_partial(ByteBuffer buf, boolean complete)` | Send a payload as a fragmented message (flushed when `complete` is `true`). |
@@ -262,8 +301,17 @@ public interface OnMessageCallback {
 ## Worked examples
 
 The following examples are drawn from
-`example/standard/StandardExamples.java`. Each has a byte-for-byte counterpart in
-the Python client's `standard_examples.py`.
+`example/standard/StandardExamples.java`; the connect, pipeline, plugin, data
+plane, log and admin examples have byte-for-byte counterparts in the Python
+client's `standard_examples.py`. Run one with
+
+```bash
+export CRESCO_HOST=localhost CRESCO_PORT=8282 CRESCO_SERVICE_KEY=...
+java -cp target/clientlib-1.3-SNAPSHOT.jar example.standard.StandardExamples connect
+# others: pipeline | plugin_lifecycle <region> <agent> <jar> | dataplane <stream> |
+#         logstreamer <region> <agent> | admin <region> <agent> | messaging <region> <agent> |
+#         stunnel <region> <agent> <src_port> <dst_host> <dst_port>
+```
 
 ### Connect and list the mesh
 
@@ -391,6 +439,8 @@ OnMessageCallback onMessage = new OnMessageCallback() {
     }
 };
 
+String streamQuery =
+    "{\"ident_key\":\"stream_name\",\"ident_id\":\"demo\",\"io_type_key\":\"type\",\"input_id\":\"in\"}";
 DataPlaneInterface dp = client.get_dataplane(streamQuery, onMessage);
 dp.connect();
 Thread.sleep(2000);
@@ -406,8 +456,9 @@ Thread.sleep(2000);
 client.close_dataplane(streamQuery);
 ```
 
-The `stream_query` selects which data-plane traffic the stream carries; it is
-also the registry key used by `close_dataplane` / `get_active_dataplanes`. See
+The handshake selects which data-plane traffic the stream carries (here, every
+message tagged `stream_name=demo`, including this stream's own); it is also the
+registry key used by `close_dataplane` / `get_active_dataplanes`. See
 the [Data Plane architecture](../architecture/dataplane.md) for the query model.
 
 ### Stream logs
@@ -439,6 +490,36 @@ Thread.sleep(5000);
 client.close_logstreamer("example");
 ```
 
+### Build a tunnel (no CADL)
+
+```java
+// 1. Make sure the stunnel plugin runs on both ends.
+client.stunnel.deploy_plugin("global-region", "agent-a");
+client.stunnel.deploy_plugin("global-region", "agent-b");
+
+// 2. Listen on agent-a:2222, forward to localhost:22 as seen from agent-b.
+Map<String, String> config = client.stunnel.create_tunnel("ssh",
+        "global-region", "agent-a", "2222",
+        "global-region", "agent-b", "localhost", "22", "65536");
+
+// 3. Inspect it.
+client.stunnel.get_tunnel_status("global-region", "agent-a", "ssh");  // ACTIVE
+client.stunnel.get_tunnel_list("global-region", "agent-a");           // [{stunnel_id=ssh, status=ACTIVE}]
+client.stunnel.get_tunnel_config("global-region", "agent-a", "ssh");
+
+// 4. Remove both ends.
+client.stunnel.remove_tunnel("ssh", "global-region", "agent-a", "global-region", "agent-b");
+```
+
+`example.Launcher` runs the same flow for a list of tunnels read from a JSON
+config file (copy `config.example.json` to `config.json`, which is git-ignored,
+and set `service_key`); with `"echo_test": true` it also pushes bytes through
+each tunnel and checks they come back:
+
+```bash
+java -cp target/clientlib-1.3-SNAPSHOT.jar example.Launcher config.json
+```
+
 ### Node administration
 
 ```java
@@ -451,6 +532,20 @@ if (client.agents.is_controller_active(dst_region, dst_agent)) {
     client.admin.restartframework(dst_region, dst_agent);
 }
 ```
+
+## API reference (Javadoc)
+
+Every public class and method in `crescoclient` is documented with Javadoc
+(parameters, return values, the wire action each call sends). To build the HTML
+reference from a checkout:
+
+```bash
+mvn -q dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+javadoc -d target/apidocs -sourcepath src/main/java -subpackages crescoclient -cp "$(cat target/cp.txt)"
+```
+
+The repository README has the same usage guide in condensed form:
+[CrescoEdge/clientlib](https://github.com/CrescoEdge/clientlib/tree/1.3#usage-guide).
 
 ## Testing and parity
 

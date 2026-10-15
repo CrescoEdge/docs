@@ -34,6 +34,14 @@ every wait are covered in [stunnel Data Path Design](../design/stunnel-dataplane
 | `PerformanceMonitor` | Per-direction throughput meter (Micrometer `DistributionSummary`); periodically publishes a throughput record (tagged `cresco_msg_type="stunnel_trace"`) carrying `bits_per_second`, the observed broker **hop path** (`setHops`, from the arriving `cresco_hops` property), and the src/dst region/agent endpoints. |
 | `SocketControllerSM` | UMPLE-generated tunnel state machine (only its initial `pluginActive` state is read). |
 
+## Managing tunnels from a client
+
+The [Java client](../clients/java.md#stunnel) wraps these actions: `deploy_plugin`,
+`create_tunnel`, `get_tunnel_list`, `get_tunnel_status`, `get_tunnel_config`,
+`tunnel_health_check`, `get_metrics`, `set_net_tuning` and `remove_tunnel` — no
+CADL pipeline needed. The [Python client](../clients/python.md) has the same
+core calls on its `stunnel` submodule.
+
 ## Executor actions
 
 CONFIG actions ([`MsgEvent`](../api/msgevent.md) type `CONFIG`):
