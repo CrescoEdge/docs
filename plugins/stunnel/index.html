@@ -1421,6 +1421,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#managing-tunnels-from-a-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing tunnels from a client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#executor-actions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2585,6 +2596,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#managing-tunnels-from-a-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing tunnels from a client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#executor-actions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2749,6 +2771,12 @@ every wait are covered in <a href="../../design/stunnel-dataplane-design/">stunn
 </tr>
 </tbody>
 </table>
+<h2 id="managing-tunnels-from-a-client">Managing tunnels from a client<a class="headerlink" href="#managing-tunnels-from-a-client" title="Permanent link">&para;</a></h2>
+<p>The <a href="../../clients/java/#stunnel">Java client</a> wraps these actions: <code>deploy_plugin</code>,
+<code>create_tunnel</code>, <code>get_tunnel_list</code>, <code>get_tunnel_status</code>, <code>get_tunnel_config</code>,
+<code>tunnel_health_check</code>, <code>get_metrics</code>, <code>set_net_tuning</code> and <code>remove_tunnel</code> — no
+CADL pipeline needed. The <a href="../../clients/python/">Python client</a> has the same
+core calls on its <code>stunnel</code> submodule.</p>
 <h2 id="executor-actions">Executor actions<a class="headerlink" href="#executor-actions" title="Permanent link">&para;</a></h2>
 <p>CONFIG actions (<a href="../../api/msgevent/"><code>MsgEvent</code></a> type <code>CONFIG</code>):</p>
 <table>

@@ -1847,6 +1847,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#stunnel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stunnel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#data-plane-dataplaneinterface" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1963,6 +1974,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#build-a-tunnel-no-cadl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build a tunnel (no CADL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#node-administration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1975,6 +1997,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference-javadoc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API reference (Javadoc)
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2886,6 +2919,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#stunnel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stunnel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#data-plane-dataplaneinterface" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3002,6 +3046,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#build-a-tunnel-no-cadl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build a tunnel (no CADL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#node-administration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3014,6 +3069,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference-javadoc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API reference (Javadoc)
+      
+    </span>
+  </a>
   
 </li>
       
@@ -3199,8 +3265,9 @@ closed and enumerated centrally.</p>
 </tbody>
 </table>
 <h2 id="submodule-handles">Submodule handles<a class="headerlink" href="#submodule-handles" title="Permanent link">&para;</a></h2>
-<p>A connected client exposes five submodule fields — <code>api</code>, <code>admin</code>, <code>agents</code>,
-<code>globalcontroller</code>, and <code>messaging</code> — documented below.</p>
+<p>A connected client exposes six submodule fields — <code>api</code>, <code>admin</code>, <code>agents</code>,
+<code>globalcontroller</code>, <code>messaging</code>, and <code>stunnel</code> — documented below. Every public
+class and method also carries Javadoc (see <a href="#api-reference-javadoc">API reference (Javadoc)</a>).</p>
 <h3 id="api"><code>api</code><a class="headerlink" href="#api" title="Permanent link">&para;</a></h3>
 <p>Identity lookups for the local <code>wsapi</code> host and the global controller. Local
 identity is read from the negotiated TLS peer certificate; global identity is
@@ -3524,10 +3591,96 @@ large parameters into the envelope: <code>setCompressedParam</code> / <code>getC
 <p>See <a href="../../api/msgevent/">MsgEvent</a> for the envelope structure and routing, and
 <a href="../../api/plugin-actions/">Plugin Actions</a> for the action names available in
 <code>message_payload</code>.</p>
+<h3 id="stunnel"><code>stunnel</code><a class="headerlink" href="#stunnel" title="Permanent link">&para;</a></h3>
+<p>Secure TCP tunnels through the <a href="../../plugins/stunnel/">stunnel plugin</a>, managed
+entirely from the client: no CADL pipeline and no hand-built <code>configsrctunnel</code>
+messages. A tunnel listens on <code>src_port</code> at the source agent and forwards every
+accepted connection over the data plane to <code>dst_host:dst_port</code> as seen from the
+destination agent. Plugin ids are resolved by name; every method with a trailing
+<code>plugin_id</code> argument also accepts <code>null</code> to resolve it.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Plugin action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>String find_plugin(region, agent)</code></td>
+<td>—</td>
+<td>The <code>io.cresco.stunnel</code> plugin id on an agent, or <code>null</code>.</td>
+</tr>
+<tr>
+<td><code>String deploy_plugin(region, agent)</code> / <code>deploy_plugin(region, agent, jar_file_path)</code></td>
+<td><code>pluginadd</code> (+ <code>pluginupload</code>)</td>
+<td>Ensure the plugin runs on an agent: no-op if loaded, else start the copy embedded in the agent (or upload and start a local jar). Returns the plugin id.</td>
+</tr>
+<tr>
+<td><code>Map&lt;String,String&gt; create_tunnel(stunnel_id, src_region, src_agent, src_port, dst_region, dst_agent, dst_host, dst_port, buffer_size)</code></td>
+<td>CONFIG <code>configsrctunnel</code></td>
+<td>Create a tunnel. Overloads add <code>src_plugin_id, dst_plugin_id</code> and then <code>watchdog_timeout, performance_report_rate</code> (ms). A <code>null</code> id generates a UUID. Returns the resolved tunnel config on success, the plugin reply (<code>status</code>, <code>status_desc</code>) on failure.</td>
+</tr>
+<tr>
+<td><code>List&lt;Map&lt;String,String&gt;&gt; get_tunnel_list(region, agent)</code></td>
+<td>EXEC <code>listtunnels</code></td>
+<td><code>[{stunnel_id, status}]</code> for the tunnels on an agent.</td>
+</tr>
+<tr>
+<td><code>String get_tunnel_status(region, agent, stunnel_id)</code></td>
+<td>EXEC <code>gettunnelstatus</code></td>
+<td><code>ACTIVE</code>, <code>RECOVERING</code>, <code>DOWN</code> or <code>UNKNOWN</code>; <code>null</code> if not configured there.</td>
+</tr>
+<tr>
+<td><code>Map&lt;String,String&gt; get_tunnel_config(region, agent, stunnel_id)</code></td>
+<td>EXEC <code>gettunnelconfig</code></td>
+<td>The persisted tunnel config.</td>
+</tr>
+<tr>
+<td><code>boolean tunnel_health_check(region, agent, stunnel_id)</code></td>
+<td>EXEC <code>tunnelhealthcheck</code></td>
+<td>Whether the tunnel is configured on that agent.</td>
+</tr>
+<tr>
+<td><code>Map&lt;String,Object&gt; get_metrics(region, agent)</code></td>
+<td>EXEC <code>getmetrics</code></td>
+<td>The plugin's live metrics.</td>
+</tr>
+<tr>
+<td><code>Map&lt;String,String&gt; set_net_tuning(region, agent, tuning)</code></td>
+<td>CONFIG <code>nettuning</code></td>
+<td>Plugin-wide socket tuning: <code>net_socket_buffer_bytes</code>, <code>net_read_chunk_bytes</code>, <code>net_write_high_water_bytes</code>, <code>net_fc_window_bytes</code>, <code>net_trace_sample_n</code>.</td>
+</tr>
+<tr>
+<td><code>Map&lt;String,Object&gt; remove_tunnel(stunnel_id, src_region, src_agent, dst_region, dst_agent)</code></td>
+<td><code>removesrctunnel</code> + <code>removedsttunnel</code></td>
+<td>Remove both ends; returns <code>{stunnel_id, src_removal, dst_removal, fully_removed}</code>.</td>
+</tr>
+<tr>
+<td><code>remove_src_tunnel(region, agent, stunnel_id)</code> / <code>remove_dst_tunnel(region, agent, stunnel_id)</code></td>
+<td>CONFIG <code>removesrctunnel</code> / <code>removedsttunnel</code></td>
+<td>Remove one end (removing the source also cascades to the destination).</td>
+</tr>
+</tbody>
+</table>
+<p>Plugin replies carry <code>status</code> <code>"10"</code> (success), <code>"9"</code> (failure / not found),
+<code>"400"</code> (bad request) or <code>"500"</code> (internal error), plus <code>status_desc</code>.</p>
 <h3 id="data-plane-dataplaneinterface">Data plane — <code>DataPlaneInterface</code><a class="headerlink" href="#data-plane-dataplaneinterface" title="Permanent link">&para;</a></h3>
 <p>Returned by <code>client.get_dataplane(...)</code>. A data plane is its own WebSocket
-connection (<code>/api/dataplane</code>); it sends its stream query on connect and delivers
+connection (<code>/api/dataplane</code>); it sends its stream handshake on connect and delivers
 received messages to the supplied <code>OnMessageCallback</code>.</p>
+<p>The handshake (the <code>stream_name</code> argument) is either:</p>
+<ul>
+<li>a <strong>JSON stream config</strong> such as
+  <code>{"ident_key":"stream_name","ident_id":"demo","io_type_key":"type","input_id":"in"}</code> —
+  the stream receives messages whose <code>ident_key</code> property equals <code>ident_id</code>, and
+  messages it sends are tagged with those properties; or</li>
+<li>a <strong>selector</strong> such as <code>stream_name='demo'</code> (<code>ident = 'value'</code> terms joined by
+  <code>AND</code>, at least one equality) — receive only.</li>
+</ul>
+<p><code>wsapi</code> refuses selectors that could match other streams (<code>OR</code>, <code>IS NULL</code>, ...)
+and closes the socket.</p>
 <table>
 <thead>
 <tr>
@@ -3540,7 +3693,7 @@ received messages to the supplied <code>OnMessageCallback</code>.</p>
 <tr>
 <td><code>send</code></td>
 <td><code>void send(String message)</code></td>
-<td>Send a text message.</td>
+<td>Send a text message (needs a JSON stream config handshake).</td>
 </tr>
 <tr>
 <td><code>send</code> / <code>send_binary</code></td>
@@ -3639,177 +3792,220 @@ interface:</p>
 </code></pre></div>
 <h2 id="worked-examples">Worked examples<a class="headerlink" href="#worked-examples" title="Permanent link">&para;</a></h2>
 <p>The following examples are drawn from
-<code>example/standard/StandardExamples.java</code>. Each has a byte-for-byte counterpart in
-the Python client's <code>standard_examples.py</code>.</p>
+<code>example/standard/StandardExamples.java</code>; the connect, pipeline, plugin, data
+plane, log and admin examples have byte-for-byte counterparts in the Python
+client's <code>standard_examples.py</code>. Run one with</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CRESCO_HOST</span><span class="o">=</span>localhost<span class="w"> </span><span class="nv">CRESCO_PORT</span><span class="o">=</span><span class="m">8282</span><span class="w"> </span><span class="nv">CRESCO_SERVICE_KEY</span><span class="o">=</span>...
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>java<span class="w"> </span>-cp<span class="w"> </span>target/clientlib-1.3-SNAPSHOT.jar<span class="w"> </span>example.standard.StandardExamples<span class="w"> </span>connect
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># others: pipeline | plugin_lifecycle &lt;region&gt; &lt;agent&gt; &lt;jar&gt; | dataplane &lt;stream&gt; |</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">#         logstreamer &lt;region&gt; &lt;agent&gt; | admin &lt;region&gt; &lt;agent&gt; | messaging &lt;region&gt; &lt;agent&gt; |</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1">#         stunnel &lt;region&gt; &lt;agent&gt; &lt;src_port&gt; &lt;dst_host&gt; &lt;dst_port&gt;</span>
+</code></pre></div>
 <h3 id="connect-and-list-the-mesh">Connect and list the mesh<a class="headerlink" href="#connect-and-list-the-mesh" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.CrescoClient</span><span class="p">;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">CrescoClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CrescoClient</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">,</span><span class="w"> </span><span class="mi">8282</span><span class="p">,</span><span class="w"> </span><span class="s">"a-service-key"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="na">connect</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Failed to connect"</span><span class="p">);</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1">// API identity of the agent hosting wsapi.</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_region_name</span><span class="p">());</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_agent_name</span><span class="p">());</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"plugin: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_plugin_name</span><span class="p">());</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1">// Global controller identity.</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_region</span><span class="p">());</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_agent</span><span class="p">());</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="c1">// List regions and agents.</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"regions: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_region_list</span><span class="p">());</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agents : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_agent_list</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="n">client</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.CrescoClient</span><span class="p">;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">CrescoClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CrescoClient</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">,</span><span class="w"> </span><span class="mi">8282</span><span class="p">,</span><span class="w"> </span><span class="s">"a-service-key"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="na">connect</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Failed to connect"</span><span class="p">);</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1">// API identity of the agent hosting wsapi.</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_region_name</span><span class="p">());</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_agent_name</span><span class="p">());</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"plugin: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_plugin_name</span><span class="p">());</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1">// Global controller identity.</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_region</span><span class="p">());</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_agent</span><span class="p">());</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="c1">// List regions and agents.</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"regions: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_region_list</span><span class="p">());</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agents : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_agent_list</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">client</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
 </code></pre></div>
 <h3 id="submit-a-pipeline-and-poll-its-status">Submit a pipeline and poll its status<a class="headerlink" href="#submit-a-pipeline-and-poll-its-status" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">// 1. Define a minimal CADL pipeline.</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cadl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">cadl</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"pipeline_id"</span><span class="p">,</span><span class="w"> </span><span class="s">"0"</span><span class="p">);</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">cadl</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"pipeline_name"</span><span class="p">,</span><span class="w"> </span><span class="s">"example-pipeline"</span><span class="p">);</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1">// 2. Submit for tenant 0.</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">submit_pipeline</span><span class="p">(</span><span class="n">cadl</span><span class="p">,</span><span class="w"> </span><span class="s">"0"</span><span class="p">);</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">String</span><span class="w"> </span><span class="n">pipeline_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reply</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"gpipeline_id"</span><span class="p">);</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"submitted pipeline: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">pipeline_id</span><span class="p">);</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1">// 3. Poll until the pipeline is active (status code 10).</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_pipeline_status</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">);</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="p">}</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="c1">// 4. Fetch info and an export, then remove it.</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"info  : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_pipeline_info</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">));</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"export: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_pipeline_export</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">));</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">remove_pipeline</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">);</span>
-</code></pre></div>
-<h3 id="plugin-lifecycle-on-an-agent">Plugin lifecycle on an agent<a class="headerlink" href="#plugin-lifecycle-on-an-agent" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// 1. Pull the jar into the agent repo, then add it as a plugin.</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">repo_pull_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">jar_file_path</span><span class="p">);</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">configparams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">configparams</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"pluginname"</span><span class="p">,</span><span class="w"> </span><span class="s">"example"</span><span class="p">);</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">configparams</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"jarfile"</span><span class="p">,</span><span class="w"> </span><span class="n">jar_file_path</span><span class="p">);</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">added</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">add_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">configparams</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="n">String</span><span class="w"> </span><span class="n">plugin_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">added</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"pluginid"</span><span class="p">);</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// 1. Define a minimal CADL pipeline.</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cadl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">cadl</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"pipeline_id"</span><span class="p">,</span><span class="w"> </span><span class="s">"0"</span><span class="p">);</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">cadl</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"pipeline_name"</span><span class="p">,</span><span class="w"> </span><span class="s">"example-pipeline"</span><span class="p">);</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1">// 2. Submit for tenant 0.</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">submit_pipeline</span><span class="p">(</span><span class="n">cadl</span><span class="p">,</span><span class="w"> </span><span class="s">"0"</span><span class="p">);</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">String</span><span class="w"> </span><span class="n">pipeline_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reply</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"gpipeline_id"</span><span class="p">);</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"submitted pipeline: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">pipeline_id</span><span class="p">);</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1">// 2. List and check status.</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"plugins: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">list_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">));</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"status : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">status_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">plugin_id</span><span class="p">));</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="c1">// 3. Remove it.</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">remove_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">plugin_id</span><span class="p">);</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1">// 3. Poll until the pipeline is active (status code 10).</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_pipeline_status</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">);</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">}</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="c1">// 4. Fetch info and an export, then remove it.</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"info  : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_pipeline_info</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">));</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"export: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_pipeline_export</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">));</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">remove_pipeline</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="plugin-lifecycle-on-an-agent">Plugin lifecycle on an agent<a class="headerlink" href="#plugin-lifecycle-on-an-agent" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1">// 1. Pull the jar into the agent repo, then add it as a plugin.</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">repo_pull_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">jar_file_path</span><span class="p">);</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">configparams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">configparams</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"pluginname"</span><span class="p">,</span><span class="w"> </span><span class="s">"example"</span><span class="p">);</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">configparams</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"jarfile"</span><span class="p">,</span><span class="w"> </span><span class="n">jar_file_path</span><span class="p">);</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">added</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">add_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">configparams</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">String</span><span class="w"> </span><span class="n">plugin_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">added</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"pluginid"</span><span class="p">);</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="c1">// 2. List and check status.</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"plugins: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">list_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">));</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"status : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">status_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">plugin_id</span><span class="p">));</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="c1">// 3. Remove it.</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">remove_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="n">plugin_id</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="send-a-msgevent-rpc">Send a MsgEvent RPC<a class="headerlink" href="#send-a-msgevent-rpc" title="Permanent link">&para;</a></h3>
 <p>Every submodule call is ultimately a <code>messaging</code> call. To invoke a plugin action
 directly, build the payload and issue an RPC. This mirrors how <code>api</code> resolves the
 global controller location:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">payload</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"action"</span><span class="p">,</span><span class="w"> </span><span class="s">"globalinfo"</span><span class="p">);</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1">// Blocking RPC to the local wsapi plugin; returns the reply map.</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">messaging</span><span class="p">.</span><span class="na">plugin_msgevent</span><span class="p">(</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="kc">true</span><span class="p">,</span><span class="w">                                 </span><span class="c1">// is_rpc</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="s">"EXEC"</span><span class="p">,</span><span class="w">                               </span><span class="c1">// message_event_type</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">        </span><span class="n">payload</span><span class="p">,</span><span class="w">                              </span><span class="c1">// message_payload</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_plugin_name</span><span class="p">());</span><span class="w">    </span><span class="c1">// dst_plugin</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global_region="</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">reply</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"global_region"</span><span class="p">));</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global_agent ="</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">reply</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"global_agent"</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">payload</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"action"</span><span class="p">,</span><span class="w"> </span><span class="s">"globalinfo"</span><span class="p">);</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1">// Blocking RPC to the local wsapi plugin; returns the reply map.</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">messaging</span><span class="p">.</span><span class="na">plugin_msgevent</span><span class="p">(</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="kc">true</span><span class="p">,</span><span class="w">                                 </span><span class="c1">// is_rpc</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">        </span><span class="s">"EXEC"</span><span class="p">,</span><span class="w">                               </span><span class="c1">// message_event_type</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">        </span><span class="n">payload</span><span class="p">,</span><span class="w">                              </span><span class="c1">// message_payload</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_plugin_name</span><span class="p">());</span><span class="w">    </span><span class="c1">// dst_plugin</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global_region="</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">reply</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"global_region"</span><span class="p">));</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global_agent ="</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">reply</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"global_agent"</span><span class="p">));</span>
 </code></pre></div>
 <p>Pass <code>false</code> for <code>is_rpc</code> to send without waiting for a reply. See
 <a href="../../api/msgevent/">MsgEvent</a> and <a href="../../api/plugin-actions/">Plugin Actions</a>
 for available <code>message_event_type</code> values and action names.</p>
 <h3 id="subscribe-to-the-data-plane">Subscribe to the data plane<a class="headerlink" href="#subscribe-to-the-data-plane" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.core.OnMessageCallback</span><span class="p">;</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.dataplane.DataPlaneInterface</span><span class="p">;</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.nio.ByteBuffer</span><span class="p">;</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.nio.charset.StandardCharsets</span><span class="p">;</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1">// 1. Open a data plane for a stream query, printing anything received.</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">OnMessageCallback</span><span class="w"> </span><span class="n">onMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OnMessageCallback</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"dataplane recv: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">message</span><span class="p">);</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"dataplane recv: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">" bytes"</span><span class="p">);</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">};</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">DataPlaneInterface</span><span class="w"> </span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">get_dataplane</span><span class="p">(</span><span class="n">streamQuery</span><span class="p">,</span><span class="w"> </span><span class="n">onMessage</span><span class="p">);</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">dp</span><span class="p">.</span><span class="na">connect</span><span class="p">();</span>
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>
-<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="c1">// 2. Send text, binary, and a fragmented (partial) message.</span>
-<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="n">dp</span><span class="p">.</span><span class="na">send</span><span class="p">(</span><span class="s">"hello dataplane"</span><span class="p">);</span>
-<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="n">dp</span><span class="p">.</span><span class="na">send_binary</span><span class="p">(</span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}));</span>
-<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="n">dp</span><span class="p">.</span><span class="na">send_partial</span><span class="p">(</span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="s">"part-1"</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">)),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
-<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="n">dp</span><span class="p">.</span><span class="na">send_partial</span><span class="p">(</span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="s">"part-2"</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">)),</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
-<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
-<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
-<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="c1">// 3. Close the stream.</span>
-<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="n">client</span><span class="p">.</span><span class="na">close_dataplane</span><span class="p">(</span><span class="n">streamQuery</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.core.OnMessageCallback</span><span class="p">;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.dataplane.DataPlaneInterface</span><span class="p">;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.nio.ByteBuffer</span><span class="p">;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.nio.charset.StandardCharsets</span><span class="p">;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1">// 1. Open a data plane for a stream query, printing anything received.</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">OnMessageCallback</span><span class="w"> </span><span class="n">onMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OnMessageCallback</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"dataplane recv: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">message</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"dataplane recv: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">" bytes"</span><span class="p">);</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">};</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="n">String</span><span class="w"> </span><span class="n">streamQuery</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="s">"{\"ident_key\":\"stream_name\",\"ident_id\":\"demo\",\"io_type_key\":\"type\",\"input_id\":\"in\"}"</span><span class="p">;</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="n">DataPlaneInterface</span><span class="w"> </span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">get_dataplane</span><span class="p">(</span><span class="n">streamQuery</span><span class="p">,</span><span class="w"> </span><span class="n">onMessage</span><span class="p">);</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="n">dp</span><span class="p">.</span><span class="na">connect</span><span class="p">();</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="c1">// 2. Send text, binary, and a fragmented (partial) message.</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="n">dp</span><span class="p">.</span><span class="na">send</span><span class="p">(</span><span class="s">"hello dataplane"</span><span class="p">);</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="n">dp</span><span class="p">.</span><span class="na">send_binary</span><span class="p">(</span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}));</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="n">dp</span><span class="p">.</span><span class="na">send_partial</span><span class="p">(</span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="s">"part-1"</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">)),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="n">dp</span><span class="p">.</span><span class="na">send_partial</span><span class="p">(</span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="s">"part-2"</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">)),</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="c1">// 3. Close the stream.</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="n">client</span><span class="p">.</span><span class="na">close_dataplane</span><span class="p">(</span><span class="n">streamQuery</span><span class="p">);</span>
 </code></pre></div>
-<p>The <code>stream_query</code> selects which data-plane traffic the stream carries; it is
-also the registry key used by <code>close_dataplane</code> / <code>get_active_dataplanes</code>. See
+<p>The handshake selects which data-plane traffic the stream carries (here, every
+message tagged <code>stream_name=demo</code>, including this stream's own); it is also the
+registry key used by <code>close_dataplane</code> / <code>get_active_dataplanes</code>. See
 the <a href="../../architecture/dataplane/">Data Plane architecture</a> for the query model.</p>
 <h3 id="stream-logs">Stream logs<a class="headerlink" href="#stream-logs" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.core.OnMessageCallback</span><span class="p">;</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.logstreamer.LogStreamerInterface</span><span class="p">;</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1">// 1. Attach a log streamer, printing anything received.</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">OnMessageCallback</span><span class="w"> </span><span class="n">onMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OnMessageCallback</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"log: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">message</span><span class="p">);</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"log: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">" bytes"</span><span class="p">);</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">};</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="n">LogStreamerInterface</span><span class="w"> </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">get_logstreamer</span><span class="p">(</span><span class="s">"example"</span><span class="p">,</span><span class="w"> </span><span class="n">onMessage</span><span class="p">);</span>
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="n">ls</span><span class="p">.</span><span class="na">connect</span><span class="p">();</span>
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="c1">// 2. Point the stream at an agent, then raise one base class to Trace.</span>
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="n">ls</span><span class="p">.</span><span class="na">update_config</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">);</span>
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="n">ls</span><span class="p">.</span><span class="na">update_config_class</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="s">"Trace"</span><span class="p">,</span><span class="w"> </span><span class="s">"io.cresco.agent"</span><span class="p">);</span>
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">5000</span><span class="p">);</span>
-<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>
-<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="c1">// 3. Close the stream.</span>
-<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="n">client</span><span class="p">.</span><span class="na">close_logstreamer</span><span class="p">(</span><span class="s">"example"</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.core.OnMessageCallback</span><span class="p">;</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.logstreamer.LogStreamerInterface</span><span class="p">;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1">// 1. Attach a log streamer, printing anything received.</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">OnMessageCallback</span><span class="w"> </span><span class="n">onMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OnMessageCallback</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"log: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">message</span><span class="p">);</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">onMessage</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"log: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">" bytes"</span><span class="p">);</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="p">};</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">LogStreamerInterface</span><span class="w"> </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">get_logstreamer</span><span class="p">(</span><span class="s">"example"</span><span class="p">,</span><span class="w"> </span><span class="n">onMessage</span><span class="p">);</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">ls</span><span class="p">.</span><span class="na">connect</span><span class="p">();</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="c1">// 2. Point the stream at an agent, then raise one base class to Trace.</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="n">ls</span><span class="p">.</span><span class="na">update_config</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">);</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="n">ls</span><span class="p">.</span><span class="na">update_config_class</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">,</span><span class="w"> </span><span class="s">"Trace"</span><span class="p">,</span><span class="w"> </span><span class="s">"io.cresco.agent"</span><span class="p">);</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">5000</span><span class="p">);</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="c1">// 3. Close the stream.</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="n">client</span><span class="p">.</span><span class="na">close_logstreamer</span><span class="p">(</span><span class="s">"example"</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="build-a-tunnel-no-cadl">Build a tunnel (no CADL)<a class="headerlink" href="#build-a-tunnel-no-cadl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">// 1. Make sure the stunnel plugin runs on both ends.</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">deploy_plugin</span><span class="p">(</span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-a"</span><span class="p">);</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">deploy_plugin</span><span class="p">(</span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-b"</span><span class="p">);</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1">// 2. Listen on agent-a:2222, forward to localhost:22 as seen from agent-b.</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">create_tunnel</span><span class="p">(</span><span class="s">"ssh"</span><span class="p">,</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">        </span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-a"</span><span class="p">,</span><span class="w"> </span><span class="s">"2222"</span><span class="p">,</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">        </span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-b"</span><span class="p">,</span><span class="w"> </span><span class="s">"localhost"</span><span class="p">,</span><span class="w"> </span><span class="s">"22"</span><span class="p">,</span><span class="w"> </span><span class="s">"65536"</span><span class="p">);</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1">// 3. Inspect it.</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">get_tunnel_status</span><span class="p">(</span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-a"</span><span class="p">,</span><span class="w"> </span><span class="s">"ssh"</span><span class="p">);</span><span class="w">  </span><span class="c1">// ACTIVE</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">get_tunnel_list</span><span class="p">(</span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-a"</span><span class="p">);</span><span class="w">           </span><span class="c1">// [{stunnel_id=ssh, status=ACTIVE}]</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">get_tunnel_config</span><span class="p">(</span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-a"</span><span class="p">,</span><span class="w"> </span><span class="s">"ssh"</span><span class="p">);</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="c1">// 4. Remove both ends.</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="n">client</span><span class="p">.</span><span class="na">stunnel</span><span class="p">.</span><span class="na">remove_tunnel</span><span class="p">(</span><span class="s">"ssh"</span><span class="p">,</span><span class="w"> </span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-a"</span><span class="p">,</span><span class="w"> </span><span class="s">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="s">"agent-b"</span><span class="p">);</span>
+</code></pre></div>
+<p><code>example.Launcher</code> runs the same flow for a list of tunnels read from a JSON
+config file (copy <code>config.example.json</code> to <code>config.json</code>, which is git-ignored,
+and set <code>service_key</code>); with <code>"echo_test": true</code> it also pushes bytes through
+each tunnel and checks they come back:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>java<span class="w"> </span>-cp<span class="w"> </span>target/clientlib-1.3-SNAPSHOT.jar<span class="w"> </span>example.Launcher<span class="w"> </span>config.json
 </code></pre></div>
 <h3 id="node-administration">Node administration<a class="headerlink" href="#node-administration" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// Only act if the target agent's controller is active.</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">is_controller_active</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"controller status: "</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">get_controller_status</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">));</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="c1">// Restart the OSGi framework on the target agent.</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">admin</span><span class="p">.</span><span class="na">restartframework</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">);</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// Only act if the target agent's controller is active.</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">is_controller_active</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"controller status: "</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">agents</span><span class="p">.</span><span class="na">get_controller_status</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">));</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="c1">// Restart the OSGi framework on the target agent.</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">admin</span><span class="p">.</span><span class="na">restartframework</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span><span class="w"> </span><span class="n">dst_agent</span><span class="p">);</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">}</span>
 </code></pre></div>
+<h2 id="api-reference-javadoc">API reference (Javadoc)<a class="headerlink" href="#api-reference-javadoc" title="Permanent link">&para;</a></h2>
+<p>Every public class and method in <code>crescoclient</code> is documented with Javadoc
+(parameters, return values, the wire action each call sends). To build the HTML
+reference from a checkout:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>mvn<span class="w"> </span>-q<span class="w"> </span>dependency:build-classpath<span class="w"> </span>-Dmdep.outputFile<span class="o">=</span>target/cp.txt
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>javadoc<span class="w"> </span>-d<span class="w"> </span>target/apidocs<span class="w"> </span>-sourcepath<span class="w"> </span>src/main/java<span class="w"> </span>-subpackages<span class="w"> </span>crescoclient<span class="w"> </span>-cp<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>cat<span class="w"> </span>target/cp.txt<span class="k">)</span><span class="s2">"</span>
+</code></pre></div>
+<p>The repository README has the same usage guide in condensed form:
+<a href="https://github.com/CrescoEdge/clientlib/tree/1.3#usage-guide">CrescoEdge/clientlib</a>.</p>
 <h2 id="testing-and-parity">Testing and parity<a class="headerlink" href="#testing-and-parity" title="Permanent link">&para;</a></h2>
 <p>The client ships a self-contained test suite (no live mesh required) that
 asserts it emits <strong>identical wire messages for identical API calls</strong> as the
 <a href="../python/">Python</a> and <a href="../cpp/">C++ / Arduino</a> clients, verified against a
 shared golden corpus:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>mvn<span class="w"> </span><span class="nb">test</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>mvn<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 <p>A green run across the Java, Python, and C++ suites proves the clients produce
 the same results. See the <a href="../overview/#feature-parity">Client Libraries overview</a>
