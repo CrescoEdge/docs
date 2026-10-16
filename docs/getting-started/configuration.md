@@ -65,6 +65,7 @@ order (see [Security](../architecture/security.md) and [Multi-Tenancy](../archit
 | `broker_security_enabled` | `false` | install the tenant-authorization broker plugin (the ACL) |
 | `tenant_namespacing` | `false` | qualify MsgEvent inboxes + dataplane topics `T.<tenant>.*` for end-to-end isolation |
 | `broker_superuser_tenants` | `cresco-system` | tenants whose network clients get the cross-tenant `SUPERUSER` role |
+| `crypto_policy`, `crypto_allow_<hash\|sig\|kdf\|cipher\|wrap>` | `cnsa1` | **global controller only**: the fabric-wide crypto policy (allowed algorithm types for anything new), carried to every node; see the [reference](../reference/configuration.md#fabric-crypto-policy-global-controller-only) |
 
 !!! danger "Discovery secrets default to random UUIDs"
     If you do not set `discovery_secret_*`, a node generates random secrets — other nodes cannot join. For
