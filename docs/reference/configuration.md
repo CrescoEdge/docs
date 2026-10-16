@@ -71,6 +71,26 @@ across a region; a mixed fleet (some nodes enforcing, some not) will not behave 
     nodes will **not** discover one another unless you set the same secret on both. In a real
     deployment these are effectively required, not optional.
 
+### Fabric crypto policy (global controller only)
+
+One policy per fabric names the algorithm types Cresco and every plugin (GaiaKeep storage included) may choose
+for anything **new**: a certificate's signature suite, a storage domain's block hash. It is set on the **global
+controller** and carried to every region and agent (registration replies and pongs); keys set on any other node are
+ignored with a warning, so no node runs a weaker local policy. Plugins read it with `PluginBuilder.getCryptoPolicy()`.
+Unlike the flags above it is **always on**: the default is `cnsa1`.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `crypto_policy` | String | `cnsa1` | Baseline level. `cnsa1`: SHA-384/512, AES-256-GCM, SHA-384/512 RSA and ECDSA signatures, PBKDF2/HKDF over SHA-384/512, AES-KWP/KW/GCM wrap (CNSA 1.0 strength, FIPS 140-3 approved). `fips140-3`: every FIPS 140-3 approved algorithm offered (adds SHA-256, SHA3, AES-128/192, SHA-256 signatures and KDFs). |
+| `crypto_allow_hash` / `crypto_allow_sig` / `crypto_allow_kdf` / `crypto_allow_cipher` / `crypto_allow_wrap` | String | the level's list | Replaces one family's list (comma-separated), e.g. `crypto_allow_hash=SHA-384,SHA-512,SHA-256`. Only FIPS 140-3 approved names are accepted; anything else (MD5, SHA-1, ...) is a config error. |
+
+A global whose policy keys are invalid puts **no** policy in force and logs an ERROR; a node that has not yet heard
+from its parent holds none either. With no policy every algorithm choice for a new object is refused (fail closed);
+only the node's own TLS identity certificates, made before it can reach the global, use the `cnsa1` default. Existing
+data is never checked against the policy. Check a node with the agent action `getcryptopolicy` (EXEC): every node
+reports the global's `crypto_policy_id`. A change takes effect when the global restarts with the new keys and reaches
+every node within one ping interval per tier.
+
 ---
 
 ## Identity & roles
@@ -170,6 +190,7 @@ material rather than loading a supplied store).
 | `truststorefile` | String | *unset* | Path to the TLS truststore file. **Unset = derived.** |
 | `truststorepwd` | String | *unset* | Password for the truststore. |
 | `messagekeysize` | int | `2048` | RSA key size (bits) for generated message-signing certificates; values `<512` are refused and clamped to 512. |
+| *(signature suite)* | — | `SHA384withRSA` | Not a key: generated certificates are signed with the fabric crypto policy's preferred suite for the key type (`SHA384withRSA` under the default `cnsa1`). |
 | `public_key_directory` | String | `cresco-data/public-keys` | Directory where peer public keys/certificates are cached. |
 
 ---

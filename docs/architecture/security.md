@@ -61,6 +61,18 @@ a sender signs the payload digest with its leaf key; any receiver verifies with 
 Optional payload encryption to a recipient's public key is available for confidentiality beyond the first
 hop.
 
+## Crypto policy — one set of allowed algorithms per fabric
+
+Which algorithm types the fabric may choose for anything new (certificate signature suites, a storage domain's
+content-address hash, key wraps, KDFs, ciphers) is one policy (`io.cresco.library.crypto.CryptoPolicy`), set on the
+global controller (`crypto_policy` = `cnsa1` by default or `fips140-3`, plus per-family `crypto_allow_*` lists of FIPS
+140-3 approved names) and enforced by Cresco and every plugin. The global stamps it on the `region_enable` /
+`agent_enable` registration replies; each ping carries the id the child holds and the pong carries the policy when the
+ids differ, so a joining node gets it at once and a change reaches every node within a ping interval per tier. Regions
+and agents ignore local crypto keys. A node without the policy refuses every algorithm choice for a new object
+(fail closed). Existing data, fixed wire formats and verification are never refused. See the
+[configuration reference](../reference/configuration.md#fabric-crypto-policy-global-controller-only).
+
 ## Enable it, in order
 
 1. `security_regional_ca=true` — every node gets a CA-signed, identity-bearing leaf.
