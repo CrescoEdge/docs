@@ -189,7 +189,7 @@ material rather than loading a supplied store).
 | `keystorepwd` | String | *unset* | Password for the keystore. |
 | `truststorefile` | String | *unset* | Path to the TLS truststore file. **Unset = derived.** |
 | `truststorepwd` | String | *unset* | Password for the truststore. |
-| `messagekeysize` | int | `2048` | RSA key size (bits) for generated message-signing certificates; values `<512` are refused and clamped to 512. |
+| `messagekeysize` | int | `3072` | RSA key size (bits) for generated message-signing certificates; values below the CNSA 1.0 floor of 3072 are raised to 3072 with a warning. |
 | *(signature suite)* | — | `SHA384withRSA` | Not a key: generated certificates are signed with the fabric crypto policy's preferred suite for the key type (`SHA384withRSA` under the default `cnsa1`). |
 | `public_key_directory` | String | `cresco-data/public-keys` | Directory where peer public keys/certificates are cached. |
 
@@ -254,6 +254,8 @@ in several watchers with the same defaults shown.
 | `watchdog_stale_multiplier` | int | `10` | Multiplier on a node's `watchdog_period` setting the staleness threshold. Falls back to `period_multiplier` when unset. |
 | `period_multiplier` | int / long | `10` (int) / `3` (long)¹ | **Legacy.** Fallback for the two multipliers above, kept for existing configs. ¹Its two readers historically used different defaults — that ambiguity is why the split keys exist; prefer them. |
 | `state_update_full_resend_ticks` | int | `4` | Force a full config export every N state-update ticks, so a lost first export self-heals instead of leaving a node's rows missing at its parent. |
+| `lost_node_retention_days` | double | `30` | How long a node that went LOST (crashed and never came back) stays listed, counted from when it was first marked LOST (stored in the controller database, so a restart does not reset it). Then the node and everything under it is deleted. 30 days covers replacing failed hardware with parts on order; fractions allowed; `0` or negative keeps LOST nodes for ever. |
+| `lost_node_sweep_interval_ms` | long | `3600000` | Minimum gap between LOST-retention sweeps (run from the region and global status watchdogs). |
 | `retrywait` | long | `3000` | Milliseconds to wait between state-machine retry attempts. |
 | `agent_ping_interval` | long | `5000` | Milliseconds between agent-liveness pings (agent health watcher). |
 | `agent_ping_timeout` | long | `5000` | Milliseconds to wait for an agent ping response. |
