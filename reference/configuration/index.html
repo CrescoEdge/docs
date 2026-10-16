@@ -1606,6 +1606,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Security &amp; tenancy (read this first)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fabric-crypto-policy-global-controller-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fabric crypto policy (global controller only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2737,6 +2754,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Security &amp; tenancy (read this first)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fabric-crypto-policy-global-controller-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fabric crypto policy (global controller only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3135,6 +3169,42 @@ across a region; a mixed fleet (some nodes enforcing, some not) will not behave 
 nodes will <strong>not</strong> discover one another unless you set the same secret on both. In a real
 deployment these are effectively required, not optional.</p>
 </div>
+<h3 id="fabric-crypto-policy-global-controller-only">Fabric crypto policy (global controller only)<a class="headerlink" href="#fabric-crypto-policy-global-controller-only" title="Permanent link">&para;</a></h3>
+<p>One policy per fabric names the algorithm types Cresco and every plugin (GaiaKeep storage included) may choose
+for anything <strong>new</strong>: a certificate's signature suite, a storage domain's block hash. It is set on the <strong>global
+controller</strong> and carried to every region and agent (registration replies and pongs); keys set on any other node are
+ignored with a warning, so no node runs a weaker local policy. Plugins read it with <code>PluginBuilder.getCryptoPolicy()</code>.
+Unlike the flags above it is <strong>always on</strong>: the default is <code>cnsa1</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>crypto_policy</code></td>
+<td>String</td>
+<td><code>cnsa1</code></td>
+<td>Baseline level. <code>cnsa1</code>: SHA-384/512, AES-256-GCM, SHA-384/512 RSA and ECDSA signatures, PBKDF2/HKDF over SHA-384/512, AES-KWP/KW/GCM wrap (CNSA 1.0 strength, FIPS 140-3 approved). <code>fips140-3</code>: every FIPS 140-3 approved algorithm offered (adds SHA-256, SHA3, AES-128/192, SHA-256 signatures and KDFs).</td>
+</tr>
+<tr>
+<td><code>crypto_allow_hash</code> / <code>crypto_allow_sig</code> / <code>crypto_allow_kdf</code> / <code>crypto_allow_cipher</code> / <code>crypto_allow_wrap</code></td>
+<td>String</td>
+<td>the level's list</td>
+<td>Replaces one family's list (comma-separated), e.g. <code>crypto_allow_hash=SHA-384,SHA-512,SHA-256</code>. Only FIPS 140-3 approved names are accepted; anything else (MD5, SHA-1, ...) is a config error.</td>
+</tr>
+</tbody>
+</table>
+<p>A global whose policy keys are invalid puts <strong>no</strong> policy in force and logs an ERROR; a node that has not yet heard
+from its parent holds none either. With no policy every algorithm choice for a new object is refused (fail closed);
+only the node's own TLS identity certificates, made before it can reach the global, use the <code>cnsa1</code> default. Existing
+data is never checked against the policy. Check a node with the agent action <code>getcryptopolicy</code> (EXEC): every node
+reports the global's <code>crypto_policy_id</code>. A change takes effect when the global restarts with the new keys and reaches
+every node within one ping interval per tier.</p>
 <hr />
 <h2 id="identity-roles">Identity &amp; roles<a class="headerlink" href="#identity-roles" title="Permanent link">&para;</a></h2>
 <p>Determines what a node <em>is</em> in the hierarchy (agent / region / global / standalone) and how it
@@ -3521,8 +3591,14 @@ material rather than loading a supplied store).</p>
 <tr>
 <td><code>messagekeysize</code></td>
 <td>int</td>
-<td><code>2048</code></td>
-<td>RSA key size (bits) for generated message-signing certificates; values <code>&lt;512</code> are refused and clamped to 512.</td>
+<td><code>3072</code></td>
+<td>RSA key size (bits) for generated message-signing certificates; values below the CNSA 1.0 floor of 3072 are raised to 3072 with a warning.</td>
+</tr>
+<tr>
+<td><em>(signature suite)</em></td>
+<td>—</td>
+<td><code>SHA384withRSA</code></td>
+<td>Not a key: generated certificates are signed with the fabric crypto policy's preferred suite for the key type (<code>SHA384withRSA</code> under the default <code>cnsa1</code>).</td>
 </tr>
 <tr>
 <td><code>public_key_directory</code></td>
@@ -3764,6 +3840,18 @@ in several watchers with the same defaults shown.</p>
 <td>int</td>
 <td><code>4</code></td>
 <td>Force a full config export every N state-update ticks, so a lost first export self-heals instead of leaving a node's rows missing at its parent.</td>
+</tr>
+<tr>
+<td><code>lost_node_retention_days</code></td>
+<td>double</td>
+<td><code>30</code></td>
+<td>How long a node that went LOST (crashed and never came back) stays listed, counted from when it was first marked LOST (stored in the controller database, so a restart does not reset it). Then the node and everything under it is deleted. 30 days covers replacing failed hardware with parts on order; fractions allowed; <code>0</code> or negative keeps LOST nodes for ever.</td>
+</tr>
+<tr>
+<td><code>lost_node_sweep_interval_ms</code></td>
+<td>long</td>
+<td><code>3600000</code></td>
+<td>Minimum gap between LOST-retention sweeps (run from the region and global status watchdogs).</td>
 </tr>
 <tr>
 <td><code>retrywait</code></td>

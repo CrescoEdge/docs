@@ -992,6 +992,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#crypto-policy-one-set-of-allowed-algorithms-per-fabric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crypto policy — one set of allowed algorithms per fabric
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#enable-it-in-order" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2574,6 +2585,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#crypto-policy-one-set-of-allowed-algorithms-per-fabric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crypto policy — one set of allowed algorithms per fabric
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#enable-it-in-order" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2676,6 +2698,16 @@ a sender signs the payload digest with its leaf key; any receiver verifies with 
 (chain-validated), proving origin and tamper-evidence independent of how many brokers relayed the message.
 Optional payload encryption to a recipient's public key is available for confidentiality beyond the first
 hop.</p>
+<h2 id="crypto-policy-one-set-of-allowed-algorithms-per-fabric">Crypto policy — one set of allowed algorithms per fabric<a class="headerlink" href="#crypto-policy-one-set-of-allowed-algorithms-per-fabric" title="Permanent link">&para;</a></h2>
+<p>Which algorithm types the fabric may choose for anything new (certificate signature suites, a storage domain's
+content-address hash, key wraps, KDFs, ciphers) is one policy (<code>io.cresco.library.crypto.CryptoPolicy</code>), set on the
+global controller (<code>crypto_policy</code> = <code>cnsa1</code> by default or <code>fips140-3</code>, plus per-family <code>crypto_allow_*</code> lists of FIPS
+140-3 approved names) and enforced by Cresco and every plugin. The global stamps it on the <code>region_enable</code> /
+<code>agent_enable</code> registration replies; each ping carries the id the child holds and the pong carries the policy when the
+ids differ, so a joining node gets it at once and a change reaches every node within a ping interval per tier. Regions
+and agents ignore local crypto keys. A node without the policy refuses every algorithm choice for a new object
+(fail closed). Existing data, fixed wire formats and verification are never refused. See the
+<a href="../../reference/configuration/#fabric-crypto-policy-global-controller-only">configuration reference</a>.</p>
 <h2 id="enable-it-in-order">Enable it, in order<a class="headerlink" href="#enable-it-in-order" title="Permanent link">&para;</a></h2>
 <ol>
 <li><code>security_regional_ca=true</code> — every node gets a CA-signed, identity-bearing leaf.</li>

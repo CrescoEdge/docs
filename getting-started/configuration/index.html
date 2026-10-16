@@ -2721,6 +2721,11 @@ order (see <a href="../../architecture/security/">Security</a> and <a href="../.
 <td><code>cresco-system</code></td>
 <td>tenants whose network clients get the cross-tenant <code>SUPERUSER</code> role</td>
 </tr>
+<tr>
+<td><code>crypto_policy</code>, <code>crypto_allow_&lt;hash\|sig\|kdf\|cipher\|wrap&gt;</code></td>
+<td><code>cnsa1</code></td>
+<td><strong>global controller only</strong>: the fabric-wide crypto policy (allowed algorithm types for anything new), carried to every node; see the <a href="../../reference/configuration/#fabric-crypto-policy-global-controller-only">reference</a></td>
+</tr>
 </tbody>
 </table>
 <div class="admonition danger">
