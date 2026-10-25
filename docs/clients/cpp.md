@@ -205,7 +205,7 @@ timeout elapses); when false it is sent without waiting.
 
 ## Worked examples
 
-The runnable sketches in the repo's [`examples/`](https://github.com/CrescoEdge/cppcrescolib/tree/master/examples)
+The runnable sketches in the repo's [`examples/`](https://github.com/CrescoEdge/cppcrescolib/tree/1.3/examples)
 are identical in shape to the Python/Java `example_*` set: `example_connect`,
 `example_pipeline`, `example_plugin_lifecycle`, `example_dataplane`, `example_logstreamer`,
 `example_admin`, plus `esp_spectrum_reporter`.
