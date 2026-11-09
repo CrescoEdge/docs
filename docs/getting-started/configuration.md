@@ -11,7 +11,7 @@ Every setting is read through `plugin.getConfig().get<Type>Param("name", default
 
 ```java
 int brokerPort   = plugin.getConfig().getIntegerParam("broker_port", 32010);
-boolean secure   = plugin.getConfig().getBooleanParam("broker_security_enabled", false);
+boolean secure   = plugin.getConfig().getBooleanParam("broker_security_enabled", true);
 String tenant    = plugin.getConfig().getStringParam("tenant_id", "default");
 ```
 
@@ -52,26 +52,31 @@ The role flags select which tier a node runs as (see [Architecture](../architect
 | `port` | `8080` | Felix console / HTTP |
 | `enable_wsapi` | varies | run the [wsapi](../plugins/wsapi.md) WebSocket endpoint (`:8282`) for clients |
 
-## Security & tenancy (opt-in)
+## Security & tenancy
 
-These are the switches that turn a plaintext dev fabric into a secured, multi-tenant one. Enable them in
-order (see [Security](../architecture/security.md) and [Multi-Tenancy](../architecture/tenancy.md)).
+Security is **on by default**: a node with no setting runs with mutual TLS, the authorization broker, tenant
+namespacing, message authentication and signed plugin installs ([Secure defaults](../security/secure-defaults.md)).
+The `production` profile adds operator-issued identities and FIPS 140-3 crypto ([Security profiles](../security/profiles.md)).
 
 | Flag | Default | Purpose |
 |------|---------|---------|
-| `discovery_secret_agent` / `_region` / `_global` | *(generated)* | pre-shared join secret per tier — required to join the mesh |
-| `cresco_service_key` | — | shared key authenticating agent traffic; must match fabric-wide |
+| `security_profile` | `standard` | `production`: operator PKI, every security setting mandatory, no passwords or discovery secrets, FIPS approved-only |
+| `discovery_secret_agent` / `_region` / `_global` | *(generated)* | standard profile: pre-shared join secret per tier, required to join the mesh (refused in production) |
+| `cresco_service_key` | — | wsapi's legacy service key (an `admin` of the agent's tenant); refused in production |
 | `tenant_id` | `default` | this node's tenant (bound into its cert DN as `O=`) |
-| `security_regional_ca` | `false` | regional-CA enrollment → O(regions) distributed trust |
-| `broker_require_client_auth` | `false` | broker demands a client cert (mutual TLS); binds identity from the DN |
-| `broker_security_enabled` | `false` | install the tenant-authorization broker plugin (the ACL) |
-| `tenant_namespacing` | `false` | qualify MsgEvent inboxes + dataplane topics `T.<tenant>.*` for end-to-end isolation |
+| `security_regional_ca` | `false` | standard profile: regional-CA enrollment → O(regions) distributed trust |
+| `broker_security_enabled` | `true` | the tenant-authorization broker plugin (the ACL); `false` is insecure debug mode |
+| `broker_require_client_auth` | follows security (`true`) | broker demands a client cert (mutual TLS); binds identity from the DN |
+| `tenant_namespacing` | follows security (`true`) | qualify MsgEvent inboxes + dataplane topics `T.<tenant>.*` for end-to-end isolation |
+| `msg_signing_required` | `true` | authenticate every message end to end ([Message authentication](../security/message-auth.md)) |
 | `broker_superuser_tenants` | `cresco-system` | tenants whose network clients get the cross-tenant `SUPERUSER` role |
 | `crypto_policy`, `crypto_allow_<hash\|sig\|kdf\|cipher\|wrap>` | `cnsa1` | **global controller only**: the fabric-wide crypto policy (allowed algorithm types for anything new), carried to every node; see the [reference](../reference/configuration.md#fabric-crypto-policy-global-controller-only) |
 
 !!! danger "Discovery secrets default to random UUIDs"
-    If you do not set `discovery_secret_*`, a node generates random secrets — other nodes cannot join. For
-    a real fabric set these (and `cresco_service_key`) to fixed shared values, as `run/cresco.env` does.
+    In the standard profile, if you do not set `discovery_secret_*`, a node generates random secrets — other nodes
+    cannot join. For a real fabric set these to fixed shared values, from owner-only `<name>_file` files or
+    `CRESCO_<NAME>` environment variables rather than `-D` (see
+    [Secrets](../reference/configuration.md#secrets-and-fatal-errors)).
 
 ## Everything else
 

@@ -128,6 +128,9 @@ Registered by `PerfControllerMonitor` on the controller's `MeasurementEngine` at
 | **`brokered.agent.count`** | `regional`, GAUGE | supplier reads `controllerEngine.getBrokeredAgents().size()` | Agents currently brokered by this regional controller (reads 0 on a leaf agent) |
 | **`reachable.agent.count`** | `global`, GAUGE | supplier reads `controllerEngine.reachableAgents().size()` | Agents reachable in this controller's view of the mesh |
 | **`incoming.candidate.brokers`** | `global`, GAUGE | supplier reads `controllerEngine.getIncomingCanidateBrokers().size()` | Depth of the discovery candidate-broker queue awaiting processing |
+| **`dataplane.broker.discarded`** | `dataplane`, COUNTER | `CrescoDiscardAccountingBroker` counts the broker's slow-subscriber discards | Dataplane messages this node's broker discarded for slow topic subscribers (only when backpressure is off: `dataplane_backpressure=false` or `activemq_topic_producer_flow_control=false`; logged too) |
+| **`dataplane.broker.slow.consumers`** | `dataplane`, COUNTER | the broker's slow-consumer advisories | Slow-subscriber episodes (more than prefetch pending); with backpressure these slow writers, they lose nothing |
+| **`dataplane.stream.gap`** | `dataplane`, COUNTER | `StreamSequence` checks each stream's `cresco_seq` at the subscriber's controller | Stream messages this node's subscribers did not get; the first message after a gap carries `cresco_gap` ([Data Plane](dataplane.md#stream-sequence-numbers-loss-is-never-silent)) |
 
 ## Controller — JVM & system (Micrometer binders)
 
@@ -303,6 +306,14 @@ handler — one wsapi plugin per JVM, so the counts are node-wide.
 | **`wsapi.dataplane.connections`** | GAUGE_INT | `ACTIVE_CONNECTIONS` atomic, incremented on `channelActive` | Active dataplane WebSocket connections |
 | **`wsapi.dataplane.bytes`** | GAUGE_LONG, bytes | `DATAPLANE_BYTES` atomic, added per text/binary frame | Total dataplane bytes ingested from clients |
 | **`wsapi.dataplane.messages`** | GAUGE_LONG | `DATAPLANE_MESSAGES` atomic, incremented per frame | Total dataplane messages ingested from clients |
+| **`wsapi.dataplane.egress.pending.bytes`** | GAUGE_LONG, bytes | bytes queued to all WS consumers | Dataplane bytes queued to WS consumers, not yet written |
+| **`wsapi.dataplane.egress.max.pending.bytes`** | GAUGE_LONG, bytes | largest backlog one consumer reached | How close bursts come to a consumer's budget (`wsapi_dataplane_egress_buffer_bytes`) |
+| **`wsapi.dataplane.egress.paused`** | GAUGE_LONG | incremented each time a consumer's listener waits | Times a WS consumer more than its budget behind had its stream held at the broker (backpressure: writers slowed, nothing lost) |
+| **`wsapi.dataplane.egress.stalled`** | GAUGE_LONG | incremented on each 1013 stall close | WS consumers closed because, held, they read nothing for `wsapi_dataplane_stall_close_ms` |
+| **`wsapi.dataplane.egress.dropped`** | GAUGE_LONG | incremented per dropped frame | Frames dropped past a consumer's budget (only with `wsapi_dataplane_backpressure=false`) |
+| **`wsapi.dataplane.ingress.failed`** | GAUGE_LONG | incremented per client frame not taken | Client dataplane frames the controller did not take (no session, controller not active) |
+| **`wsapi.auth.failures`** / **`.servicekey.failures`** / **`.refused`** / **`.revoked.connections`** | GAUGE_LONG | `AuthRateLimiter`, `WsRouter.Gate` | Failed authentications, wrong service keys, authentications refused before they were checked (429), connections closed because their credential was revoked or changed |
+| **`wsapi.inbound.inflight.bytes`** / **`wsapi.inbound.budget.closed`** | GAUGE_LONG | `InboundBudget` | Inbound message bytes held now; connections closed (1013) for too many bytes in flight |
 
 Each forwarded binary dataplane message is stamped with `dp_bytes`, which is what feeds the
 controller's per-edge `link.*.tx_mbps` throughput accounting above.

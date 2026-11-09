@@ -16,6 +16,15 @@
     `wsapi_write_high_water_bytes`). The Jetty-specific numbers and bug references below are the historical
     baseline; see the [wsapi plugin](../plugins/wsapi.md) for the current server.
 
+!!! note "Since this was written: topics run with producer flow control (dataplane backpressure)"
+    Queues (the control plane) still run with producer flow control off and priority governing dispatch, as below.
+    Topics (the data plane) now have their own policy with producer flow control **on**
+    (`activemq_topic_producer_flow_control`, `activemq_topic_memory_limit`) and no discarding pending-message limit
+    (`dataplane_backpressure`, default on): a slow subscriber slows the topic's writers instead of losing messages, data
+    bridge connectors send synchronously, and `broker_bridge_prefetch_data` is 64. Security is on by default since the
+    1.3 hardening. See [Data Plane](../architecture/dataplane.md#backpressure-nothing-lost-order-kept) and the
+    [configuration reference](../reference/configuration.md).
+
 ---
 
 ## 0. Summary of measured wins

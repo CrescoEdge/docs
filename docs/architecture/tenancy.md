@@ -62,16 +62,16 @@ advisory topics can leak destination *names* (not contents). See the design doc'
 
 ## Enabling it
 
-Turn on the [security](security.md) stack first, then namespacing, staged region-by-region:
+Namespacing is on by default with the rest of the [security](security.md) stack; a node needs only its tenant (and,
+for admin/god-view clients, the superuser tenants):
 
 ```
--Dsecurity_regional_ca=true
--Dbroker_require_client_auth=true
--Dbroker_security_enabled=true
--Dtenant_namespacing=true
 -Dtenant_id=<tenant>
--Dbroker_superuser_tenants=cresco-system   # for admin/god-view clients
+-Dbroker_superuser_tenants=cresco-system   # the default
 ```
+
+With security on, `tenant_namespacing=false` refuses the start. A fabric of an earlier build is moved over with the
+[upgrade guide](../security/upgrade.md).
 
 Proven by `tenant_namespacing_test` (federation forms + zero self-denial under namespacing; TENANT
 confined; SUPERUSER god view) with no regression across the security/isolation suites.

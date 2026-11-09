@@ -19,11 +19,19 @@ Core Cresco terms, in one place.
 | **Federation / Network of brokers** | Broker-to-broker ActiveMQ bridges that connect regions to globals (and globals to each other). |
 | **Bridge** | A duplex, demand-forwarding ActiveMQ network connector between two brokers. |
 | **QoS tier** | The priority class of a message: `LIVENESS` > `CONTROL` > `TELEMETRY` > `BULK`. |
-| **Discovery** | Finding a parent controller (UDP broadcast or static TCP), gated by a tier [join secret](../architecture/discovery.md). |
-| **Join secret** | The pre-shared `discovery_secret_{agent,region,global}` a node must present to join a tier. |
-| **Service key** | `cresco_service_key` — the shared symmetric key authenticating agent traffic; must match fabric-wide. |
+| **Discovery** | Finding a parent controller (UDP broadcast or static TCP) and establishing trust with it over an authenticated exchange: keyed by a tier [join secret](../architecture/discovery.md) (standard profile) or signed under the operator's PKI (production). |
+| **Join secret** | The pre-shared `discovery_secret_{agent,region,global}` a node must hold to join a tier (standard profile; refused in production). |
+| **Service key** | `cresco_service_key` — wsapi's legacy API credential (an `admin` of the agent's tenant); refused in production. |
+| **Message authentication** | Every MsgEvent authenticated by its origin and checked by its recipient before dispatch: a signature, a session-key MAC, or first hand on a direct link. See [Message authentication](../security/message-auth.md). |
+| **Recipient binding** | The signed recipient of a message (`cresco_sig_to`): a node refuses a message that does not name it. |
+| **Direct link** | A message between a node and its own parent or child: no relay, so it travels unsigned and the receiving broker attests the sender (`cresco_direct`). |
+| **Session key** | An end-to-end key two nodes agree with ECDH P-384 to MAC (HMAC-SHA-384) their messages instead of signing each. |
+| **Trust bundle** | The signed, versioned list of region and global controller keys the global sends down on its pongs. |
+| **Backpressure** | On the data plane, a subscriber that falls behind slows its topic's writers (producer flow control) instead of losing messages. See [Data Plane](../architecture/dataplane.md#backpressure-nothing-lost-order-kept). |
+| **Paced listener** | A dataplane listener (`PacedListener`) that may wait in `onMessage` to slow its stream; it gets a JMS session of its own. |
+| **Security profile** | `standard` (default) or `production` (operator PKI, FIPS 140-3 approved-only, no passwords). See [Security profiles](../security/profiles.md). |
 | **CrescoIdentity** | A node's identity `tenant/region/agent(/uid)`, bound into its X.509 leaf DN (`CN=agent, OU=region, O=tenant`). |
-| **Regional CA** | A region/global controller acting as a certificate authority, signing joiners' leaves — distributed trust (O(regions)). |
+| **Regional CA** | A region/global controller acting as a certificate authority, signing joiners' leaves — distributed trust (O(regions)); standard profile only. |
 | **Tenant** | An isolation domain (`O=` in the cert DN). Multiple tenants can share one fabric; see [Multi-Tenancy](../architecture/tenancy.md). |
 | **Tenant namespacing** | Qualifying destinations `T.<tenant>.<raw>` so isolation is enforceable by a local prefix check at every broker. |
 | **Role** | An authorization role: `SUPERUSER` (all tenants) or `TENANT` (own tenant only). |

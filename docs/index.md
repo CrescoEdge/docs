@@ -28,7 +28,7 @@ Nodes communicate two ways:
 - **[MsgEvent](api/msgevent.md) control plane** — addressed, routed messages (commands, config, RPC,
   telemetry) between agents, regions, and globals over ActiveMQ queues.
 - **[Data plane](architecture/dataplane.md)** — high-throughput pub/sub topics for streaming application
-  data.
+  data, with backpressure: a slow subscriber slows the writers, nothing is lost and order is kept.
 
 ## Key capabilities
 
@@ -44,9 +44,10 @@ Nodes communicate two ways:
 - **Decentralized coordinators** — regions boot and run without a global (`global_optional`), multiple
   globals coexist, and failure detection + epoch-fenced quorum elect coordinators. See
   [Coordinator Decentralization](architecture/coordinator-decentralization.md).
-- **Cryptographic identity & trust** — every node carries an identity-bearing X.509 leaf
-  (`CN=agent, OU=region, O=tenant`), mutual TLS, and distributed **regional-CA** trust. See
-  [Security & Identity](architecture/security.md).
+- **Secure by default** — every node carries an identity-bearing X.509 leaf (`CN=agent, OU=region, O=tenant`),
+  mutual TLS on every broker connection, end-to-end recipient-bound [message authentication](security/message-auth.md),
+  signed plugins, and a `production` profile with operator-issued identities and FIPS 140-3 approved-only crypto. See
+  [Security](security/index.md) and [Security & Identity](architecture/security.md).
 - **Multi-tenancy** — end-to-end [tenant isolation](architecture/tenancy.md) with destination namespacing
   and role-based authorization (`SUPERUSER` / `TENANT`), enforced at every broker.
 - **Health & metrics** — Felix [health checks](architecture/health.md) and a unified Micrometer
@@ -62,12 +63,14 @@ Nodes communicate two ways:
 - **[Getting Started](getting-started/installation.md)** — build from source, run a mesh, configure it.
 - **[Architecture](architecture/overview.md)** — how the mesh, messaging, data plane, discovery, security,
   tenancy, health, and metrics work.
+- **[Security](security/index.md)** — the operator's view of the 1.3 security model: defaults, profiles, PKI, message
+  authentication, upgrade, API authentication, signed plugins, FIPS.
 - **[Modules & Plugins](plugins/overview.md)** — a page for every module (`agent`, `library`, `controller`,
   `core`, `logger`, `repo`, `filerepo`, `sysinfo`, `wsapi`, `stunnel`, `executor`).
 - **[API Reference](api/plugin-actions.md)** — all plugin actions, the Library API, the MsgEvent structure,
   and the full [configuration parameter](reference/configuration.md) reference.
 - **[Client Libraries](clients/overview.md)** — Java, Python, and C++ (Arduino/ESP32) SDK references.
-- **[Operations](operations/deployment.md)** — deployment and testing.
+- **[Operations](operations/deployment.md)** — deployment, testing and troubleshooting.
 - **[Reference](reference/glossary.md)** — glossary and the underlying design documents.
 
 ## Project layout

@@ -17,6 +17,14 @@ repo README.
 - A signature carrying a trusted RFC 3161 timestamp (the TSA's certificate has the time-stamping extended key usage and
   chains to the trust store) is judged at the stamped time, so a stored jar stays installable after its signing
   certificate expires. Without one, re-sign jars before the signing certificate expires.
+- **In production** (`security_profile=production`) the check runs entirely through the node's installed JCA providers,
+  that is the FIPS 140-3 modules in approved-only mode, never the JDK's internal jar verifier
+  (`JarSignatures.verifyCms`): each signature block is verified as CMS SignedData over its `.SF` with Bouncy Castle FIPS,
+  the signer must chain to `plugin_signing_truststore` and may sign code, a trusted RFC 3161 timestamp moves the date the
+  signature is judged at, the `.SF` must cover the whole manifest (or, after a manifest was extended, its unchanged main
+  attributes and each signed section), and every entry must match its section's digest. Only SHA-256, SHA-384 and SHA-512
+  digests count. Without Bouncy Castle FIPS every jar is refused. The standard profile uses the JDK's verifier
+  (`JarSignatures.verify`); the library's tests hold both verifiers to the same decisions.
 - Jars embedded in the agent jar are trusted as part of it (the release itself is signed: `scripts/sign-release.sh`,
   `scripts/verify-release.sh` in the agent repository).
 

@@ -45,17 +45,19 @@ The regional controller runs an embedded ActiveMQ broker; agents attach to it; r
 | `ActiveBroker` | Embedded ActiveMQ `SslBrokerService` (NIO+SSL, KahaDB) with tuned policies; the regional controller's local broker (default port `32010`). Builds duplex `static:`/failover network connectors to peer brokers. |
 | `ActiveClient` | JMS connection/session factory manager; owns the single `AgentConsumer`/`AgentProducer`. `isFaultURIActive()` is the widely-consumed fabric-liveness signal. |
 | `AgentProducer` / `ActiveProducerWorker` | Outbound send orchestration — isolated control-plane sender, bounded bulk-file pool, per-destination telemetry workers. |
-| `AgentConsumer` | Inbound JMS queue listener; dispatches text `MsgEvent`s and reassembles chunked byte-part file transfers (MD5-verified). |
+| `AgentConsumer` | Inbound JMS queue listener; checks each message's authentication, dispatches text `MsgEvent`s and reassembles chunked byte-part file transfers (verified by SHA-256 content hash). |
 | `MsgQoS` / `ControlPlaneSender` | Control-plane tiering (`LIVENESS > CONTROL > TELEMETRY > BULK`) so telemetry/bulk floods cannot starve agent-liveness traffic. |
 | `MsgRouter` | Regional/global router: computes a route code from src/dst + role and forwards local or remote; times each transaction via the `MeasurementEngine`. |
 | `ActiveBrokerManager` / `BrokeredAgent` / `BrokerMonitor` | Consume discovered candidate brokers and establish/track peer bridges; a lost global path fires the region's fast global-loss detector. |
-| `CertificateManager` | Per-agent PKI: generates a 3-tier RSA X.509 chain, maintains JKS key/trust stores, imports peer certs for mutual TLS. |
+| `CertificateManager` | Per-node PKI: makes (standard profile) or loads (production, operator-issued) the node's X.509 identity, keeps its PKCS12 key/trust stores (BCFKS in FIPS mode), the region CA, revocations and reloads. |
+| `MsgSigning` / `MsgSessions` / `MsgBatchSigner` / `ReplayMemory` | End-to-end [message authentication](../security/message-auth.md): recipient-bound signatures, direct links, batch signatures, session keys, the replay memory. |
+| `DataplaneBridgeInbound` | Broker plugin: a bridged topic message waits in line while its topic is full (dataplane [backpressure](../architecture/dataplane.md#backpressure-nothing-lost-order-kept)), at most `broker_bridge_flow_control_wait_ms` with nothing taken. |
 
 See [Messaging & Routing](../architecture/messaging.md) and [Security & Identity](../architecture/security.md).
 
 ### netdiscovery — peer/broker discovery
 
-Finds other agents via UDP broadcast/multicast (IPv4 and IPv6), Netty TCP listen/respond, and static point-to-point TCP for cross-region/NAT peers. Trust is bootstrapped with an AES shared-secret challenge (`DiscoveryCrypto`) followed by X.509 certificate exchange. Default discovery port `32005`. Detailed in [Discovery](../architecture/discovery.md).
+Finds other agents via UDP broadcast/multicast (IPv4 and IPv6), Netty TCP listen/respond, and static point-to-point TCP for cross-region/NAT peers. Locator messages carry a validator keyed from the discovery secret (`DiscoveryCrypto`, AES-256-GCM); trust is established only by the authenticated discovery v2 exchange (`DiscoveryAuth`: HMAC-SHA-384 keyed by the discovery secret, or signatures under the operator's PKI in production). Default discovery port `32005`. Detailed in [Discovery](../architecture/discovery.md).
 
 ### db — persistence (embedded Derby)
 
@@ -85,7 +87,7 @@ The `netmetrics` package also hosts [cost-aware routing](../architecture/dynamic
 
 ### data — the data plane
 
-`DataPlaneServiceImpl` is the concrete `DataPlaneService`: agent/region/global JMS topics, QoS classification, Siddhi CEP creation, and chunked file transfer (5 MB parts, MD5-verified). `CEPEngine`/`CEPInstance` bridge a data-plane input listener to a Siddhi runtime and republish results. See [Data Plane](../architecture/dataplane.md).
+`DataPlaneServiceImpl` is the concrete `DataPlaneService`: agent/region/global JMS topics, send lanes and paced listeners (backpressure), stream sequence numbers (`cresco_seq`/`cresco_gap`), QoS classification, Siddhi CEP creation, and chunked file transfer (5 MB parts, verified by SHA-256 content hash). `CEPEngine`/`CEPInstance` bridge a data-plane input listener to a Siddhi runtime and republish results. See [Data Plane](../architecture/dataplane.md).
 
 ## Key configuration
 
@@ -99,7 +101,7 @@ The controller reads a large configuration surface (see [Configuration](../getti
 | `regional_controller_host` | — | Parent region's host (agents). |
 | `discovery_port` | `32010` | Broker port. |
 | `discovery_port_remote` | `32010` | Peer broker port for the network bridge. |
-| `discovery_secret_{agent,region,global}` | — | AES discovery shared secrets. |
+| `discovery_secret_{agent,region,global}` | — | Discovery shared secrets (standard profile; refused in production). |
 | `watchdog_interval` | `15000` | Watchdog config-update period (ms). |
 | `enable_{udp,tcp}_discovery` | — | Discovery transports. |
 | `enable_controllermon` | — | Start measurement/perf monitors. |

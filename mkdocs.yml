@@ -35,7 +35,11 @@ theme:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.highlight:
@@ -68,6 +72,7 @@ nav:
       - Overview: security/index.md
       - Secure Defaults: security/secure-defaults.md
       - Security Profiles: security/profiles.md
+      - Message Authentication: security/message-auth.md
       - Operator PKI: security/pki.md
       - Upgrading to 1.3: security/upgrade.md
       - API Authentication: security/api-auth.md
@@ -99,6 +104,7 @@ nav:
   - Operations:
       - Deployment: operations/deployment.md
       - Testing: operations/testing.md
+      - Troubleshooting: operations/troubleshooting.md
   - Reference:
       - Glossary: reference/glossary.md
       - Design Docs: reference/design-docs.md

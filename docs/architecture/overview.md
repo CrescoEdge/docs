@@ -54,8 +54,8 @@ The [controller](../plugins/controller.md) is the fabric brain. Its subsystems, 
 |-----------|------|------|
 | Messaging & routing | [Messaging & Routing](messaging.md) | MsgEvent, MsgRouter, ActiveMQ brokers, federation bridges, QoS |
 | Data plane | [Data Plane](dataplane.md) | streaming topics, sharding, CEP |
-| Discovery | [Discovery](discovery.md) | UDP/TCP discovery, join secrets, certification |
-| Security & identity | [Security & Identity](security.md) | X.509 identity, mutual TLS, regional-CA trust, signing |
+| Discovery | [Discovery](discovery.md) | UDP/TCP discovery, the authenticated exchange (join secrets or the operator's PKI), certification |
+| Security & identity | [Security & Identity](security.md) | X.509 identity, mutual TLS, regional-CA trust, end-to-end message authentication |
 | Multi-tenancy | [Multi-Tenancy](tenancy.md) | destination namespacing, role-based authorization |
 | Health & state | [Health & State](health.md) | Felix health checks, mesh health rollup, state machine |
 | Metrics | [Metrics & Measurements](metrics.md) | Micrometer model, mesh-wide `getmetricinventory` |
@@ -66,8 +66,9 @@ database.
 ## Lifecycle at a glance
 
 1. A node boots the Felix host and the controller ([agent](../plugins/agent.md) module).
-2. It [discovers](discovery.md) a parent (region/global) by broadcasting/connecting with the tier
-   **join secret**, and exchanges/establishes [trust](security.md).
+2. It [discovers](discovery.md) a parent (region/global) by broadcasting/connecting and establishes
+   [trust](security.md) over an authenticated exchange (the tier **join secret** in the standard profile, the
+   operator's PKI in production).
 3. It opens its [messaging](messaging.md) channels (inbox queue + producers) and, if a controller, starts
    its broker and federation bridges.
 4. [Watchdog/liveness](health.md) pings keep parent links healthy; [metrics](metrics.md) stream to the

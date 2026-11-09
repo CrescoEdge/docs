@@ -9,8 +9,9 @@ is *not* enough on its own.
 **1. Message priority (queue layer).** `MsgQoS` classifies every MsgEvent into a tier —
 `LIVENESS` (JMS priority 9, persistent), `CONTROL` (7, persistent), `TELEMETRY` (4,
 non-persistent), `BULK` (1). `AgentProducer` routes the control-plane tiers to a dedicated
-`ControlPlaneSender`. The broker has `prioritizedMessages` on and producer flow control off, so a
-backed-up destination never blocks a producer.
+`ControlPlaneSender`. The broker has `prioritizedMessages` on and producer flow control off on queues, so a
+backed-up control destination never blocks a producer. (Topics, the data plane, now run with producer flow control on:
+[dataplane backpressure](../architecture/dataplane.md#backpressure-nothing-lost-order-kept).)
 
 This orders messages **within one destination**. It does nothing across destinations, and nothing
 at all below the queue layer.
@@ -85,7 +86,7 @@ threshold). The legacy `period_multiplier` is still honoured as a fallback for e
 | `agentconsumer_dedicated_connection` | `true` | Agent inbox consumer gets its own TCP connection (non-`vm://`). |
 | `broker_control_bridge_split` | `true` | Split broker bridges into queues-only and topics-only connectors. |
 | `broker_bridge_prefetch` | `100` | Prefetch on the control bridge connector. |
-| `broker_bridge_prefetch_data` | `10` | Prefetch on data bridge connectors. |
+| `broker_bridge_prefetch_data` | `64` | Prefetch on data bridge connectors (was 10 when this was written; raised 2026-09-26: at 10 a bridge that fell briefly behind shed frames). |
 | `queue_prefetch_limit` | `100` | Queue consumer prefetch (control inboxes). |
 | `topic_prefetch_limit` | `100` | Topic consumer prefetch. |
 | `dataplane_session_wait_sec` | `30` | Bound on waiting for the messaging plane in `getSession()`. |

@@ -14,6 +14,7 @@ production profile), `controller/docs/pre-provisioned-identity.md` (operator PKI
 |---|---|
 | [Secure defaults](secure-defaults.md) | what a node does with no security setting, what it refuses, how to check it |
 | [Security profiles](profiles.md) | `standard` (the default) and `production` (operator PKI, FIPS, no passwords) |
+| [Message authentication](message-auth.md) | recipient-bound signatures, direct links, batch signatures, session keys, revocations on every message |
 | [Operator PKI](pki.md) | pre-provisioned identities and `tools/cresco-pki.sh` |
 | [Upgrading to 1.3](upgrade.md) | the order, the time-boxed upgrade window, checks and rollback |
 | [API authentication](api-auth.md) | wsapi users, API tokens, the service key, client certificates (mTLS) |
@@ -28,9 +29,12 @@ production profile), `controller/docs/pre-provisioned-identity.md` (operator PKI
 - **Transport.** Broker connections (`nio+ssl`) and the wsapi API are TLS; the broker requires client certificates
   (`broker_require_client_auth`) and binds each connection to the identity its certificate names.
 - **Authorization.** The broker stamps the verified caller of every message (`cresco_caller`, kind `controller`,
-  `agent`, `plugin` or `api`), receivers check it against each action's roles (`@CrescoAction(roles=...)`), and
-  every message a node originates is signed with its identity key (RSA-3072/SHA-384 by default) and checked before it
-  is dispatched (`msg_signing_required`).
+  `agent`, `plugin` or `api`) and receivers check it against each action's roles (`@CrescoAction(roles=...)`).
+- **Message authentication.** Every message a node originates is authenticated end to end and checked by its recipient
+  before it is dispatched (`msg_signing_required`): unsigned between a node and its own parent or child (the receiving
+  broker attests it first hand), otherwise signed with the node's identity key (RSA-3072/SHA-384, batched under load) or
+  MAC'd under an end-to-end session key. The recipient is covered, so no other node accepts it, and the signer's
+  revocations are checked on every message ([Message authentication](message-auth.md)).
 - **Tenancy.** Destinations are namespaced per tenant (`T.<tenant>.*`); a tenant's nodes and users reach only their
   tenant, except admins of a superuser tenant (`broker_superuser_tenants`, default `cresco-system`).
 - **Code.** Every plugin jar that does not come embedded in the agent jar is installed only if it verifies against
