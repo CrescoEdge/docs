@@ -2919,8 +2919,9 @@ below is missing or anything disallowed is set:</p>
 </table>
 <p>Optional: <code>revocation_file</code> (the operator's CRLs and deny list), <code>controller_trust_anchors</code>. Refused: every setting
 that weakens security, the upgrade window, <code>security_regional_ca=true</code>, <code>peer_identity_rebind</code>, inline passwords and
-secrets on the command line. Secrets a production node does use (the discovery secrets that admit a node to discovery,
-for example) come only from owner-only <code>&lt;name&gt;_file</code> files or <code>CRESCO_&lt;NAME&gt;</code> environment variables.</p>
+secrets on the command line. Any secret a production node is given comes only from an owner-only <code>&lt;name&gt;_file</code> file or
+a <code>CRESCO_&lt;NAME&gt;</code> environment variable; whether your build still admits nodes to discovery with the discovery secrets
+beside the PKI is in its <code>controller/docs/production-deployment.md</code>.</p>
 <h2 id="plugins-follow-the-nodes-profile">Plugins follow the node's profile<a class="headerlink" href="#plugins-follow-the-nodes-profile" title="Permanent link">&para;</a></h2>
 <p>Plugins read the profile from their controller, <code>PluginBuilder.getSecurityProfile()</code> (<code>PRODUCTION</code> when the
 controller cannot be asked), never from their own configuration. wsapi refuses to start when its own <code>security_profile</code>
@@ -2934,8 +2935,7 @@ in production.</p>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>trust_anchors=/etc/cresco/trust-anchors.pem
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>plugin_signing_truststore=/etc/cresco/codesign-anchors.pem
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>revocation_file=/etc/cresco/revocations.pem               # optional
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>discovery_secret_global_file=/etc/cresco/discovery_global  # owner-only files (likewise _region, _agent)
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>wsapi_client_ca=/etc/cresco/api-client-ca.pem             # wsapi: the CA of API client certificates
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>wsapi_client_ca=/etc/cresco/api-client-ca.pem             # wsapi: the CA of API client certificates
 </code></pre></div>
 
 
