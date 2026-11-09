@@ -16,10 +16,10 @@ getter takes a parameter name and (usually) a default value, e.g.
 3. **The default baked into the getter call** — used when neither of the above supplies a value.
 
 Because every getter ships with a default, **an unconfigured node runs with sane, shipped
-behavior**; you only set the parameters you want to change. Most feature-gates are
-**default-off** (e.g. `broker_security_enabled=false`, `net_autotune=false`,
-`tenant_namespacing=false`, `enable_udp_discovery=false`), so enabling a capability is an
-explicit, opt-in decision. A handful of getters have **no default** (see the *Unset =
+behavior**; you only set the parameters you want to change. **Security is on by default** since the 1.3 hardening
+(`broker_security_enabled`, `broker_require_client_auth`, `tenant_namespacing`, message and plugin signing; see
+[Secure defaults](../security/secure-defaults.md)); other feature-gates are **default-off** (e.g. `net_autotune=false`,
+`enable_udp_discovery=false`), so enabling those is an explicit, opt-in decision. A handful of getters have **no default** (see the *Unset =
 disabled* note on each such row); when unset they return `null` and the corresponding feature
 is skipped.
 
@@ -47,20 +47,33 @@ explicitly.
 ## Security & tenancy (read this first)
 
 These flags govern who can connect to the broker, whose identity is asserted, and how tenants
-are isolated. **All of them are default-off**, so a stock node behaves exactly as it always
-has — enabling them is a deliberate hardening/tenancy decision. Enable them consistently
-across a region; a mixed fleet (some nodes enforcing, some not) will not behave as intended.
+are isolated. Since the 1.3 hardening they are **on by default**: a node with no security setting runs secured, and
+insecure operation is only an explicit `broker_security_enabled=false` debug mode. Upgrading an earlier fabric follows
+[Upgrading to 1.3](../security/upgrade.md); the profiles are in [Security profiles](../security/profiles.md).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `broker_security_enabled` | boolean | `false` | Master switch for broker authentication/authorization. When on, external (non-`vm://`) clients must assert an identity (JMS username `tenant\|region\|agent`, or a cert subject under mutual TLS) and are checked against the tenant policy; when off the ACL plugin is never installed and the broker behaves as before. |
-| `broker_require_client_auth` | boolean | `false` | Require mutual TLS (client certificate) on the broker transport connector. When on, clients without a trusted certificate are rejected at the TLS layer. |
+| `security_profile` | String | `standard` | `production`: operator-issued identities (`identity_keystore`, `identity_keystore_password_file`, `trust_anchors`), `plugin_signing_truststore`, every security setting mandatory, no passwords, FIPS approved-only crypto ([profiles](../security/profiles.md)). |
+| `crypto_fips_mode` | boolean | production: `true` | FIPS 140-3 approved-only mode ([FIPS](../security/fips.md)); `false` is refused with the production profile. |
+| `crypto_fips_provider` | String | `auto` | `auto`: ACCP-FIPS first where it runs (Linux x86_64/aarch64); `accp`: required; `bcfips`: Bouncy Castle FIPS only. |
+| `crypto_fips_tls` | String | `sunjsse` | `bcjsse`: TLS by BCJSSE over Bouncy Castle FIPS (TLS 1.3 and 1.2; slower). |
+| `msg_signing_required` | boolean | `broker_security_enabled` | Sign every message a node originates and check it before dispatch. |
+| `plugin_signing_required` | boolean | `broker_security_enabled` | Install a plugin jar arriving over the network only if it verifies against `plugin_signing_truststore` ([signed plugins](../security/signed-plugins.md)). |
+| `plugin_signing_truststore` | String | (none) | The anchors plugin jar signatures must chain to (a PEM bundle, or PKCS12 with `plugin_signing_truststore_password` outside FIPS mode). |
+| `identity_keystore`, `identity_keystore_password_file`, `trust_anchors`, `revocation_file` | String | (none) | A pre-provisioned identity ([operator PKI](../security/pki.md)); required in production. |
+
+The broker and tenancy flags:
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `broker_security_enabled` | boolean | `true` | Master switch for broker authentication/authorization. When on, external (non-`vm://`) clients must assert an identity (JMS username `tenant\|region\|agent`, or a cert subject under mutual TLS) and are checked against the tenant policy; when off the ACL plugin is never installed and the broker behaves as before. |
+| `broker_require_client_auth` | boolean | follows security (`true`) | Require mutual TLS (client certificate) on the broker transport connector. When on, clients without a trusted certificate are rejected at the TLS layer. |
 | `broker_security_secret` | String | `cresco` | Shared password the local controller and clients present as the JMS password when `broker_security_enabled` is on. Change this from the default in any secured deployment. |
 | `broker_superuser_tenants` | String | `cresco-system` | Comma-separated list of tenant IDs whose **network** clients are granted the cross-tenant SUPERUSER ("god view") role — e.g. a fabric-admin dashboard that must see every tenant. The local `vm://` controller and broker bridges are already exempt. |
 | `broker_shared_destinations` | String | `agent.event,region.event,global.event` | Comma-separated destination prefixes treated as fabric-shared control destinations that all tenants may use (the control-plane event topics). |
 | `broker_security_log_allow` | boolean | `false` | Log *allowed* (not just denied) authorization decisions in the broker ACL plugin — verbose; for debugging tenant policy only. |
 | `security_regional_ca` | boolean | `false` | Enable Regional-CA identity mode ("Option C"): during discovery the region acts as issuing authority and signs each joining node a region-signed leaf certificate, and joiners present that identity. When off, the legacy self-signed discovery exchange is used. |
-| `tenant_namespacing` | boolean | `false` | Namespace broker destinations, dataplane topics, and producer routing per tenant so that tenants are isolated on shared topics. Off = the historical single flat namespace. |
+| `tenant_namespacing` | boolean | follows security (`true`) | Namespace broker destinations, dataplane topics, and producer routing per tenant so that tenants are isolated on shared topics. Off = the historical single flat namespace. |
 | `tenant_id` | String | `default` | The tenant this node belongs to; used to build the asserted broker identity, tenant-namespaced destinations, and the node's certificate subject. |
 | `discovery_secret_agent` | String | random UUID | Shared secret validating **agent**-level discovery messages. Computed default is a random UUID per boot, so peers must be given a matching explicit value to discover each other. |
 | `discovery_secret_region` | String | random UUID | Shared secret validating **region**-level discovery messages (region joining/forming). Random UUID by default — set explicitly across the region. |

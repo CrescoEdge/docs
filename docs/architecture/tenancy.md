@@ -5,7 +5,8 @@ the same inter-broker bridges — with end-to-end isolation. It builds directly 
 [security model](security.md) (the tenant is cryptographically bound into each node's certificate DN as
 `O=<tenant>`).
 
-Everything here is gated by `tenant_namespacing` (default off → the fabric is unchanged). The full design
+Everything here is gated by `tenant_namespacing`, which follows `broker_security_enabled` and so is **on by default**
+since the 1.3 hardening ([Secure defaults](../security/secure-defaults.md)). The full design
 and threat model live in the tenant-isolation design doc; see [Design Docs](../reference/design-docs.md).
 
 ## The principle: one global invariant, enforced locally

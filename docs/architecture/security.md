@@ -1,8 +1,15 @@
 # Security & Identity
 
-Cresco's security model has three layers, each independently switchable and default-off so a fabric can be
-hardened incrementally: **identity**, **trust**, and **authorization**. Multi-tenant isolation builds on
-top of these and has its own page: [Multi-Tenancy](tenancy.md).
+Cresco's security model has three layers: **identity**, **trust**, and **authorization**. Multi-tenant isolation
+builds on top of these and has its own page: [Multi-Tenancy](tenancy.md).
+
+!!! note "1.3: secure by default"
+    Since the 1.3 hardening every layer is **on by default** (insecure operation is only an explicit
+    `broker_security_enabled=false` debug mode), and the production profile adds operator-issued identities and FIPS
+    140-3 approved-only crypto. The operator's guide is the [Security](../security/index.md) section:
+    [secure defaults](../security/secure-defaults.md), [profiles](../security/profiles.md),
+    [operator PKI](../security/pki.md), [upgrade](../security/upgrade.md), [API authentication](../security/api-auth.md),
+    [signed plugins](../security/signed-plugins.md) and [FIPS](../security/fips.md). This page describes the mechanisms.
 
 ## Identity — the certificate *is* the identity
 
