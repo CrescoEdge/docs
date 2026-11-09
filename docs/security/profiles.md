@@ -29,8 +29,9 @@ below is missing or anything disallowed is set:
 
 Optional: `revocation_file` (the operator's CRLs and deny list), `controller_trust_anchors`. Refused: every setting
 that weakens security, the upgrade window, `security_regional_ca=true`, `peer_identity_rebind`, inline passwords and
-secrets on the command line. Secrets a production node does use (the discovery secrets that admit a node to discovery,
-for example) come only from owner-only `<name>_file` files or `CRESCO_<NAME>` environment variables.
+secrets on the command line. Any secret a production node is given comes only from an owner-only `<name>_file` file or
+a `CRESCO_<NAME>` environment variable; whether your build still admits nodes to discovery with the discovery secrets
+beside the PKI is in its `controller/docs/production-deployment.md`.
 
 ## Plugins follow the node's profile
 
@@ -49,6 +50,5 @@ identity_keystore_password_file=/etc/cresco/node.p12.pass
 trust_anchors=/etc/cresco/trust-anchors.pem
 plugin_signing_truststore=/etc/cresco/codesign-anchors.pem
 revocation_file=/etc/cresco/revocations.pem               # optional
-discovery_secret_global_file=/etc/cresco/discovery_global  # owner-only files (likewise _region, _agent)
 wsapi_client_ca=/etc/cresco/api-client-ca.pem             # wsapi: the CA of API client certificates
 ```
