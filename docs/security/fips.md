@@ -12,9 +12,10 @@ modules and, in the production profile, runs the whole JVM in **FIPS approved-on
 | Amazon Corretto Crypto Provider, FIPS build (ACCP-FIPS), over AWS-LC FIPS 3.0.0 | 2.5.0 | CMVP #4816 (AWS-LC) | Linux x86_64 and aarch64 |
 
 The agent jar carries them **unmodified** under `crypto/`: a FIPS module checks its own jar, so none is repackaged into
-the agent or a bundle. At start the agent writes each to a new owner-only directory, checks it against the SHA-384 the
-build's known-vulnerability gate recorded (covered by the release signature) and appends it to the system class path
-(the jar's `Launcher-Agent-Class`). The OSGi framework exports the Bouncy Castle packages from there, and the controller
+the agent or a bundle. At start the agent writes each to a new owner-only temporary directory (`cresco-crypto-<pid>-...`,
+removed when the agent exits; a start also removes this user's directories whose agent is no longer running), checks it
+against the SHA-384 the build's known-vulnerability gate recorded (covered by the release signature) and appends it to
+the system class path (the jar's `Launcher-Agent-Class`). The OSGi framework exports the Bouncy Castle packages from there, and the controller
 and wsapi import them instead of embedding Bouncy Castle. The SBOM lists each module as `crypto/<jar>` with its Maven
 coordinates.
 
@@ -35,6 +36,15 @@ coordinates.
       `crypto: FIPS 140-3 approved-only mode: <modules>; ... MD5 refused`.
     - Refused: `crypto_fips_mode=false` with the production profile, `cresco_ssl_provider=CONSCRYPT` and wsapi's
       `wsapi_ssl_provider=OPENSSL` (BoringSSL is not a FIPS module).
+    - Plugin jar signatures are verified through the installed providers only (CMS with Bouncy Castle FIPS, digests by
+      the modules; SHA-256/384/512 only), never the JDK's internal jar verifier ([Signed plugins](signed-plugins.md)).
+
+The controller does not take the mode on trust: before a `production` node starts it checks that every JCA provider is
+one FIPS mode leaves (`BCFIPS`, `BCJSSE`, `CrescoACCP-FIPS`, `CrescoFIPS`, `SunJSSE`), that Bouncy Castle FIPS is in
+approved-only mode and passed its self-tests, that ACCP-FIPS (where installed) is the FIPS build and healthy, that MD5 is
+refused and that SHA-384 gives its known answer, and logs `FIPS 140-3 approved-only mode verified (self-tests passed,
+MD5 refused): <providers>`. Otherwise it refuses to start: `REFUSING TO START: security_profile=production runs in FIPS
+140-3 approved-only mode, and this JVM is not in it: <why>`.
 
 | Setting | Default | Meaning |
 |---|---|---|
@@ -70,9 +80,9 @@ measures the dataplane through running agents, on one node or across the broker 
 | Apple M3 Max, standard (JDK) | 4942 | 1890 | 519 | 1577 |
 | Apple M3 Max, FIPS: BC-FJA only | 116 | 56 | 422 | 3570 |
 
-End to end, on one DGX node (Xeon 8480CL, 8 cores; `dataplane_perf.py`, the Python client, 2000 x 256 KiB frames): a
-production (FIPS) mesh moved 299 MiB/s through one agent and 280 MiB/s from one agent to another across the broker
-bridge; a standard mesh 246 and 219 MiB/s. On Linux the default FIPS mode is faster than the JDK. Where ACCP-FIPS has no build (macOS, Windows) BC-FJA serves
+End to end, on one DGX node (Xeon 8480CL, 8 cores; `dataplane_perf.py`, the Python client, 2000 x 256 KiB frames;
+2026-11-08, the build before dataplane backpressure): a production (FIPS) mesh moved 299 MiB/s through one agent and
+280 MiB/s from one agent to another across the broker bridge; a standard mesh 246 and 219 MiB/s. On Linux the default FIPS mode is faster than the JDK. Where ACCP-FIPS has no build (macOS, Windows) BC-FJA serves
 everything in pure Java and TLS is far slower (the agent logs a WARNING): run production on Linux.
 
 ## Clients

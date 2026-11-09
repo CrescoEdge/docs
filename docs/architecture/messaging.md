@@ -39,6 +39,21 @@ arbitrary default. Transit regions then **relay** the flow toward its destinatio
     *next hop* from `getForwardDst()`. Under [tenant namespacing](tenancy.md) the origin tenant is stamped
     once and preserved, so every relay qualifies the destination queue identically.
 
+## Authentication end to end
+
+Every broker stamps the verified caller of each hop (`cresco_caller`). Beyond one hop, the origin's word is carried by
+the message itself: every MsgEvent a node originates is authenticated by its origin and checked by its recipient before
+dispatch ([Message authentication](../security/message-auth.md)):
+
+- between a node and its own parent or child (no relay) it travels unsigned, attested first hand by the receiving
+  broker (`cresco_direct`);
+- otherwise it carries a signature (RSA-3072/SHA-384, batched under load) or, between two nodes that hold a session key,
+  an HMAC-SHA-384.
+
+The signature or MAC covers the **recipient** the origin's router chose (`cresco_sig_to`): a relay can carry a message
+on, but a copy re-sent to any other node is refused there. Relays do not sign what they carry, and a message a node only
+carries on is checked wherever it is finally dispatched.
+
 ## The broker fabric
 
 Region and global controllers run an embedded ActiveMQ (`SslBrokerService`) via `ActiveBroker`. Agents
@@ -50,10 +65,15 @@ Notable broker configuration (all tunable — see the
 
 - **KahaDB** persistence with journal disk-syncs off by default (persistence is used as a flow-control
   mechanism, not for crash durability).
-- Producer flow control off, prioritized messages on, per-destination memory limits, large socket buffers.
+- Prioritized messages on, per-destination memory limits, large socket buffers. Producer flow control is **off on
+  queues** (the control plane: a liveness ping must never wait behind bulk) and **on for topics** (the
+  [data plane](dataplane.md#backpressure-nothing-lost-order-kept): a subscriber that falls behind slows the topic's
+  writers instead of losing messages; `activemq_topic_producer_flow_control`, `dataplane_backpressure`).
 - **Network bridges** (`AddNetworkConnector` / `buildConnector`) are duplex, demand-forwarding, with a
-  configurable `networkTTL`; parallel connectors per peer can be added/removed at runtime
-  (`addBridgeConnections`) for throughput.
+  configurable `networkTTL`. Each bridge group is split by destination type (`broker_control_bridge_split`): connector 0
+  forwards queues only (the MsgEvent control fabric, prefetch `broker_bridge_prefetch`, 100), connectors 1..N topics only
+  (the data plane, prefetch `broker_bridge_prefetch_data`, 64, sending synchronously so the prefetch is the bridge's
+  credit window). Parallel connectors per peer can be added/removed at runtime (`addBridgeConnections`) for throughput.
 
 ## Federation (network of brokers)
 

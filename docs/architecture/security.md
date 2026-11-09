@@ -22,7 +22,8 @@ CN=<agent>, OU=<region>, O=<tenant>, UID=<stable-node-uid>
 
 `CrescoIdentity` parses this both ways (identity ⇄ DN). Because identity is bound *into* the certificate,
 any holder of the issuing CA can cryptographically verify a node's claimed tenant/region/agent — there is
-no separate identity database to trust.
+no separate identity database to trust. In the `production` [security profile](../security/profiles.md) nothing is
+generated or enrolled: every identity is issued ahead of time by the operator's PKI ([Operator PKI](../security/pki.md)).
 
 ## Transport — mutual TLS
 
@@ -45,7 +46,11 @@ persistent region CA; a joining node enrolls over the [discovery](discovery.md) 
 join secret), and the region CA **signs it a leaf with a stamped identity** and returns the chain. Globals
 distribute (do not sign) trust — they aggregate region-CA bundles and gossip them across the mesh, so an
 agent under one global can verify an agent under another. This scales to a large mesh with no central CA
-and no single point of compromise.
+and no single point of compromise. The region CA's private key (`region-ca.p12` in the node's identity directory) is
+encrypted at rest under `region_ca_password_file`, an owner-only file of at least 16 characters the operator keeps
+elsewhere (a mounted secret, another volume); without it the key is protected only by the random password beside it and
+that directory's permissions, and a WARNING says so. The regional CA is a `standard`-profile convenience: production
+refuses `security_regional_ca=true`.
 
 ## Authorization — role-based tenant ACLs
 
@@ -60,13 +65,18 @@ consumer/producer/send against `TenantPolicy` using the connection's verified id
 
 This is the enforcement point for [multi-tenancy](tenancy.md).
 
-## Message signing & payload encryption
+## End-to-end message authentication
 
-Beyond transport TLS, the library provides `MessageSigner` for **selective, end-to-end message signing** —
-a sender signs the payload digest with its leaf key; any receiver verifies with the sender's leaf
-(chain-validated), proving origin and tamper-evidence independent of how many brokers relayed the message.
-Optional payload encryption to a recipient's public key is available for confidentiality beyond the first
-hop.
+Transport TLS and the broker's caller stamp vouch for one hop. Every MsgEvent a node originates is also authenticated by
+its origin and checked by its recipient before dispatch, so the origin's word survives relays, source routes and the
+bridges of other regions: unsigned between a node and its own parent or child (the receiving broker attests the sender
+first hand), otherwise an RSA-3072/SHA-384 signature (batched under load) or an HMAC-SHA-384 under an end-to-end session
+key agreed with ECDH P-384. The signature or MAC covers the recipient (`cresco_sig_to`), so a message signed for one node
+is refused by any other, and the signer's revocations are checked on every message. See
+[Message authentication](../security/message-auth.md).
+
+The library also offers plugins `io.cresco.library.security.MessageSigner`, a plain sign/verify of a byte payload with a
+private key or a certificate's public key.
 
 ## Crypto policy — one set of allowed algorithms per fabric
 
@@ -80,11 +90,13 @@ and agents ignore local crypto keys. A node without the policy refuses every alg
 (fail closed). Existing data, fixed wire formats and verification are never refused. See the
 [configuration reference](../reference/configuration.md#fabric-crypto-policy-global-controller-only).
 
-## Enable it, in order
+## Defaults
 
-1. `security_regional_ca=true` — every node gets a CA-signed, identity-bearing leaf.
-2. `broker_require_client_auth=true` — mutual TLS binds identity non-spoofably.
-3. `broker_security_enabled=true` — the ACL enforces tenant isolation.
-4. `tenant_namespacing=true` — end-to-end [tenant](tenancy.md) destination isolation.
+Since the 1.3 hardening mutual TLS (`broker_require_client_auth`), the authorization broker (`broker_security_enabled`),
+tenant namespacing (`tenant_namespacing`), message authentication (`msg_signing_required`) and plugin signing
+(`plugin_signing_required`) are **on by default**. With security on, `broker_require_client_auth=false` or
+`tenant_namespacing=false` refuses the start; `msg_signing_required=false` and `plugin_signing_required=false` are
+development settings, logged as a WARNING (and refused in production). `security_regional_ca` stays opt-in (standard
+profile only). See [Secure defaults](../security/secure-defaults.md).
 
 The full rationale is in the distributed-identity-trust design doc — see [Design Docs](../reference/design-docs.md).

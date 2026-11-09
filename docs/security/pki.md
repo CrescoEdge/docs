@@ -48,8 +48,21 @@ Start a node with
   and its password file not readable by them either), in directories only that user or root can write; otherwise the node
   refuses to start, and a later change raises a CRITICAL `identity` alarm.
 - A replaced keystore is reloaded within `identity_keystore_reload_seconds` (30) without dropping a connection; one that
-  does not validate is refused and the node keeps its identity.
+  does not validate is refused and the node keeps its identity. Trust anchors and the revocation file are reloaded the
+  same way. A reload is atomic: the files are read as one set (one that changes while it is read is taken at the next
+  check), everything is validated and built aside, then put in force at once; a handshake always gets one chain and its
+  key. The role a peer has is the one its presented certificate carries, never one remembered for its name.
 - Revocation: the operator's `revocation_file` (CRLs and a deny list of `key:`, `cert:` or `name:` entries) and the signed
   revocation lists controllers exchange; a revoked key is refused at TLS, at the broker and in discovery, and live
-  connections holding it are closed.
+  connections holding it are closed. Message authentication applies `revocation_file` itself, **on every message**: the
+  signer's certificate and the certificates above it are checked against the operator's keys, certificates and CRL
+  serials ([Message authentication](message-auth.md)). Revoking a name reserves it; a rebind token
+  (`<region>/<agent>=<new key fingerprint>`) lifts that once the PKI issued a new certificate, and only for a chain the
+  PKI accepts in full (a refused chain never spends the token).
+- **CRL freshness.** A CRL must carry a `nextUpdate` and a CRL number (the tool's do). Past its `nextUpdate` (plus
+  `revocation_crl_grace_seconds`, default 0) the revocation status of its CA's certificates is unknown and they are
+  refused until `revocation_file` is refreshed (`cresco-pki.sh crl`): the `identity` alarm is CRITICAL then, and WARN in
+  the CRL's last week. CRL numbers only go up: the highest in force per CA is recorded, and a file whose CRL of a trusted
+  CA is older, or missing, is refused at reload (the current revocations stay in force) and at start (`REFUSING TO
+  START ... went BACKWARDS`).
 - Expiry is alarmed by the `identity` health check (WARN in the renewal window, CRITICAL near and at expiry).

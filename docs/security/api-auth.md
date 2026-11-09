@@ -1,6 +1,6 @@
 # API authentication
 
-API clients (pycrescolib, clientlib, tools such as GaiaKeep) reach the fabric through wsapi's three WebSocket endpoints:
+API clients (pycrescolib, clientlib, other tools) reach the fabric through wsapi's three WebSocket endpoints:
 the API socket (`/api/apisocket`), the dataplane (`/api/dataplane`) and the log stream (`/api/logstreamer`). Every
 upgrade request authenticates, on every endpoint. Source: the wsapi README.
 

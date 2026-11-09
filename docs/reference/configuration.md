@@ -57,10 +57,12 @@ insecure operation is only an explicit `broker_security_enabled=false` debug mod
 | `crypto_fips_mode` | boolean | production: `true` | FIPS 140-3 approved-only mode ([FIPS](../security/fips.md)); `false` is refused with the production profile. |
 | `crypto_fips_provider` | String | `auto` | `auto`: ACCP-FIPS first where it runs (Linux x86_64/aarch64); `accp`: required; `bcfips`: Bouncy Castle FIPS only. |
 | `crypto_fips_tls` | String | `sunjsse` | `bcjsse`: TLS by BCJSSE over Bouncy Castle FIPS (TLS 1.3 and 1.2; slower). |
-| `msg_signing_required` | boolean | `broker_security_enabled` | Sign every message a node originates and check it before dispatch. |
+| `msg_signing_required` | boolean | `true` (with `broker_security_enabled`) | Authenticate every message a node originates and check it before dispatch ([message authentication](../security/message-auth.md); its other settings are below). `false` is a development setting (a WARNING) and refused in production. |
 | `plugin_signing_required` | boolean | `broker_security_enabled` | Install a plugin jar arriving over the network only if it verifies against `plugin_signing_truststore` ([signed plugins](../security/signed-plugins.md)). |
 | `plugin_signing_truststore` | String | (none) | The anchors plugin jar signatures must chain to (a PEM bundle, or PKCS12 with `plugin_signing_truststore_password` outside FIPS mode). |
-| `identity_keystore`, `identity_keystore_password_file`, `trust_anchors`, `revocation_file` | String | (none) | A pre-provisioned identity ([operator PKI](../security/pki.md)); required in production. |
+| `identity_keystore`, `identity_keystore_password_file`, `trust_anchors`, `revocation_file` | String | (none) | A pre-provisioned identity ([operator PKI](../security/pki.md)); required in production (`revocation_file` optional). |
+| `revocation_crl_grace_seconds` | long | `0` | How long past a CRL's `nextUpdate` its CA's certificates are still judged by it; after that they are refused until `revocation_file` is refreshed. |
+| `region_ca_password_file` | String | (none) | An owner-only file whose first line (16 characters at least) encrypts the region CA's private key at rest (`security_regional_ca`); unset: only the random password beside the key protects it, and a WARNING says so. |
 
 The broker and tenancy flags:
 
@@ -75,18 +77,40 @@ The broker and tenancy flags:
 | `security_regional_ca` | boolean | `false` | Enable Regional-CA identity mode ("Option C"): during discovery the region acts as issuing authority and signs each joining node a region-signed leaf certificate, and joiners present that identity. When off, the legacy self-signed discovery exchange is used. |
 | `tenant_namespacing` | boolean | follows security (`true`) | Namespace broker destinations, dataplane topics, and producer routing per tenant so that tenants are isolated on shared topics. Off = the historical single flat namespace. |
 | `tenant_id` | String | `default` | The tenant this node belongs to; used to build the asserted broker identity, tenant-namespaced destinations, and the node's certificate subject. |
-| `discovery_secret_agent` | String | random UUID | Shared secret validating **agent**-level discovery messages. Computed default is a random UUID per boot, so peers must be given a matching explicit value to discover each other. |
+| `discovery_secret_agent` | String | random UUID | Shared secret validating **agent**-level discovery messages. Computed default is a random UUID per boot, so peers must be given a matching explicit value to discover each other. Standard profile only: refused in production, whose discovery is the operator's PKI. |
 | `discovery_secret_region` | String | random UUID | Shared secret validating **region**-level discovery messages (region joining/forming). Random UUID by default — set explicitly across the region. |
 | `discovery_secret_global` | String | random UUID | Shared secret validating **global**-level discovery messages (region-to-global join). Random UUID by default — set explicitly across the mesh. |
+
+The three discovery secrets are the standard profile's: under `security_profile=production` any of them set (inline,
+`_file` or `CRESCO_` form) refuses the start.
 
 !!! danger "The discovery secrets default to random UUIDs"
     Because `discovery_secret_agent/region/global` default to a fresh UUID on every boot, two
     nodes will **not** discover one another unless you set the same secret on both. In a real
     deployment these are effectively required, not optional.
 
+### Message authentication
+
+Every message a node originates is authenticated end to end and checked by its recipient
+([Message authentication](../security/message-auth.md)).
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `msg_signature_max_age_ms` | long | `300000` | The signing time's tolerance either way, clock skew included (at least 10 s). |
+| `msg_signing_attestation_hours` | long | `24` | An agent attestation's lifetime. |
+| `msg_signing_bundle_grace_ms` | long | `900000` | How long a controller dropped from the global's trust bundle is still trusted. |
+| `msg_signing_direct` | boolean | `true` | Messages between a node and its parent or children travel unsigned, attested first hand by the receiving broker. |
+| `msg_signing_batch` | boolean | `true` | Messages signed at the same moment share one signature (a Merkle root), to nodes that read them. |
+| `msg_signing_threads` | int | half the cores, 2 to 8 | Signing workers; each signs a batch at a time. |
+| `msg_signing_sessions` | boolean | `true` | End-to-end session keys (HMAC-SHA-384 under an ECDH P-384 key) with the nodes that read them. |
+| `msg_signing_session_seconds` | long | `3600` | A session key's lifetime, renewed ahead of its end (at least 120). |
+| `msg_signing_sessions_max` | long | `200000` | Peers a node holds sessions with; past it a new peer stays signed. |
+| `msg_signing_credentials_max` | long | `100000` | Credentials held verified (an LRU). |
+| `msg_replay_memory_max` | long | `4000000` | Signatures and MACs the replay memory holds (at least 4096); past it the oldest signing times are refused as too old. |
+
 ### Fabric crypto policy (global controller only)
 
-One policy per fabric names the algorithm types Cresco and every plugin (GaiaKeep storage included) may choose
+One policy per fabric names the algorithm types Cresco and every plugin may choose
 for anything **new**: a certificate's signature suite, a storage domain's block hash. It is set on the **global
 controller** and carried to every region and agent (registration replies and pongs); keys set on any other node are
 ignored with a warning, so no node runs a weaker local policy. Plugins read it with `PluginBuilder.getCryptoPolicy()`.
@@ -158,7 +182,10 @@ Core embedded ActiveMQ broker settings — listener, transport, persistence, and
 | `activemq_max_frame_size` | long | `128 MB` | Maximum size of a single JMS message/frame the broker accepts. |
 | `activemq_socket_buffer_size` | int | `2 MB` | TCP send/receive socket buffer size for broker transport connections. |
 | `activemq_prioritized_messages` | boolean | `true` | Enable priority ordering on queues/topics (required for the tiered QoS scheme). |
-| `activemq_producer_flow_control` | boolean | `false` | Block producers when a destination hits its memory limit. Off by default to avoid priority inversion of liveness/control traffic behind bulk. |
+| `activemq_producer_flow_control` | boolean | `false` | Block producers when a **queue** hits its memory limit. Off by default to avoid priority inversion of liveness/control traffic behind bulk. Topics have their own entry (next rows). |
+| `activemq_topic_producer_flow_control` | boolean | `true` | Give topics (the data plane) their own policy with producer flow control on: a topic whose memory is full holds its writers. `false` puts topics back on the queues' policy (no flow control, discarding) and turns `dataplane_backpressure` off. |
+| `activemq_topic_memory_limit` | long | `activemq_destination_memory_limit` (256 MB) | Memory limit of each topic on a broker: what it holds for a slow subscriber before its writers wait. |
+| `broker_discard_accounting` | boolean | `true` | Count and log slow-subscriber discards and slow-consumer episodes (`dataplane.broker.discarded`, `dataplane.broker.slow.consumers`) instead of ActiveMQ's DEBUG-only log. |
 | `activemq_use_cache` | boolean | `false` | Enable the broker's in-memory dispatch cache. Off — no measured throughput gain, saves memory. |
 | `activemq_dedicated_task_runner` | boolean | `false` | Use a dedicated thread per broker task instead of a shared pool. |
 | `activemq_journal_disk_syncs` | boolean | `false` | Force `fsync` on each KahaDB journal write. Off trades durability-on-crash for I/O throughput. |
@@ -172,7 +199,9 @@ Core embedded ActiveMQ broker settings — listener, transport, persistence, and
 | `broker_message_ttl` | int | `5` | Default message time-to-live, **in minutes**; expired messages are discarded. |
 | `broker_bridge_connections` | int | `1` | Number of parallel network-bridge connectors per remote peer broker (spreads load across sockets). |
 | `broker_bridge_prefetch` | int | `100` | Prefetch limit on the **control** inter-broker bridge connector. |
-| `broker_bridge_prefetch_data` | int | `10` | Prefetch limit on **data** bridge connectors, bounding how much bulk is committed ahead of later traffic on the data socket. |
+| `broker_bridge_prefetch_data` | int | `64` | Prefetch limit on **data** bridge connectors, bounding how much bulk is committed ahead of later traffic on the data socket; with synchronous sends it is the bridge's credit window. |
+| `broker_bridge_sync_send` | boolean | `true` | Under `dataplane_backpressure`: data connectors forward each message as a request, acknowledged only once the far broker took it, so a full topic there backs the stream up into this broker's topic. |
+| `broker_bridge_flow_control_wait_ms` | long | `10000` | Under `dataplane_backpressure`: how long a bridged topic message waits in line at the receiving broker with **nothing** taken from the full topic before the bridge delivers past the limit (kept pending, nothing discarded; breaks a cycle of brokers waiting on each other). At least 100. |
 | `broker_control_bridge_split` | boolean | `true` | Split each broker bridge group by destination type: connector 0 forwards queues only (the MsgEvent control fabric), connectors 1..N topics only (the data plane). See [Control/Data Plane Isolation](../design/control-dataplane-isolation.md). |
 | `broker_bridge_decrease_consumer_priority` | boolean | `true` | Decrease a bridged consumer's priority by hop count so ActiveMQ's demand-forwarding prefers the fewest-broker-hop (direct) path. This gives [cost-aware routing](../architecture/dynamic-routing.md) a stable baseline to deliberately override when the direct link is the slow one. |
 | `broker_tls_ready_probe` | boolean | `true` | Probe the broker TLS listener for readiness before proceeding through the boot state machine. |
@@ -397,7 +426,9 @@ traffic across N topics for parallel inter-broker transfer.
 | `dataplane_shards` | int | `1` | Number of shard topics the data plane is split into (`1` = unsharded). |
 | `dataplane_shard_topic` | String | `global.event` | Base topic name for shards (e.g. `global.event.0..N-1`). |
 | `dataplane_parallel_connections` | boolean | **computed** (`shards > 1`) | Use a dedicated broker connection per shard instead of multiplexing all shards over one session. Default is `true` when `dataplane_shards > 1`, else `false`. |
-| `dataplane_send_lanes` | int | `4` | Extra dedicated connections for **unsharded** data-plane sends, chosen per message by its `dp_lane` property. Topic names do not change, so agents with different lane counts interoperate; one connection caps an agent's send rate (one TLS writer). |
+| `dataplane_backpressure` | boolean | `true` | A topic subscriber that falls behind slows the topic's writers instead of losing messages; order kept ([Data Plane](../architecture/dataplane.md#backpressure-nothing-lost-order-kept)). Needs `activemq_topic_producer_flow_control`. `false`: a subscriber more than prefetch × `prefetch_rate_multiplier` messages behind loses its oldest, counted (`dataplane.broker.discarded`). |
+| `dataplane_paced_prefetch` | int | `16` | Consumer prefetch of a paced listener (`PacedListener`, e.g. a wsapi consumer) on its own JMS session. |
+| `dataplane_send_lanes` | int | `4` | Dedicated producer-only connections for **unsharded** data-plane sends, chosen per message by its `dp_lane` property. Under `dataplane_backpressure` every send rides a lane (lane 0 without `dp_lane`), so a full topic holds the sender in order without holding any consumer's acks. Topic names do not change, so agents with different lane counts interoperate; one connection caps an agent's send rate (one TLS writer). |
 | `dataplane_shard_check_sec` | int | `5` | Period (s) of the shard-connection check: a shard whose dedicated connection is closed or whose transport failed is rebuilt and its listeners re-attached, even when nothing sends on it (controller#22). |
 | `dataplane_stall_sec` | int | `30` | The data-plane health check WARNs when a listener has held queued messages this long without taking one (its consumer stopped draining while the connection still reports healthy). A full queue that keeps draining stays OK. |
 | `dataplane_io_buffer_bytes` | int | `64 KB` | I/O buffer size for data-plane message handling (wsapi data-plane path). |
@@ -420,7 +451,7 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.
 | `controlplane_dedicated_vm` | boolean | `true` | On an agent's own broker (`vm://`, e.g. the global controller), give the control-plane sender and the inbox their own in-JVM connections instead of sharing the data plane's (OUT-81). `false` restores the shared connection. |
 | `controlplane_send_timeout_ms` | int | `15000` | Bound (ms) on a control-plane send over the dedicated connection: a wedged transport fails the send and the connection is rebuilt, instead of holding every sender behind it. |
 | `dataplane_session_wait_sec` | int | `30` | Bound (s) on waiting for the messaging plane before a data-plane session request returns `null` instead of blocking its caller. |
-| `prefetch_rate_multiplier` | double | `2.5` | Multiplier on prefetch used by the pending-message-limit strategy (controls non-persistent message eviction). |
+| `prefetch_rate_multiplier` | double | `2.5` | Multiplier on prefetch used by the pending-message-limit strategy (non-persistent message eviction on queues; on topics only with `dataplane_backpressure=false`). |
 | `queue_all_consumers_exclusive` | boolean | `true` | Make all queue consumers exclusive (one active consumer per destination). |
 | `topic_all_consumers_exclusive` | boolean | `true` | Make all topic consumers exclusive by default. |
 | `activeproducerworker_default_priority` | int | `4` | Default JMS priority for messages sent by a producer worker (ActiveMQ default is 4). |
@@ -481,12 +512,22 @@ key that authenticates HTTP-upgrade requests.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `wsapi_port` | String (int) | `8282`¹ | Port the wsapi WebSocket server binds. ¹Read as a string; supply as plain text. |
-| `wsapi_keystore_password` | String | *unset* | Password for the wsapi TLS keystore. **Unset = generated self-signed default.** |
-| `wsapi_ssl_provider` | String | `JDK` | TLS engine: `JDK` (standard Java SSL) or `OPENSSL` (native/BoringSSL). |
-| `cresco_service_key` | String | *unset* | API key/token required on the WebSocket HTTP-upgrade handshake. **Unset = no key required.** |
+| `wsapi_keystore_file`, `wsapi_keystore_password` | String | *unset* | A CA-issued PKCS12 keystore and its password (or `wsapi_keystore_password_file`). **Unset = wsapi's managed `ws.keystore`** (crypto-policy key, random password in `ws.keystore.pass`). |
+| `wsapi_ssl_provider` | String | `JDK` | TLS engine: `JDK` (standard Java SSL) or `OPENSSL` (native/BoringSSL; refused in FIPS mode). |
+| `cresco_service_key` | String | *unset* | The legacy service key (`cresco_service_key` header): authenticates as an `admin` of the agent's tenant; `wsapi_service_key_enabled=false` turns it off; refused in production. Every connection is authenticated ([API authentication](../security/api-auth.md)). |
 | `wsapi_read_chunk_bytes` | int | `256 KB` | Max bytes per socket read (larger reduces syscalls on bulk streams). |
 | `wsapi_socket_buffer_bytes` | int | `4 MB` | TCP socket send/receive buffer size for wsapi connections. |
-| `wsapi_write_high_water_bytes` | int | `2 MB` | Outbound-buffer high-water mark that triggers backpressure. |
+| `wsapi_write_high_water_bytes` | int | `2 MB` | Netty outbound-buffer high-water mark. |
+| `wsapi_dataplane_backpressure` | boolean | `true` | A dataplane consumer past its egress budget waits (its stream slows at the broker); `false`: frames past the budget are dropped, counted (`wsapi.dataplane.egress.dropped`). |
+| `wsapi_dataplane_egress_buffer_bytes` | long | `32 MB` | One dataplane consumer's egress budget; past it its listener waits until the backlog is back to half. |
+| `wsapi_dataplane_egress_global_bytes` | long | **computed** | All consumers' egress budget: min(512 MB, maxHeap / 4). |
+| `wsapi_dataplane_stall_close_ms` | long | `30000` | A waiting dataplane consumer that reads nothing this long is closed with WebSocket status 1013 (`wsapi.dataplane.egress.stalled`). At least 1000. |
+| `wsapi_dataplane_send_threads` | int | **computed** | Threads publishing client dataplane frames off the event loop (one per connection, order kept): the core count, 2 to 32; `0` publishes on the event loop. |
+| `wsapi_dataplane_ingress_queue_bytes` | long | `16 MB` | Client bytes waiting to be published before the connection's reading pauses (resumed at half). At least 1 MB. |
+| `wsapi_rpc_max_inflight_user` / `wsapi_rpc_max_inflight_admin` | int | `8` / `32` | RPCs one caller may have in flight; past it `429 busy`. (At most 640 RPCs wait in all; past that `503 busy`.) |
+
+The authentication settings (users file, tokens, lockouts, client certificates) are in
+[API authentication](../security/api-auth.md).
 
 ---
 
@@ -525,8 +566,7 @@ secret, such as `wsapi_keystore_password` or `cresco_service_key`) the lookup or
 3. Then, as before, `-D<name>`, the exact-case environment variable, the configuration.
 
 When a file or environment value wins, a `-D` copy is ignored and a warning is logged; values are never logged. A
-plugin that reads its own key files (GaiaKeep's `gfs_secret`, `core_master_key`, `tape_media_key`, `gfs_pkcs11_pin`)
-keeps its own rules: those names are not resolved this way.
+plugin that reads its own key files keeps its own rules for them.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

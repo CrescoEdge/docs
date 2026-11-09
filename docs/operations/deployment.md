@@ -35,23 +35,36 @@ from its own directory.
 
 ## Securing a fabric
 
-Turn the security stack on in order (details in [Security](../architecture/security.md) and
-[Multi-Tenancy](../architecture/tenancy.md)); each step is flag-gated and can be staged region-by-region:
+Security is **on by default**: mutual TLS, the authorization broker, tenant namespacing, end-to-end
+[message authentication](../security/message-auth.md) and signed plugin installs need no flag
+([Secure defaults](../security/secure-defaults.md)). What a deployment supplies depends on its
+[profile](../security/profiles.md):
 
 ```bash
-# 1. shared join secrets + service key (fabric-wide, fixed)
--Ddiscovery_secret_global=... -Ddiscovery_secret_region=... -Ddiscovery_secret_agent=...
--Dcresco_service_key=...
-# 2. distributed trust
--Dsecurity_regional_ca=true
-# 3. mutual TLS (non-spoofable identity)
--Dbroker_require_client_auth=true
-# 4. tenant authorization + isolation
--Dbroker_security_enabled=true
--Dtenant_namespacing=true -Dtenant_id=<tenant>
+# standard profile: shared join secrets (owner-only files or CRESCO_<NAME>, not -D), the tenant
+CRESCO_DISCOVERY_SECRET_GLOBAL_FILE=/etc/cresco/dg CRESCO_DISCOVERY_SECRET_REGION_FILE=/etc/cresco/dr \
+CRESCO_DISCOVERY_SECRET_AGENT_FILE=/etc/cresco/da java -Dtenant_id=<tenant> ... -jar agent.jar
+
+# production profile: the operator's PKI, no shared secrets, FIPS approved-only
+java -Dsecurity_profile=production -Didentity_keystore=/etc/cresco/node.bcfks \
+     -Didentity_keystore_password_file=/etc/cresco/node.p12.pass -Dtrust_anchors=/etc/cresco/trust-anchors.pem \
+     -Dplugin_signing_truststore=/etc/cresco/codesign-anchors.pem -Dtenant_id=<tenant> ... -jar agent.jar
 ```
 
-Validate each stage with the [test harnesses](testing.md) before enabling the next.
+Production is described in [Security profiles](../security/profiles.md) and [Operator PKI](../security/pki.md); a fabric
+of an earlier 1.3 build is upgraded without a flag day with [Upgrading to 1.3](../security/upgrade.md). Validate with
+the [test harnesses](testing.md); refusals and their fixes are in [Troubleshooting](troubleshooting.md).
+
+## Data-plane backpressure
+
+A slow dataplane subscriber slows the writers of its topic instead of losing messages
+([Data Plane](../architecture/dataplane.md#backpressure-nothing-lost-order-kept)). Two things to plan for:
+
+- Each topic holds up to `activemq_topic_memory_limit` (256 MB) per broker for its slowest subscriber before its
+  writers wait; size the broker's heap (`broker_memory_limit` defaults to max(512 MB, heap / 2)) for the topics that
+  carry streams at once.
+- A subscriber that stops reading holds every writer of its topic on that broker. wsapi closes such a WebSocket client
+  after `wsapi_dataplane_stall_close_ms` (30 s, status 1013); a plugin's own `PacedListener` must give up the same way.
 
 ## Multi-global meshes
 

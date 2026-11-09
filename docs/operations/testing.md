@@ -51,6 +51,27 @@ They source `run/cresco.env` for the shared secrets/keys, launch nodes into `run
 | `adaptive_net_suite.sh` | network auto-tuning / link-metric behavior |
 | `run_speedtests.sh` | aggregate speed suite (see `SPEEDTEST_RESULTS.md`) |
 
+## Live harnesses in the controller repository
+
+The security and dataplane contracts are proven by live harnesses that ship with the controller, under
+`controller/docs/tests/`. Each starts and stops only its own JVMs on one host, prints `PASS`/`FAIL` lines (or one JSON
+result line for the benchmarks) and needs an agent jar, a working directory and, where it drives clients, a Python with
+pycrescolib:
+
+| Harness | Proves / measures |
+|---------|-------------------|
+| `peer_identity_live_test.sh` | peer identity binding (agent to broker, broker bridges) and dataplane recipient binding with mutual TLS and tenant authorization; `DEFAULTS=1` runs a fabric with no security setting at all |
+| `provisioned_live_test.sh` | a production mesh on operator-issued identities (`tools/cresco-pki.sh`), PKI discovery, no shared secret |
+| `upgrade_window_live_test.sh` | the [upgrade guide](../security/upgrade.md): earlier-build agents keep their membership in the window, are upgraded one by one, and the window closes by its date |
+| `dataplane_backpressure_test.sh` | [backpressure](../architecture/dataplane.md#backpressure-nothing-lost-order-kept): fast and slow readers on one broker and across a bridge each way, every frame delivered whole, once and in order, the writer slowed to a slow reader, nothing discarded |
+| `control_plane_bench.sh` | MsgEvent round-trip latency (p50/p90/p99) and concurrent rate, direct and across a bridge, per build and mode (`MODE=standard`, `nosign`, `nodirect`, `insecure`, `production`) |
+| `many_agents_bench.sh` | membership at scale: N light agents started together, time until the global lists them all, controller CPU, refusals |
+
+The dataplane client they drive is the agent repository's `scripts/bench/dataplane_perf.py`: it streams frames through
+wsapi (optionally across a broker bridge to another agent's wsapi), checks every frame (whole, once, in order), can read
+slowly to exercise backpressure, and `--rate-mib-s` offers a fixed load to measure the pipeline's latency rather than the
+depth of a queue a faster writer builds.
+
 ## Writing a new integration test
 
 Follow the pattern of the existing scripts: source `cresco.env`, define a `launch()` helper that runs the

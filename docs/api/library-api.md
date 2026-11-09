@@ -42,7 +42,7 @@ destination identity:
 Config c = plugin.getConfig();
 int    p = c.getIntegerParam("broker_port", 32010);
 long   t = c.getLongParam("controlplane_ttl", 300000L);
-boolean s = c.getBooleanParam("broker_security_enabled", false);
+boolean s = c.getBooleanParam("broker_security_enabled", true);
 String  n = c.getStringParam("tenant_id", "default");
 double  d = c.getDoubleParam("prefetch_rate_multiplier", 2.5);
 ```
@@ -94,6 +94,13 @@ The pub/sub streaming interface (`io.cresco.library.data.DataPlaneService`); see
 
 `TopicType` is `AGENT` (node-local), `REGION`, or `GLOBAL` (mesh-reachable via wsapi).
 
+**Paced listeners (backpressure).** A listener that implements `io.cresco.library.data.PacedListener` (a marker
+sub-interface of `MessageListener`) may block in `onMessage` to slow its stream: what it has not taken stays at the
+broker, whose producer flow control slows the stream's writers. The data plane gives each paced listener a JMS session
+of its own (consumer prefetch `dataplane_paced_prefetch`, 16), so a wait holds back only its own messages, in order. It
+must not wait forever: give up on a consumer that reads nothing, return, and remove the listener. wsapi's WebSocket
+consumers are paced listeners. See [Data Plane](../architecture/dataplane.md#backpressure-nothing-lost-order-kept).
+
 ## MeasurementEngine — metrics
 
 Register and update metrics; see [Metrics & Measurements](../architecture/metrics.md).
@@ -113,8 +120,13 @@ Under `io.cresco.library.security` (see [Security & Identity](../architecture/se
 | Type | Purpose |
 |------|---------|
 | `CrescoIdentity` | identity ⇄ cert DN (`tenant`/`region`/`agent`/`uid`) |
+| `Caller` | the verified caller of a message (kind, principal, tenant, roles), stamped by infrastructure, never by a sender |
+| `ActionAuthorizer` | decides whether a message's verified caller may run its action (`@CrescoAction(roles=...)`); refusal answers `403` |
+| `SecurityProfile` | `PRODUCTION`, `STANDARD` or `INSECURE` (debug mode); plugins read the node's with `PluginBuilder.getSecurityProfile()` |
 | `TenantNamespace` | qualify/parse tenant-namespaced destinations (`T.<tenant>.<raw>`) |
-| `MessageSigner` | sign/verify a message payload with the leaf key |
+| `JarSignatures` | verify a plugin jar's signature against a trust store (`verify`; `verifyCms` through the installed providers only, used in production) |
+| `OwnerOnlyFile` | read a secret only from an owner-only file (the `<name>_file` secret sources) |
+| `MessageSigner` | sign/verify a byte payload with a private key / a certificate's public key |
 | `CertTrust` | PKIX chain-verify a leaf to a trusted region CA |
 
 ## Capability annotations
