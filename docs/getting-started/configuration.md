@@ -18,9 +18,11 @@ String tenant    = plugin.getConfig().getStringParam("tenant_id", "default");
 Resolution order is **system property → config map → baked-in default**. Two principles hold throughout the
 codebase:
 
-- **Defaults preserve shipped behavior.** Out of the box a node behaves exactly as it always has.
-- **New behavior is flag-gated, default-off.** Security, tenancy, auto-tuning, sharding, etc. are opt-in,
-  so you can roll them out incrementally.
+- **Security is on by default (1.3).** A node with no security setting runs secured: broker authorization, mutual TLS,
+  tenant namespacing, signed messages and signed plugin installs ([Secure defaults](../security/secure-defaults.md));
+  insecure operation is only an explicit `broker_security_enabled=false` debug mode.
+- **Other new behavior is flag-gated.** Auto-tuning, sharding and the like are opt-in, so you can roll them out
+  incrementally.
 
 Set a property on the launch command line:
 
