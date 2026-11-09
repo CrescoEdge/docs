@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1221,6 +1221,34 @@
   
   
     <li class="md-nav__item">
+      <a href="message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="pki/" class="md-nav__link">
         
   
@@ -2206,6 +2234,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2842,6 +2898,10 @@ production profile), <code>controller/docs/pre-provisioned-identity.md</code> (o
 <td><code>standard</code> (the default) and <code>production</code> (operator PKI, FIPS, no passwords)</td>
 </tr>
 <tr>
+<td><a href="message-auth/">Message authentication</a></td>
+<td>recipient-bound signatures, direct links, batch signatures, session keys, revocations on every message</td>
+</tr>
+<tr>
 <td><a href="pki/">Operator PKI</a></td>
 <td>pre-provisioned identities and <code>tools/cresco-pki.sh</code></td>
 </tr>
@@ -2871,9 +2931,12 @@ production profile), <code>controller/docs/pre-provisioned-identity.md</code> (o
 <li><strong>Transport.</strong> Broker connections (<code>nio+ssl</code>) and the wsapi API are TLS; the broker requires client certificates
   (<code>broker_require_client_auth</code>) and binds each connection to the identity its certificate names.</li>
 <li><strong>Authorization.</strong> The broker stamps the verified caller of every message (<code>cresco_caller</code>, kind <code>controller</code>,
-  <code>agent</code>, <code>plugin</code> or <code>api</code>), receivers check it against each action's roles (<code>@CrescoAction(roles=...)</code>), and
-  every message a node originates is signed with its identity key (RSA-3072/SHA-384 by default) and checked before it
-  is dispatched (<code>msg_signing_required</code>).</li>
+  <code>agent</code>, <code>plugin</code> or <code>api</code>) and receivers check it against each action's roles (<code>@CrescoAction(roles=...)</code>).</li>
+<li><strong>Message authentication.</strong> Every message a node originates is authenticated end to end and checked by its recipient
+  before it is dispatched (<code>msg_signing_required</code>): unsigned between a node and its own parent or child (the receiving
+  broker attests it first hand), otherwise signed with the node's identity key (RSA-3072/SHA-384, batched under load) or
+  MAC'd under an end-to-end session key. The recipient is covered, so no other node accepts it, and the signer's
+  revocations are checked on every message (<a href="message-auth/">Message authentication</a>).</li>
 <li><strong>Tenancy.</strong> Destinations are namespaced per tenant (<code>T.&lt;tenant&gt;.*</code>); a tenant's nodes and users reach only their
   tenant, except admins of a superuser tenant (<code>broker_superuser_tenants</code>, default <code>cresco-system</code>).</li>
 <li><strong>Code.</strong> Every plugin jar that does not come embedded in the agent jar is installed only if it verifies against
@@ -2943,10 +3006,10 @@ writer in its own fields and keeps only the stream's sequence numbers (<code>cre
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

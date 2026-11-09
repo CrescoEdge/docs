@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1127,6 +1127,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2322,6 +2350,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3150,7 +3206,7 @@
 </tr>
 <tr>
 <td><code>AgentConsumer</code></td>
-<td>Inbound JMS queue listener; dispatches text <code>MsgEvent</code>s and reassembles chunked byte-part file transfers (MD5-verified).</td>
+<td>Inbound JMS queue listener; checks each message's authentication, dispatches text <code>MsgEvent</code>s and reassembles chunked byte-part file transfers (verified by SHA-256 content hash).</td>
 </tr>
 <tr>
 <td><code>MsgQoS</code> / <code>ControlPlaneSender</code></td>
@@ -3166,13 +3222,21 @@
 </tr>
 <tr>
 <td><code>CertificateManager</code></td>
-<td>Per-agent PKI: generates a 3-tier RSA X.509 chain, maintains JKS key/trust stores, imports peer certs for mutual TLS.</td>
+<td>Per-node PKI: makes (standard profile) or loads (production, operator-issued) the node's X.509 identity, keeps its PKCS12 key/trust stores (BCFKS in FIPS mode), the region CA, revocations and reloads.</td>
+</tr>
+<tr>
+<td><code>MsgSigning</code> / <code>MsgSessions</code> / <code>MsgBatchSigner</code> / <code>ReplayMemory</code></td>
+<td>End-to-end <a href="../../security/message-auth/">message authentication</a>: recipient-bound signatures, direct links, batch signatures, session keys, the replay memory.</td>
+</tr>
+<tr>
+<td><code>DataplaneBridgeInbound</code></td>
+<td>Broker plugin: a bridged topic message waits in line while its topic is full (dataplane <a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">backpressure</a>), at most <code>broker_bridge_flow_control_wait_ms</code> with nothing taken.</td>
 </tr>
 </tbody>
 </table>
 <p>See <a href="../../architecture/messaging/">Messaging &amp; Routing</a> and <a href="../../architecture/security/">Security &amp; Identity</a>.</p>
 <h3 id="netdiscovery-peerbroker-discovery">netdiscovery — peer/broker discovery<a class="headerlink" href="#netdiscovery-peerbroker-discovery" title="Permanent link">&para;</a></h3>
-<p>Finds other agents via UDP broadcast/multicast (IPv4 and IPv6), Netty TCP listen/respond, and static point-to-point TCP for cross-region/NAT peers. Trust is bootstrapped with an AES shared-secret challenge (<code>DiscoveryCrypto</code>) followed by X.509 certificate exchange. Default discovery port <code>32005</code>. Detailed in <a href="../../architecture/discovery/">Discovery</a>.</p>
+<p>Finds other agents via UDP broadcast/multicast (IPv4 and IPv6), Netty TCP listen/respond, and static point-to-point TCP for cross-region/NAT peers. Locator messages carry a validator keyed from the discovery secret (<code>DiscoveryCrypto</code>, AES-256-GCM); trust is established only by the authenticated discovery v2 exchange (<code>DiscoveryAuth</code>: HMAC-SHA-384 keyed by the discovery secret, or signatures under the operator's PKI in production). Default discovery port <code>32005</code>. Detailed in <a href="../../architecture/discovery/">Discovery</a>.</p>
 <h3 id="db-persistence-embedded-derby">db — persistence (embedded Derby)<a class="headerlink" href="#db-persistence-embedded-derby" title="Permanent link">&para;</a></h3>
 <p>State is persisted in an embedded Apache Derby database (JDBC + Commons DBCP2 pooling). "Nodes" and "edges" are relational tables: <code>rnode</code>/<code>anode</code>/<code>pnode</code> (region/agent/plugin), <code>agentof</code>/<code>pluginof</code> (edges), plus resource/pipeline/tenant/state tables. <code>DBEngine</code> is the JDBC DAO; <code>DBInterfaceImpl</code> delegates to it and maps status codes to <code>NodeStatusType</code>; <code>DBManager</code> polls a queue of regional-DB exports. Node status is an <code>int status_code</code> (10 = live).</p>
 <h3 id="the-role-tiers">The role tiers<a class="headerlink" href="#the-role-tiers" title="Permanent link">&para;</a></h3>
@@ -3210,7 +3274,7 @@
 <p><code>PerfControllerMonitor</code> registers Micrometer JVM/system meters into the shared <code>MeasurementEngine</code> and serves on-demand resource/KPI queries (RPC <code>getsysinfo</code> to <a href="../sysinfo/">sysinfo</a>). <code>PerfMonitorNet</code> pushes network-discovery topology as a compressed KPI <code>MsgEvent</code>. See <a href="../../architecture/metrics/">Metrics &amp; Measurements</a>.</p>
 <p>The <code>netmetrics</code> package also hosts <a href="../../architecture/dynamic-routing/">cost-aware routing</a>: <code>LinkMetrics</code>/<code>LinkMetricsRegistry</code> (per-edge smoothed RTT + composite cost), <code>AutoTuner</code> (the control loop that scales bridge connectors and drives advertising), <code>RouteAdvertiser</code>/<code>RouteView</code> (link-state pushed over the data plane and assembled into a mesh-wide graph), <code>RouteComputer</code> (Dijkstra path + waypoint stack), <code>PathTable</code> (per-peer direct-vs-via-global choice with hysteresis), and <code>NetworkStateJson</code> (live topology for the dashboard). <code>RegionHealthWatcher</code> runs the probe/infer/verify loop and <code>MsgRouter</code> enforces the chosen path and relays transit traffic.</p>
 <h3 id="data-the-data-plane">data — the data plane<a class="headerlink" href="#data-the-data-plane" title="Permanent link">&para;</a></h3>
-<p><code>DataPlaneServiceImpl</code> is the concrete <code>DataPlaneService</code>: agent/region/global JMS topics, QoS classification, Siddhi CEP creation, and chunked file transfer (5 MB parts, MD5-verified). <code>CEPEngine</code>/<code>CEPInstance</code> bridge a data-plane input listener to a Siddhi runtime and republish results. See <a href="../../architecture/dataplane/">Data Plane</a>.</p>
+<p><code>DataPlaneServiceImpl</code> is the concrete <code>DataPlaneService</code>: agent/region/global JMS topics, send lanes and paced listeners (backpressure), stream sequence numbers (<code>cresco_seq</code>/<code>cresco_gap</code>), QoS classification, Siddhi CEP creation, and chunked file transfer (5 MB parts, verified by SHA-256 content hash). <code>CEPEngine</code>/<code>CEPInstance</code> bridge a data-plane input listener to a Siddhi runtime and republish results. See <a href="../../architecture/dataplane/">Data Plane</a>.</p>
 <h2 id="key-configuration">Key configuration<a class="headerlink" href="#key-configuration" title="Permanent link">&para;</a></h2>
 <p>The controller reads a large configuration surface (see <a href="../../getting-started/configuration/">Configuration</a>). Notable keys:</p>
 <table>
@@ -3255,7 +3319,7 @@
 <tr>
 <td><code>discovery_secret_{agent,region,global}</code></td>
 <td>—</td>
-<td>AES discovery shared secrets.</td>
+<td>Discovery shared secrets (standard profile; refused in production).</td>
 </tr>
 <tr>
 <td><code>watchdog_interval</code></td>
@@ -3340,10 +3404,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

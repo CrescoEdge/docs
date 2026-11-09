@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1260,6 +1260,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -2245,6 +2273,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2993,9 +3049,9 @@ per-runner streams use <code>APP</code>.</p>
 </ul>
 <h2 id="the-single-plugin-contract">The single plugin contract<a class="headerlink" href="#the-single-plugin-contract" title="Permanent link">&para;</a></h2>
 <p>Every metric-bearing bundle answers the same EXEC action:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">"getmetrics"</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"metrics"</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"status"</span><span class="p">,</span><span class="w"> </span><span class="s">"10"</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">&quot;getmetrics&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">&quot;metrics&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">&quot;status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p">);</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">incoming</span><span class="p">;</span>
 </code></pre></div>
 <p><code>getAllMetrics()</code> returns <code>Map&lt;group, List&lt;row&gt;&gt;</code>. Each <strong>row</strong> is a flat <code>Map&lt;String,String&gt;</code> whose
@@ -3119,6 +3175,24 @@ how it is measured — what it means.</p>
 <td><code>global</code>, GAUGE</td>
 <td>supplier reads <code>controllerEngine.getIncomingCanidateBrokers().size()</code></td>
 <td>Depth of the discovery candidate-broker queue awaiting processing</td>
+</tr>
+<tr>
+<td><strong><code>dataplane.broker.discarded</code></strong></td>
+<td><code>dataplane</code>, COUNTER</td>
+<td><code>CrescoDiscardAccountingBroker</code> counts the broker's slow-subscriber discards</td>
+<td>Dataplane messages this node's broker discarded for slow topic subscribers (only when backpressure is off: <code>dataplane_backpressure=false</code> or <code>activemq_topic_producer_flow_control=false</code>; logged too)</td>
+</tr>
+<tr>
+<td><strong><code>dataplane.broker.slow.consumers</code></strong></td>
+<td><code>dataplane</code>, COUNTER</td>
+<td>the broker's slow-consumer advisories</td>
+<td>Slow-subscriber episodes (more than prefetch pending); with backpressure these slow writers, they lose nothing</td>
+</tr>
+<tr>
+<td><strong><code>dataplane.stream.gap</code></strong></td>
+<td><code>dataplane</code>, COUNTER</td>
+<td><code>StreamSequence</code> checks each stream's <code>cresco_seq</code> at the subscriber's controller</td>
+<td>Stream messages this node's subscribers did not get; the first message after a gap carries <code>cresco_gap</code> (<a href="../dataplane/#stream-sequence-numbers-loss-is-never-silent">Data Plane</a>)</td>
 </tr>
 </tbody>
 </table>
@@ -3704,6 +3778,54 @@ handler — one wsapi plugin per JVM, so the counts are node-wide.</p>
 <td><code>DATAPLANE_MESSAGES</code> atomic, incremented per frame</td>
 <td>Total dataplane messages ingested from clients</td>
 </tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.pending.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>bytes queued to all WS consumers</td>
+<td>Dataplane bytes queued to WS consumers, not yet written</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.max.pending.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>largest backlog one consumer reached</td>
+<td>How close bursts come to a consumer's budget (<code>wsapi_dataplane_egress_buffer_bytes</code>)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.paused</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented each time a consumer's listener waits</td>
+<td>Times a WS consumer more than its budget behind had its stream held at the broker (backpressure: writers slowed, nothing lost)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.stalled</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented on each 1013 stall close</td>
+<td>WS consumers closed because, held, they read nothing for <code>wsapi_dataplane_stall_close_ms</code></td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.dropped</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented per dropped frame</td>
+<td>Frames dropped past a consumer's budget (only with <code>wsapi_dataplane_backpressure=false</code>)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.ingress.failed</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented per client frame not taken</td>
+<td>Client dataplane frames the controller did not take (no session, controller not active)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.auth.failures</code></strong> / <strong><code>.servicekey.failures</code></strong> / <strong><code>.refused</code></strong> / <strong><code>.revoked.connections</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>AuthRateLimiter</code>, <code>WsRouter.Gate</code></td>
+<td>Failed authentications, wrong service keys, authentications refused before they were checked (429), connections closed because their credential was revoked or changed</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.inbound.inflight.bytes</code></strong> / <strong><code>wsapi.inbound.budget.closed</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>InboundBudget</code></td>
+<td>Inbound message bytes held now; connections closed (1013) for too many bytes in flight</td>
+</tr>
 </tbody>
 </table>
 <p>Each forwarded binary dataplane message is stamped with <code>dp_bytes</code>, which is what feeds the
@@ -3779,10 +3901,10 @@ via <a href="../../reference/design-docs/">Design Docs</a>.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

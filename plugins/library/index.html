@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1127,6 +1127,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2333,6 +2361,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3217,7 +3273,7 @@
 <h2 id="metrics-iocrescolibrarymetrics">Metrics (<code>io.cresco.library.metrics</code>)<a class="headerlink" href="#metrics-iocrescolibrarymetrics" title="Permanent link">&para;</a></h2>
 <p><code>MeasurementEngine</code> is the Micrometer façade a plugin instantiates with its <code>PluginBuilder</code> to register and update metrics; it wraps the plugin's <code>CrescoMeterRegistry</code> (a Dropwizard registry exposed as JMX MBeans via <code>CrescoReporter</code>). Metric classes: <code>GAUGE_INT/LONG/DOUBLE/AUTO</code>, <code>TIMER</code>, <code>DISTRIBUTION_SUMMARY</code>, <code>COUNTER</code>. See <a href="../../architecture/metrics/">Metrics &amp; Measurements</a>.</p>
 <h2 id="security-identity">Security &amp; identity<a class="headerlink" href="#security-identity" title="Permanent link">&para;</a></h2>
-<p>Identity in Cresco is PKI-based. The controller's <code>CertificateManager</code> (see <a href="../controller/">controller</a>) generates a 3-tier RSA self-signed X.509 chain per agent (BouncyCastle), maintains JKS key/trust stores, and imports peer certificates for mutual TLS. Discovery bootstraps trust with an AES shared-secret challenge before exchanging certificates. External identity — a client's region/agent/plugin — is read from the TLS peer certificate DN by <a href="../wsapi/">wsapi</a> and the clients. The end-to-end model, including tenant namespaces and multi-tenancy, is documented in <a href="../../architecture/security/">Security &amp; Identity</a> and <a href="../../architecture/tenancy/">Multi-Tenancy</a>.</p>
+<p>Identity in Cresco is PKI-based. In the standard profile the controller's <code>CertificateManager</code> (see <a href="../controller/">controller</a>) makes each node's X.509 chain (or enrolls a leaf from its region CA) and keeps PKCS12 key and trust stores (BCFKS in FIPS mode); in the production profile it loads the identity the operator's PKI issued. Discovery establishes trust with an authenticated exchange (discovery v2: HMAC-SHA-384 keyed by the discovery secret, or signatures under the operator's PKI in production) before any certificate is recorded. Every message is authenticated end to end (<a href="../../security/message-auth/">Message authentication</a>); the library's own security types are listed in the <a href="../../api/library-api/#security-primitives">Library API</a>. External identity — a client's region/agent/plugin — is read from the TLS peer certificate DN by <a href="../wsapi/">wsapi</a> and the clients. The end-to-end model, including tenant namespaces and multi-tenancy, is documented in <a href="../../architecture/security/">Security &amp; Identity</a> and <a href="../../architecture/tenancy/">Multi-Tenancy</a>.</p>
 <h2 id="application-description-types-iocrescolibraryapp">Application description types (<code>io.cresco.library.app</code>)<a class="headerlink" href="#application-description-types-iocrescolibraryapp" title="Permanent link">&para;</a></h2>
 <p>Plain graph POJOs consumed by the controller's global scheduler and Derby DB: <code>gPayload</code> (a pipeline), <code>gNode</code> (a node), <code>gEdge</code> (an edge), and <code>pNode</code> (a plugin descriptor: name / jarfile / md5 / version / repoServers).</p>
 <h2 id="utilities-and-core">Utilities and core<a class="headerlink" href="#utilities-and-core" title="Permanent link">&para;</a></h2>
@@ -3286,10 +3342,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

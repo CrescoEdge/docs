@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -945,6 +945,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#backpressure-nothing-lost-order-kept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backpressure: nothing lost, order kept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stream-sequence-numbers-loss-is-never-silent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stream sequence numbers: loss is never silent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sharding-throughput" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1256,6 +1278,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2261,6 +2311,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2877,6 +2955,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#backpressure-nothing-lost-order-kept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backpressure: nothing lost, order kept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stream-sequence-numbers-loss-is-never-silent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stream sequence numbers: loss is never silent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sharding-throughput" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2972,10 +3072,10 @@ same-tenant cross-region flow still works.</p>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dp</span><span class="p">.</span><span class="na">addMessageListener</span><span class="p">(</span><span class="n">TopicType</span><span class="p">.</span><span class="na">GLOBAL</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">Message</span><span class="w"> </span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">TextMessage</span><span class="p">)</span><span class="w"> </span><span class="n">m</span><span class="p">).</span><span class="na">getText</span><span class="p">();</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="c1">// ...</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">},</span><span class="w"> </span><span class="s">"myselector = 'value'"</span><span class="p">);</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">},</span><span class="w"> </span><span class="s">&quot;myselector = &#39;value&#39;&quot;</span><span class="p">);</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1">// publish</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">dp</span><span class="p">.</span><span class="na">sendMessage</span><span class="p">(</span><span class="n">TopicType</span><span class="p">.</span><span class="na">GLOBAL</span><span class="p">,</span><span class="w"> </span><span class="n">dp</span><span class="p">.</span><span class="na">createTextMessage</span><span class="p">(</span><span class="s">"payload"</span><span class="p">));</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">dp</span><span class="p">.</span><span class="na">sendMessage</span><span class="p">(</span><span class="n">TopicType</span><span class="p">.</span><span class="na">GLOBAL</span><span class="p">,</span><span class="w"> </span><span class="n">dp</span><span class="p">.</span><span class="na">createTextMessage</span><span class="p">(</span><span class="s">&quot;payload&quot;</span><span class="p">));</span>
 </code></pre></div>
 <p>Selectors are JMS message selectors, letting subscribers filter by message properties without the broker
 delivering everything.</p>
@@ -2992,8 +3092,64 @@ they change (scales); routing state is never pulled per-decision (does not scale
 configuration, queries, and one-time reconciliation.</p>
 <h2 id="streaming-to-external-clients">Streaming to external clients<a class="headerlink" href="#streaming-to-external-clients" title="Permanent link">&para;</a></h2>
 <p>The <a href="../../plugins/wsapi/">wsapi</a> plugin bridges the data plane to external <a href="../../clients/overview/">clients</a>
-over WebSockets: a client opens a data-plane stream and receives topic messages as text or binary frames.
-This powers dashboards and remote consumers.</p>
+over WebSockets: a client opens a data-plane stream and receives topic messages as text or binary frames, and what it
+sends is published on the <code>GLOBAL</code> topic. This powers dashboards and remote consumers. A WebSocket consumer is a
+<a href="#backpressure-nothing-lost-order-kept">paced listener</a>: when its client reads slowly its stream waits at the broker
+instead of losing frames, and a client that reads nothing for 30 s is closed with status 1013 (see
+<a href="../../plugins/wsapi/#dataplane-backpressure">wsapi</a>).</p>
+<h2 id="backpressure-nothing-lost-order-kept">Backpressure: nothing lost, order kept<a class="headerlink" href="#backpressure-nothing-lost-order-kept" title="Permanent link">&para;</a></h2>
+<p>A topic subscriber that falls behind (a wsapi client that reads slower than its stream, an agent behind a slow link, a
+bridge) keeps every message. What it has not taken counts against the topic's memory limit at its broker
+(<code>activemq_topic_memory_limit</code>, 256 MiB per topic per broker); once that is full, producer flow control slows the topic's
+writers to what its slowest subscriber takes (<code>dataplane_backpressure</code>, default on). Across a bridge the wait travels
+back hop by hop:</p>
+<pre class="mermaid"><code>flowchart LR
+    W["writer&lt;br/&gt;(send lane: a producer-only connection)"] -- data --&gt; A["broker A&lt;br/&gt;topic, memory limit"]
+    A -- "data bridge connector&lt;br/&gt;(synchronous send; prefetch = credit)" --&gt; B["broker B&lt;br/&gt;topic, memory limit"]
+    B -- "consumer prefetch 16" --&gt; P["paced listener&lt;br/&gt;(a wsapi consumer)"]
+    P -- WebSocket --&gt; C["slow client"]
+    C -. "reads slowly: the consumer's 32 MiB&lt;br/&gt;budget fills, its listener waits" .-&gt; P
+    P -. "the topic fills at B: a bridged&lt;br/&gt;message waits in line there" .-&gt; B
+    B -. "unacknowledged bridge sends:&lt;br/&gt;the topic fills at A" .-&gt; A
+    A -. "producer flow control&lt;br/&gt;holds the writer's connection" .-&gt; W</code></pre>
+<p>How order is kept and nothing deadlocks:</p>
+<ul>
+<li><strong>Writers wait in line.</strong> Under backpressure every dataplane send rides a <em>send lane</em>: a producer-only connection
+  (<code>dataplane_send_lanes</code>, 4; a message's <code>dp_lane</code> picks one, lane 0 without one) on which the broker holds the
+  connection while the topic is full, instead of parking the message and letting the next one overtake it. Consumers'
+  acknowledgements ride the node's other connection, so a held send never holds the acks that would free the topic. An
+  in-JVM (<code>vm://</code>) lane does the broker's work in the sending thread, so a full topic holds that thread.</li>
+<li><strong>Bridges wait in line at the receiving broker.</strong> The data connectors of a bridge send synchronously
+  (<code>broker_bridge_sync_send</code>): the sending broker acknowledges a message only once the far broker has taken it, so the
+  bridge's prefetch (<code>broker_bridge_prefetch_data</code>, 64) is its credit window. At the receiving broker a bridged topic
+  message waits in line while its topic is full. Two brokers whose topics are full of traffic for each other would wait on
+  each other forever, so a wait ends once the topic has taken <strong>nothing</strong> for <code>broker_bridge_flow_control_wait_ms</code> (10 s):
+  the bridge then delivers past the limit (the receiving broker keeps the excess pending, in memory and then its temp
+  store) until the topic has room again, and logs it. Nothing is discarded either way; a subscriber that is merely slow
+  keeps taking messages, so it never triggers this. Control connectors carry queues, which never fill.</li>
+<li><strong>Paced listeners.</strong> A listener that implements <code>io.cresco.library.data.PacedListener</code> may block in <code>onMessage</code> to slow
+  its stream. The data plane gives each one a JMS session of its own (every other listener of a node shares one), with a
+  consumer prefetch of <code>dataplane_paced_prefetch</code> (16) instead of the topic's 100, so a wait holds back only that
+  listener's messages, in order. A paced listener must not wait forever: wsapi closes a client that reads nothing.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">One stopped reader holds its topic's writers</p>
+<p>The dataplane topics (<code>agent.event</code>, <code>region.event</code>, <code>global.event</code>, per tenant) are shared by every stream on them,
+so a subscriber that stops reading slows <strong>every</strong> writer of its topic on that broker once the topic's memory is full.
+That is why wsapi closes a WebSocket consumer that reads nothing for <code>wsapi_dataplane_stall_close_ms</code> (30 s).</p>
+</div>
+<p><code>dataplane_backpressure=false</code> (or <code>activemq_topic_producer_flow_control=false</code>) restores the earlier behaviour: the
+broker discards the oldest messages of a subscriber more than prefetch x <code>prefetch_rate_multiplier</code> (2.5) messages
+behind, counted in <code>dataplane.broker.discarded</code> and logged, and a bridged message no longer waits in line at the
+receiving broker.</p>
+<h2 id="stream-sequence-numbers-loss-is-never-silent">Stream sequence numbers: loss is never silent<a class="headerlink" href="#stream-sequence-numbers-loss-is-never-silent" title="Permanent link">&para;</a></h2>
+<p>Every message of a stream (one carrying <code>stream_name</code>) is numbered by its writer's controller per (writer, <code>stream_name</code>,
+<code>type</code>) in <code>cresco_seq</code>. The subscriber's controller checks the numbers, counts what is missing in <code>dataplane.stream.gap</code>,
+and marks the first message after a gap with <code>cresco_gap</code> = how many messages of the stream that subscriber did not get,
+leaving the message's body untouched. With backpressure on, a gap means a loss that cannot be avoided: a node or link that
+died with messages on the way, a subscriber cut off, or <code>dataplane_backpressure=false</code>. A subscriber joining mid-stream,
+and a writer that restarts (back to 1), are not gaps. wsapi passes <code>cresco_seq</code> and <code>cresco_gap</code> to its clients; a
+consumer that needs completeness reads them and recovers or reports.</p>
 <h2 id="sharding-throughput">Sharding (throughput)<a class="headerlink" href="#sharding-throughput" title="Permanent link">&para;</a></h2>
 <p>For very high throughput a topic type can be <strong>sharded</strong> into <code>N</code> shard-topics (<code>global.event.0..N-1</code>) via
 <code>dataplane_shards</code>, so ActiveMQ's per-destination demand-forwarding spreads cross-node traffic across
@@ -3002,7 +3158,7 @@ broker connection (parallel sockets) rather than multiplexing over one pooled se
 original single-topic behavior. See the <a href="../../reference/configuration/">Configuration reference</a>.</p>
 <h2 id="file-transfer">File transfer<a class="headerlink" href="#file-transfer" title="Permanent link">&para;</a></h2>
 <p>Large payloads (files) are chunked and streamed as a sequence of <code>BytesMessage</code> parts through the broker,
-reassembled and MD5-validated by the receiver. This is the <a href="../messaging/#quality-of-service">BULK</a> QoS
+reassembled and checked by the receiver against each part's and the whole file's SHA-256 content hash. This is the <a href="../messaging/#quality-of-service">BULK</a> QoS
 tier — persistent but lowest priority, so it never delays the control plane.</p>
 <h2 id="complex-event-processing">Complex event processing<a class="headerlink" href="#complex-event-processing" title="Permanent link">&para;</a></h2>
 <p><code>DataPlaneServiceImpl</code> embeds a lightweight CEP engine (<code>CEPEngine</code>) that can run windowed/aggregating
@@ -3063,10 +3219,10 @@ telemetry roll-ups without an external stream processor.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

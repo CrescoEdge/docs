@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1147,6 +1147,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -1913,6 +1941,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#message-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fabric-crypto-policy-global-controller-only" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2453,6 +2492,34 @@
     
   
     Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
   
 
     
@@ -3061,6 +3128,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#message-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fabric-crypto-policy-global-controller-only" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3419,8 +3497,8 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 <tr>
 <td><code>msg_signing_required</code></td>
 <td>boolean</td>
-<td><code>broker_security_enabled</code></td>
-<td>Sign every message a node originates and check it before dispatch.</td>
+<td><code>true</code> (with <code>broker_security_enabled</code>)</td>
+<td>Authenticate every message a node originates and check it before dispatch (<a href="../../security/message-auth/">message authentication</a>; its other settings are below). <code>false</code> is a development setting (a WARNING) and refused in production.</td>
 </tr>
 <tr>
 <td><code>plugin_signing_required</code></td>
@@ -3438,7 +3516,19 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 <td><code>identity_keystore</code>, <code>identity_keystore_password_file</code>, <code>trust_anchors</code>, <code>revocation_file</code></td>
 <td>String</td>
 <td>(none)</td>
-<td>A pre-provisioned identity (<a href="../../security/pki/">operator PKI</a>); required in production.</td>
+<td>A pre-provisioned identity (<a href="../../security/pki/">operator PKI</a>); required in production (<code>revocation_file</code> optional).</td>
+</tr>
+<tr>
+<td><code>revocation_crl_grace_seconds</code></td>
+<td>long</td>
+<td><code>0</code></td>
+<td>How long past a CRL's <code>nextUpdate</code> its CA's certificates are still judged by it; after that they are refused until <code>revocation_file</code> is refreshed.</td>
+</tr>
+<tr>
+<td><code>region_ca_password_file</code></td>
+<td>String</td>
+<td>(none)</td>
+<td>An owner-only file whose first line (16 characters at least) encrypts the region CA's private key at rest (<code>security_regional_ca</code>); unset: only the random password beside the key protects it, and a WARNING says so.</td>
 </tr>
 </tbody>
 </table>
@@ -3511,7 +3601,7 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 <td><code>discovery_secret_agent</code></td>
 <td>String</td>
 <td>random UUID</td>
-<td>Shared secret validating <strong>agent</strong>-level discovery messages. Computed default is a random UUID per boot, so peers must be given a matching explicit value to discover each other.</td>
+<td>Shared secret validating <strong>agent</strong>-level discovery messages. Computed default is a random UUID per boot, so peers must be given a matching explicit value to discover each other. Standard profile only: refused in production, whose discovery is the operator's PKI.</td>
 </tr>
 <tr>
 <td><code>discovery_secret_region</code></td>
@@ -3527,14 +3617,97 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 </tr>
 </tbody>
 </table>
+<p>The three discovery secrets are the standard profile's: under <code>security_profile=production</code> any of them set (inline,
+<code>_file</code> or <code>CRESCO_</code> form) refuses the start.</p>
 <div class="admonition danger">
 <p class="admonition-title">The discovery secrets default to random UUIDs</p>
 <p>Because <code>discovery_secret_agent/region/global</code> default to a fresh UUID on every boot, two
 nodes will <strong>not</strong> discover one another unless you set the same secret on both. In a real
 deployment these are effectively required, not optional.</p>
 </div>
+<h3 id="message-authentication">Message authentication<a class="headerlink" href="#message-authentication" title="Permanent link">&para;</a></h3>
+<p>Every message a node originates is authenticated end to end and checked by its recipient
+(<a href="../../security/message-auth/">Message authentication</a>).</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>msg_signature_max_age_ms</code></td>
+<td>long</td>
+<td><code>300000</code></td>
+<td>The signing time's tolerance either way, clock skew included (at least 10 s).</td>
+</tr>
+<tr>
+<td><code>msg_signing_attestation_hours</code></td>
+<td>long</td>
+<td><code>24</code></td>
+<td>An agent attestation's lifetime.</td>
+</tr>
+<tr>
+<td><code>msg_signing_bundle_grace_ms</code></td>
+<td>long</td>
+<td><code>900000</code></td>
+<td>How long a controller dropped from the global's trust bundle is still trusted.</td>
+</tr>
+<tr>
+<td><code>msg_signing_direct</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Messages between a node and its parent or children travel unsigned, attested first hand by the receiving broker.</td>
+</tr>
+<tr>
+<td><code>msg_signing_batch</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Messages signed at the same moment share one signature (a Merkle root), to nodes that read them.</td>
+</tr>
+<tr>
+<td><code>msg_signing_threads</code></td>
+<td>int</td>
+<td>half the cores, 2 to 8</td>
+<td>Signing workers; each signs a batch at a time.</td>
+</tr>
+<tr>
+<td><code>msg_signing_sessions</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>End-to-end session keys (HMAC-SHA-384 under an ECDH P-384 key) with the nodes that read them.</td>
+</tr>
+<tr>
+<td><code>msg_signing_session_seconds</code></td>
+<td>long</td>
+<td><code>3600</code></td>
+<td>A session key's lifetime, renewed ahead of its end (at least 120).</td>
+</tr>
+<tr>
+<td><code>msg_signing_sessions_max</code></td>
+<td>long</td>
+<td><code>200000</code></td>
+<td>Peers a node holds sessions with; past it a new peer stays signed.</td>
+</tr>
+<tr>
+<td><code>msg_signing_credentials_max</code></td>
+<td>long</td>
+<td><code>100000</code></td>
+<td>Credentials held verified (an LRU).</td>
+</tr>
+<tr>
+<td><code>msg_replay_memory_max</code></td>
+<td>long</td>
+<td><code>4000000</code></td>
+<td>Signatures and MACs the replay memory holds (at least 4096); past it the oldest signing times are refused as too old.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="fabric-crypto-policy-global-controller-only">Fabric crypto policy (global controller only)<a class="headerlink" href="#fabric-crypto-policy-global-controller-only" title="Permanent link">&para;</a></h3>
-<p>One policy per fabric names the algorithm types Cresco and every plugin (GaiaKeep storage included) may choose
+<p>One policy per fabric names the algorithm types Cresco and every plugin may choose
 for anything <strong>new</strong>: a certificate's signature suite, a storage domain's block hash. It is set on the <strong>global
 controller</strong> and carried to every region and agent (registration replies and pongs); keys set on any other node are
 ignored with a warning, so no node runs a weaker local policy. Plugins read it with <code>PluginBuilder.getCryptoPolicy()</code>.
@@ -3769,7 +3942,25 @@ subsystems on or off.</p>
 <td><code>activemq_producer_flow_control</code></td>
 <td>boolean</td>
 <td><code>false</code></td>
-<td>Block producers when a destination hits its memory limit. Off by default to avoid priority inversion of liveness/control traffic behind bulk.</td>
+<td>Block producers when a <strong>queue</strong> hits its memory limit. Off by default to avoid priority inversion of liveness/control traffic behind bulk. Topics have their own entry (next rows).</td>
+</tr>
+<tr>
+<td><code>activemq_topic_producer_flow_control</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Give topics (the data plane) their own policy with producer flow control on: a topic whose memory is full holds its writers. <code>false</code> puts topics back on the queues' policy (no flow control, discarding) and turns <code>dataplane_backpressure</code> off.</td>
+</tr>
+<tr>
+<td><code>activemq_topic_memory_limit</code></td>
+<td>long</td>
+<td><code>activemq_destination_memory_limit</code> (256 MB)</td>
+<td>Memory limit of each topic on a broker: what it holds for a slow subscriber before its writers wait.</td>
+</tr>
+<tr>
+<td><code>broker_discard_accounting</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Count and log slow-subscriber discards and slow-consumer episodes (<code>dataplane.broker.discarded</code>, <code>dataplane.broker.slow.consumers</code>) instead of ActiveMQ's DEBUG-only log.</td>
 </tr>
 <tr>
 <td><code>activemq_use_cache</code></td>
@@ -3852,8 +4043,20 @@ subsystems on or off.</p>
 <tr>
 <td><code>broker_bridge_prefetch_data</code></td>
 <td>int</td>
-<td><code>10</code></td>
-<td>Prefetch limit on <strong>data</strong> bridge connectors, bounding how much bulk is committed ahead of later traffic on the data socket.</td>
+<td><code>64</code></td>
+<td>Prefetch limit on <strong>data</strong> bridge connectors, bounding how much bulk is committed ahead of later traffic on the data socket; with synchronous sends it is the bridge's credit window.</td>
+</tr>
+<tr>
+<td><code>broker_bridge_sync_send</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Under <code>dataplane_backpressure</code>: data connectors forward each message as a request, acknowledged only once the far broker took it, so a full topic there backs the stream up into this broker's topic.</td>
+</tr>
+<tr>
+<td><code>broker_bridge_flow_control_wait_ms</code></td>
+<td>long</td>
+<td><code>10000</code></td>
+<td>Under <code>dataplane_backpressure</code>: how long a bridged topic message waits in line at the receiving broker with <strong>nothing</strong> taken from the full topic before the bridge delivers past the limit (kept pending, nothing discarded; breaks a cycle of brokers waiting on each other). At least 100.</td>
 </tr>
 <tr>
 <td><code>broker_control_bridge_split</code></td>
@@ -4723,10 +4926,22 @@ traffic across N topics for parallel inter-broker transfer.</p>
 <td>Use a dedicated broker connection per shard instead of multiplexing all shards over one session. Default is <code>true</code> when <code>dataplane_shards &gt; 1</code>, else <code>false</code>.</td>
 </tr>
 <tr>
+<td><code>dataplane_backpressure</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>A topic subscriber that falls behind slows the topic's writers instead of losing messages; order kept (<a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">Data Plane</a>). Needs <code>activemq_topic_producer_flow_control</code>. <code>false</code>: a subscriber more than prefetch × <code>prefetch_rate_multiplier</code> messages behind loses its oldest, counted (<code>dataplane.broker.discarded</code>).</td>
+</tr>
+<tr>
+<td><code>dataplane_paced_prefetch</code></td>
+<td>int</td>
+<td><code>16</code></td>
+<td>Consumer prefetch of a paced listener (<code>PacedListener</code>, e.g. a wsapi consumer) on its own JMS session.</td>
+</tr>
+<tr>
 <td><code>dataplane_send_lanes</code></td>
 <td>int</td>
 <td><code>4</code></td>
-<td>Extra dedicated connections for <strong>unsharded</strong> data-plane sends, chosen per message by its <code>dp_lane</code> property. Topic names do not change, so agents with different lane counts interoperate; one connection caps an agent's send rate (one TLS writer).</td>
+<td>Dedicated producer-only connections for <strong>unsharded</strong> data-plane sends, chosen per message by its <code>dp_lane</code> property. Under <code>dataplane_backpressure</code> every send rides a lane (lane 0 without <code>dp_lane</code>), so a full topic holds the sender in order without holding any consumer's acks. Topic names do not change, so agents with different lane counts interoperate; one connection caps an agent's send rate (one TLS writer).</td>
 </tr>
 <tr>
 <td><code>dataplane_shard_check_sec</code></td>
@@ -4820,7 +5035,7 @@ tiered-priority TTLs that keep liveness/control traffic ahead of bulk.</p>
 <td><code>prefetch_rate_multiplier</code></td>
 <td>double</td>
 <td><code>2.5</code></td>
-<td>Multiplier on prefetch used by the pending-message-limit strategy (controls non-persistent message eviction).</td>
+<td>Multiplier on prefetch used by the pending-message-limit strategy (non-persistent message eviction on queues; on topics only with <code>dataplane_backpressure=false</code>).</td>
 </tr>
 <tr>
 <td><code>queue_all_consumers_exclusive</code></td>
@@ -5015,22 +5230,22 @@ key that authenticates HTTP-upgrade requests.</p>
 <td>Port the wsapi WebSocket server binds. ¹Read as a string; supply as plain text.</td>
 </tr>
 <tr>
-<td><code>wsapi_keystore_password</code></td>
+<td><code>wsapi_keystore_file</code>, <code>wsapi_keystore_password</code></td>
 <td>String</td>
 <td><em>unset</em></td>
-<td>Password for the wsapi TLS keystore. <strong>Unset = generated self-signed default.</strong></td>
+<td>A CA-issued PKCS12 keystore and its password (or <code>wsapi_keystore_password_file</code>). <strong>Unset = wsapi's managed <code>ws.keystore</code></strong> (crypto-policy key, random password in <code>ws.keystore.pass</code>).</td>
 </tr>
 <tr>
 <td><code>wsapi_ssl_provider</code></td>
 <td>String</td>
 <td><code>JDK</code></td>
-<td>TLS engine: <code>JDK</code> (standard Java SSL) or <code>OPENSSL</code> (native/BoringSSL).</td>
+<td>TLS engine: <code>JDK</code> (standard Java SSL) or <code>OPENSSL</code> (native/BoringSSL; refused in FIPS mode).</td>
 </tr>
 <tr>
 <td><code>cresco_service_key</code></td>
 <td>String</td>
 <td><em>unset</em></td>
-<td>API key/token required on the WebSocket HTTP-upgrade handshake. <strong>Unset = no key required.</strong></td>
+<td>The legacy service key (<code>cresco_service_key</code> header): authenticates as an <code>admin</code> of the agent's tenant; <code>wsapi_service_key_enabled=false</code> turns it off; refused in production. Every connection is authenticated (<a href="../../security/api-auth/">API authentication</a>).</td>
 </tr>
 <tr>
 <td><code>wsapi_read_chunk_bytes</code></td>
@@ -5048,10 +5263,54 @@ key that authenticates HTTP-upgrade requests.</p>
 <td><code>wsapi_write_high_water_bytes</code></td>
 <td>int</td>
 <td><code>2 MB</code></td>
-<td>Outbound-buffer high-water mark that triggers backpressure.</td>
+<td>Netty outbound-buffer high-water mark.</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_backpressure</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>A dataplane consumer past its egress budget waits (its stream slows at the broker); <code>false</code>: frames past the budget are dropped, counted (<code>wsapi.dataplane.egress.dropped</code>).</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_egress_buffer_bytes</code></td>
+<td>long</td>
+<td><code>32 MB</code></td>
+<td>One dataplane consumer's egress budget; past it its listener waits until the backlog is back to half.</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_egress_global_bytes</code></td>
+<td>long</td>
+<td><strong>computed</strong></td>
+<td>All consumers' egress budget: min(512 MB, maxHeap / 4).</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_stall_close_ms</code></td>
+<td>long</td>
+<td><code>30000</code></td>
+<td>A waiting dataplane consumer that reads nothing this long is closed with WebSocket status 1013 (<code>wsapi.dataplane.egress.stalled</code>). At least 1000.</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_send_threads</code></td>
+<td>int</td>
+<td><strong>computed</strong></td>
+<td>Threads publishing client dataplane frames off the event loop (one per connection, order kept): the core count, 2 to 32; <code>0</code> publishes on the event loop.</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_ingress_queue_bytes</code></td>
+<td>long</td>
+<td><code>16 MB</code></td>
+<td>Client bytes waiting to be published before the connection's reading pauses (resumed at half). At least 1 MB.</td>
+</tr>
+<tr>
+<td><code>wsapi_rpc_max_inflight_user</code> / <code>wsapi_rpc_max_inflight_admin</code></td>
+<td>int</td>
+<td><code>8</code> / <code>32</code></td>
+<td>RPCs one caller may have in flight; past it <code>429 busy</code>. (At most 640 RPCs wait in all; past that <code>503 busy</code>.)</td>
 </tr>
 </tbody>
 </table>
+<p>The authentication settings (users file, tokens, lockouts, client certificates) are in
+<a href="../../security/api-auth/">API authentication</a>.</p>
 <hr />
 <h2 id="stunnel-secure-tcp-tunneling">stunnel (secure TCP tunneling)<a class="headerlink" href="#stunnel-secure-tcp-tunneling" title="Permanent link">&para;</a></h2>
 <p>Socket tuning, health checking, and session/demux bounds for the stunnel plugin. See
@@ -5148,8 +5407,7 @@ secret, such as <code>wsapi_keystore_password</code> or <code>cresco_service_key
 <li>Then, as before, <code>-D&lt;name&gt;</code>, the exact-case environment variable, the configuration.</li>
 </ol>
 <p>When a file or environment value wins, a <code>-D</code> copy is ignored and a warning is logged; values are never logged. A
-plugin that reads its own key files (GaiaKeep's <code>gfs_secret</code>, <code>core_master_key</code>, <code>tape_media_key</code>, <code>gfs_pkcs11_pin</code>)
-keeps its own rules: those names are not resolved this way.</p>
+plugin that reads its own key files keeps its own rules for them.</p>
 <table>
 <thead>
 <tr>
@@ -5239,10 +5497,10 @@ keeps its own rules: those names are not resolved this way.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

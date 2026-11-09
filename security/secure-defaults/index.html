@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1232,6 +1232,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pki/" class="md-nav__link">
         
   
@@ -2217,6 +2245,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2873,7 +2929,7 @@
 <tr>
 <td>messages</td>
 <td>unsigned</td>
-<td>signed by their origin node and checked before dispatch (<code>msg_signing_required</code>)</td>
+<td>authenticated by their origin node (signature, session-key MAC, or first hand on a direct link) and checked before dispatch (<code>msg_signing_required</code>)</td>
 </tr>
 <tr>
 <td><code>discovery_auth=compat</code></td>
@@ -2899,23 +2955,29 @@
 </table>
 <h2 id="what-a-node-refuses">What a node refuses<a class="headerlink" href="#what-a-node-refuses" title="Permanent link">&para;</a></h2>
 <p>A node <strong>refuses to start</strong> (exit code 78, one <code>REFUSING TO START</code> line per problem) when security is on but
-<code>broker_require_client_auth=false</code> or <code>tenant_namespacing=false</code> is set, when its tenant name cannot be an identity, or
-when its <code>security_profile</code> forbids a setting. Remove the offending setting, or set <code>broker_security_enabled=false</code>
-explicitly for an insecure debug node.</p>
+<code>broker_require_client_auth=false</code> or <code>tenant_namespacing=false</code> is set, when its tenant name cannot be an identity, when
+its <code>security_profile</code> forbids a setting, or, under <code>security_profile=production</code>, when the JVM is not in FIPS 140-3
+approved-only mode (<a href="../fips/">FIPS</a>). Remove the offending setting, or set <code>broker_security_enabled=false</code> explicitly for
+an insecure debug node.</p>
 <p>At run time:</p>
 <ul>
 <li>a message whose caller stamp a node may not declare is stripped and counted (<code>STRIPPED a forged caller ...</code>);</li>
-<li>an unsigned message, a bad signature, a signature older or newer than <code>msg_signature_max_age_ms</code> (5 min) or a replay
-  is refused (<code>MESSAGE SIGNATURE: REFUSED ...</code>; an RPC request is answered <code>401 unauthenticated</code>);</li>
+<li>an unsigned message (other than one its broker attests first hand on a direct link), a bad signature or MAC, a
+  message that does not name this node as its recipient, a signer whose key, name or certificate is revoked, a signature
+  older or newer than <code>msg_signature_max_age_ms</code> (5 min) or a replay is refused (<code>MESSAGE SIGNATURE: REFUSED ...</code>; an RPC
+  request is answered <code>401 unauthenticated</code>; see <a href="../message-auth/">Message authentication</a>);</li>
 <li>a plugin jar that does not verify is not installed (<code>REFUSED to install</code>);</li>
 <li>a dataplane subscription that names another identity's recipient-bound stream, or a process's stdin, is refused.</li>
 </ul>
 <h2 id="checking-a-node">Checking a node<a class="headerlink" href="#checking-a-node" title="Permanent link">&para;</a></h2>
 <ul>
 <li>No <code>REFUSING TO START</code> lines; <code>WARNING:</code> lines at boot name every temporary or insecure setting in effect.</li>
-<li><code>message signatures ON: this node signs what it originates</code> and <code>... checks what it dispatches</code> once each.</li>
+<li><code>message signatures ON: this node signs what it originates</code> and <code>... checks what it dispatches</code> once each, and
+  <code>direct links ON: ...</code> once the first message to or from its parent or a child travels unsigned.</li>
 <li><code>Broker mutual-TLS ENABLED</code>, and <code>Peer identity verified</code> for each broker connection and bridge.</li>
-<li>In the production profile, <code>crypto: FIPS 140-3 approved-only mode: ... MD5 refused</code> (see <a href="../fips/">FIPS</a>).</li>
+<li>In the production profile, <code>crypto: FIPS 140-3 approved-only mode: ... MD5 refused</code> from the agent and
+  <code>FIPS 140-3 approved-only mode verified (self-tests passed, MD5 refused): &lt;providers&gt;</code> from the controller (see
+  <a href="../fips/">FIPS</a>).</li>
 </ul>
 
 
@@ -2972,10 +3034,10 @@ explicitly for an insecure debug node.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

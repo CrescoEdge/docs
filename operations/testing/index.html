@@ -18,14 +18,14 @@
         <link rel="prev" href="../deployment/">
       
       
-        <link rel="next" href="../../reference/glossary/">
+        <link rel="next" href="../troubleshooting/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1147,6 +1147,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -2231,6 +2259,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#live-harnesses-in-the-controller-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live harnesses in the controller repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing-a-new-integration-test" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2245,6 +2284,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2877,6 +2944,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#live-harnesses-in-the-controller-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live harnesses in the controller repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing-a-new-integration-test" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3019,6 +3097,49 @@ performance harnesses. This page maps the suites so you know what proves what.</
 </tr>
 </tbody>
 </table>
+<h2 id="live-harnesses-in-the-controller-repository">Live harnesses in the controller repository<a class="headerlink" href="#live-harnesses-in-the-controller-repository" title="Permanent link">&para;</a></h2>
+<p>The security and dataplane contracts are proven by live harnesses that ship with the controller, under
+<code>controller/docs/tests/</code>. Each starts and stops only its own JVMs on one host, prints <code>PASS</code>/<code>FAIL</code> lines (or one JSON
+result line for the benchmarks) and needs an agent jar, a working directory and, where it drives clients, a Python with
+pycrescolib:</p>
+<table>
+<thead>
+<tr>
+<th>Harness</th>
+<th>Proves / measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>peer_identity_live_test.sh</code></td>
+<td>peer identity binding (agent to broker, broker bridges) and dataplane recipient binding with mutual TLS and tenant authorization; <code>DEFAULTS=1</code> runs a fabric with no security setting at all</td>
+</tr>
+<tr>
+<td><code>provisioned_live_test.sh</code></td>
+<td>a production mesh on operator-issued identities (<code>tools/cresco-pki.sh</code>), PKI discovery, no shared secret</td>
+</tr>
+<tr>
+<td><code>upgrade_window_live_test.sh</code></td>
+<td>the <a href="../../security/upgrade/">upgrade guide</a>: earlier-build agents keep their membership in the window, are upgraded one by one, and the window closes by its date</td>
+</tr>
+<tr>
+<td><code>dataplane_backpressure_test.sh</code></td>
+<td><a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">backpressure</a>: fast and slow readers on one broker and across a bridge each way, every frame delivered whole, once and in order, the writer slowed to a slow reader, nothing discarded</td>
+</tr>
+<tr>
+<td><code>control_plane_bench.sh</code></td>
+<td>MsgEvent round-trip latency (p50/p90/p99) and concurrent rate, direct and across a bridge, per build and mode (<code>MODE=standard</code>, <code>nosign</code>, <code>nodirect</code>, <code>insecure</code>, <code>production</code>)</td>
+</tr>
+<tr>
+<td><code>many_agents_bench.sh</code></td>
+<td>membership at scale: N light agents started together, time until the global lists them all, controller CPU, refusals</td>
+</tr>
+</tbody>
+</table>
+<p>The dataplane client they drive is the agent repository's <code>scripts/bench/dataplane_perf.py</code>: it streams frames through
+wsapi (optionally across a broker bridge to another agent's wsapi), checks every frame (whole, once, in order), can read
+slowly to exercise backpressure, and <code>--rate-mib-s</code> offers a fixed load to measure the pipeline's latency rather than the
+depth of a queue a faster writer builds.</p>
 <h2 id="writing-a-new-integration-test">Writing a new integration test<a class="headerlink" href="#writing-a-new-integration-test" title="Permanent link">&para;</a></h2>
 <p>Follow the pattern of the existing scripts: source <code>cresco.env</code>, define a <code>launch()</code> helper that runs the
 agent jar with role/port/secret flags into a per-node dir, wait for readiness (grep the node log for a
@@ -3080,10 +3201,10 @@ on.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

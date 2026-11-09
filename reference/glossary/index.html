@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://crescoedge.github.io/docs/reference/glossary/">
       
       
-        <link rel="prev" href="../../operations/testing/">
+        <link rel="prev" href="../../operations/troubleshooting/">
       
       
         <link rel="next" href="../design-docs/">
@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1147,6 +1147,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -2132,6 +2160,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2799,15 +2855,47 @@
 </tr>
 <tr>
 <td><strong>Discovery</strong></td>
-<td>Finding a parent controller (UDP broadcast or static TCP), gated by a tier <a href="../../architecture/discovery/">join secret</a>.</td>
+<td>Finding a parent controller (UDP broadcast or static TCP) and establishing trust with it over an authenticated exchange: keyed by a tier <a href="../../architecture/discovery/">join secret</a> (standard profile) or signed under the operator's PKI (production).</td>
 </tr>
 <tr>
 <td><strong>Join secret</strong></td>
-<td>The pre-shared <code>discovery_secret_{agent,region,global}</code> a node must present to join a tier.</td>
+<td>The pre-shared <code>discovery_secret_{agent,region,global}</code> a node must hold to join a tier (standard profile; refused in production).</td>
 </tr>
 <tr>
 <td><strong>Service key</strong></td>
-<td><code>cresco_service_key</code> — the shared symmetric key authenticating agent traffic; must match fabric-wide.</td>
+<td><code>cresco_service_key</code> — wsapi's legacy API credential (an <code>admin</code> of the agent's tenant); refused in production.</td>
+</tr>
+<tr>
+<td><strong>Message authentication</strong></td>
+<td>Every MsgEvent authenticated by its origin and checked by its recipient before dispatch: a signature, a session-key MAC, or first hand on a direct link. See <a href="../../security/message-auth/">Message authentication</a>.</td>
+</tr>
+<tr>
+<td><strong>Recipient binding</strong></td>
+<td>The signed recipient of a message (<code>cresco_sig_to</code>): a node refuses a message that does not name it.</td>
+</tr>
+<tr>
+<td><strong>Direct link</strong></td>
+<td>A message between a node and its own parent or child: no relay, so it travels unsigned and the receiving broker attests the sender (<code>cresco_direct</code>).</td>
+</tr>
+<tr>
+<td><strong>Session key</strong></td>
+<td>An end-to-end key two nodes agree with ECDH P-384 to MAC (HMAC-SHA-384) their messages instead of signing each.</td>
+</tr>
+<tr>
+<td><strong>Trust bundle</strong></td>
+<td>The signed, versioned list of region and global controller keys the global sends down on its pongs.</td>
+</tr>
+<tr>
+<td><strong>Backpressure</strong></td>
+<td>On the data plane, a subscriber that falls behind slows its topic's writers (producer flow control) instead of losing messages. See <a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">Data Plane</a>.</td>
+</tr>
+<tr>
+<td><strong>Paced listener</strong></td>
+<td>A dataplane listener (<code>PacedListener</code>) that may wait in <code>onMessage</code> to slow its stream; it gets a JMS session of its own.</td>
+</tr>
+<tr>
+<td><strong>Security profile</strong></td>
+<td><code>standard</code> (default) or <code>production</code> (operator PKI, FIPS 140-3 approved-only, no passwords). See <a href="../../security/profiles/">Security profiles</a>.</td>
 </tr>
 <tr>
 <td><strong>CrescoIdentity</strong></td>
@@ -2815,7 +2903,7 @@
 </tr>
 <tr>
 <td><strong>Regional CA</strong></td>
-<td>A region/global controller acting as a certificate authority, signing joiners' leaves — distributed trust (O(regions)).</td>
+<td>A region/global controller acting as a certificate authority, signing joiners' leaves — distributed trust (O(regions)); standard profile only.</td>
 </tr>
 <tr>
 <td><strong>Tenant</strong></td>
@@ -2938,10 +3026,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

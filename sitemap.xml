@@ -149,6 +149,10 @@
          <lastmod>2026-11-09</lastmod>
     </url>
     <url>
+         <loc>https://crescoedge.github.io/docs/operations/troubleshooting/</loc>
+         <lastmod>2026-11-09</lastmod>
+    </url>
+    <url>
          <loc>https://crescoedge.github.io/docs/plugins/agent/</loc>
          <lastmod>2026-11-09</lastmod>
     </url>
@@ -218,6 +222,10 @@
     </url>
     <url>
          <loc>https://crescoedge.github.io/docs/security/fips/</loc>
+         <lastmod>2026-11-09</lastmod>
+    </url>
+    <url>
+         <loc>https://crescoedge.github.io/docs/security/message-auth/</loc>
          <lastmod>2026-11-09</lastmod>
     </url>
     <url>

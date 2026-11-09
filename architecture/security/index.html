@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1001,10 +1001,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#message-signing-payload-encryption" class="md-nav__link">
+  <a href="#end-to-end-message-authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Message signing &amp; payload encryption
+        End-to-end message authentication
       
     </span>
   </a>
@@ -1023,10 +1023,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#enable-it-in-order" class="md-nav__link">
+  <a href="#defaults" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Enable it, in order
+        Defaults
       
     </span>
   </a>
@@ -1256,6 +1256,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2261,6 +2289,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2877,10 +2933,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#message-signing-payload-encryption" class="md-nav__link">
+  <a href="#end-to-end-message-authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Message signing &amp; payload encryption
+        End-to-end message authentication
       
     </span>
   </a>
@@ -2899,10 +2955,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#enable-it-in-order" class="md-nav__link">
+  <a href="#defaults" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Enable it, in order
+        Defaults
       
     </span>
   </a>
@@ -2945,7 +3001,8 @@ identity in its subject DN</strong>:</p>
 </code></pre></div>
 <p><code>CrescoIdentity</code> parses this both ways (identity ⇄ DN). Because identity is bound <em>into</em> the certificate,
 any holder of the issuing CA can cryptographically verify a node's claimed tenant/region/agent — there is
-no separate identity database to trust.</p>
+no separate identity database to trust. In the <code>production</code> <a href="../../security/profiles/">security profile</a> nothing is
+generated or enrolled: every identity is issued ahead of time by the operator's PKI (<a href="../../security/pki/">Operator PKI</a>).</p>
 <h2 id="transport-mutual-tls">Transport — mutual TLS<a class="headerlink" href="#transport-mutual-tls" title="Permanent link">&para;</a></h2>
 <p>Broker connections use <code>nio+ssl</code>. With <code>broker_require_client_auth=true</code> the broker demands a client
 certificate, validates its chain, and derives the <strong>authenticated principal from the verified DN</strong> —
@@ -2979,7 +3036,11 @@ persistent region CA; a joining node enrolls over the <a href="../discovery/">di
 join secret), and the region CA <strong>signs it a leaf with a stamped identity</strong> and returns the chain. Globals
 distribute (do not sign) trust — they aggregate region-CA bundles and gossip them across the mesh, so an
 agent under one global can verify an agent under another. This scales to a large mesh with no central CA
-and no single point of compromise.</p>
+and no single point of compromise. The region CA's private key (<code>region-ca.p12</code> in the node's identity directory) is
+encrypted at rest under <code>region_ca_password_file</code>, an owner-only file of at least 16 characters the operator keeps
+elsewhere (a mounted secret, another volume); without it the key is protected only by the random password beside it and
+that directory's permissions, and a WARNING says so. The regional CA is a <code>standard</code>-profile convenience: production
+refuses <code>security_regional_ca=true</code>.</p>
 <h2 id="authorization-role-based-tenant-acls">Authorization — role-based tenant ACLs<a class="headerlink" href="#authorization-role-based-tenant-acls" title="Permanent link">&para;</a></h2>
 <p>With <code>broker_security_enabled=true</code> the broker installs <code>CrescoAuthorizationBroker</code>, which checks every
 consumer/producer/send against <code>TenantPolicy</code> using the connection's verified identity. Authorization is
@@ -3003,12 +3064,16 @@ consumer/producer/send against <code>TenantPolicy</code> using the connection's 
 </tbody>
 </table>
 <p>This is the enforcement point for <a href="../tenancy/">multi-tenancy</a>.</p>
-<h2 id="message-signing-payload-encryption">Message signing &amp; payload encryption<a class="headerlink" href="#message-signing-payload-encryption" title="Permanent link">&para;</a></h2>
-<p>Beyond transport TLS, the library provides <code>MessageSigner</code> for <strong>selective, end-to-end message signing</strong> —
-a sender signs the payload digest with its leaf key; any receiver verifies with the sender's leaf
-(chain-validated), proving origin and tamper-evidence independent of how many brokers relayed the message.
-Optional payload encryption to a recipient's public key is available for confidentiality beyond the first
-hop.</p>
+<h2 id="end-to-end-message-authentication">End-to-end message authentication<a class="headerlink" href="#end-to-end-message-authentication" title="Permanent link">&para;</a></h2>
+<p>Transport TLS and the broker's caller stamp vouch for one hop. Every MsgEvent a node originates is also authenticated by
+its origin and checked by its recipient before dispatch, so the origin's word survives relays, source routes and the
+bridges of other regions: unsigned between a node and its own parent or child (the receiving broker attests the sender
+first hand), otherwise an RSA-3072/SHA-384 signature (batched under load) or an HMAC-SHA-384 under an end-to-end session
+key agreed with ECDH P-384. The signature or MAC covers the recipient (<code>cresco_sig_to</code>), so a message signed for one node
+is refused by any other, and the signer's revocations are checked on every message. See
+<a href="../../security/message-auth/">Message authentication</a>.</p>
+<p>The library also offers plugins <code>io.cresco.library.security.MessageSigner</code>, a plain sign/verify of a byte payload with a
+private key or a certificate's public key.</p>
 <h2 id="crypto-policy-one-set-of-allowed-algorithms-per-fabric">Crypto policy — one set of allowed algorithms per fabric<a class="headerlink" href="#crypto-policy-one-set-of-allowed-algorithms-per-fabric" title="Permanent link">&para;</a></h2>
 <p>Which algorithm types the fabric may choose for anything new (certificate signature suites, a storage domain's
 content-address hash, key wraps, KDFs, ciphers) is one policy (<code>io.cresco.library.crypto.CryptoPolicy</code>), set on the
@@ -3019,13 +3084,13 @@ ids differ, so a joining node gets it at once and a change reaches every node wi
 and agents ignore local crypto keys. A node without the policy refuses every algorithm choice for a new object
 (fail closed). Existing data, fixed wire formats and verification are never refused. See the
 <a href="../../reference/configuration/#fabric-crypto-policy-global-controller-only">configuration reference</a>.</p>
-<h2 id="enable-it-in-order">Enable it, in order<a class="headerlink" href="#enable-it-in-order" title="Permanent link">&para;</a></h2>
-<ol>
-<li><code>security_regional_ca=true</code> — every node gets a CA-signed, identity-bearing leaf.</li>
-<li><code>broker_require_client_auth=true</code> — mutual TLS binds identity non-spoofably.</li>
-<li><code>broker_security_enabled=true</code> — the ACL enforces tenant isolation.</li>
-<li><code>tenant_namespacing=true</code> — end-to-end <a href="../tenancy/">tenant</a> destination isolation.</li>
-</ol>
+<h2 id="defaults">Defaults<a class="headerlink" href="#defaults" title="Permanent link">&para;</a></h2>
+<p>Since the 1.3 hardening mutual TLS (<code>broker_require_client_auth</code>), the authorization broker (<code>broker_security_enabled</code>),
+tenant namespacing (<code>tenant_namespacing</code>), message authentication (<code>msg_signing_required</code>) and plugin signing
+(<code>plugin_signing_required</code>) are <strong>on by default</strong>. With security on, <code>broker_require_client_auth=false</code> or
+<code>tenant_namespacing=false</code> refuses the start; <code>msg_signing_required=false</code> and <code>plugin_signing_required=false</code> are
+development settings, logged as a WARNING (and refused in production). <code>security_regional_ca</code> stays opt-in (standard
+profile only). See <a href="../../security/secure-defaults/">Secure defaults</a>.</p>
 <p>The full rationale is in the distributed-identity-trust design doc — see <a href="../../reference/design-docs/">Design Docs</a>.</p>
 
 
@@ -3082,10 +3147,10 @@ and agents ignore local crypto keys. A node without the policy refuses every alg
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

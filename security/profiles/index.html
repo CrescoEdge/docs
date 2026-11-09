@@ -18,14 +18,14 @@
         <link rel="prev" href="../secure-defaults/">
       
       
-        <link rel="next" href="../pki/">
+        <link rel="next" href="../message-auth/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1195,6 +1195,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#discovery-in-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discovery in production
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#plugins-follow-the-nodes-profile" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1220,6 +1231,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2217,6 +2256,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2800,6 +2867,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#discovery-in-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discovery in production
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#plugins-follow-the-nodes-profile" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2861,6 +2939,11 @@
 <td><code>trust_anchors</code> only; no trust on first use</td>
 </tr>
 <tr>
+<td>Discovery</td>
+<td>discovery v2, keyed by the shared discovery secrets</td>
+<td>the same exchange signed with each side's provisioned key, chains verified to <code>trust_anchors</code>; no discovery secret is used or accepted</td>
+</tr>
+<tr>
 <td>Upgrade window (<code>discovery_auth=compat</code>)</td>
 <td>available, time-boxed</td>
 <td>refused</td>
@@ -2918,10 +3001,37 @@ below is missing or anything disallowed is set:</p>
 </tbody>
 </table>
 <p>Optional: <code>revocation_file</code> (the operator's CRLs and deny list), <code>controller_trust_anchors</code>. Refused: every setting
-that weakens security, the upgrade window, <code>security_regional_ca=true</code>, <code>peer_identity_rebind</code>, inline passwords and
-secrets on the command line. Any secret a production node is given comes only from an owner-only <code>&lt;name&gt;_file</code> file or
-a <code>CRESCO_&lt;NAME&gt;</code> environment variable; whether your build still admits nodes to discovery with the discovery secrets
-beside the PKI is in its <code>controller/docs/production-deployment.md</code>.</p>
+that weakens security (<code>broker_security_enabled=false</code>, <code>broker_require_client_auth=false</code>, <code>tenant_namespacing=false</code>,
+<code>plugin_signing_required=false</code>, <code>msg_signing_required=false</code>, a <code>peer_identity_mode</code> other than <code>enforce</code>,
+<code>broker_allow_unverified_bridges=true</code>), the upgrade window, <code>security_regional_ca=true</code>, <code>peer_identity_rebind</code>,
+<code>public_key_trusted_fingerprints</code>, the passwords (<code>cresco_service_key</code>, <code>broker_security_secret</code>, <code>keystorepwd</code>,
+<code>truststorepwd</code>, <code>plugin_signing_truststore_password</code>), the discovery secrets (<code>discovery_secret_agent</code>, <code>_region</code>,
+<code>_global</code>, in any form: a leftover is named, not ignored) and <code>db_password</code> on the command line. Any secret a production
+node is given comes only from an owner-only <code>&lt;name&gt;_file</code> file or a <code>CRESCO_&lt;NAME&gt;</code> environment variable.</p>
+<p>The controller also checks that the JVM really runs in FIPS 140-3 approved-only mode before it starts: every JCA provider
+is one FIPS mode leaves (<code>BCFIPS</code>, <code>BCJSSE</code>, <code>CrescoACCP-FIPS</code>, <code>CrescoFIPS</code>, <code>SunJSSE</code>), Bouncy Castle FIPS is in
+approved-only mode and passed its self-tests, ACCP-FIPS (where installed) is the FIPS build and healthy, MD5 is refused and
+SHA-384 gives its known answer. Otherwise: <code>REFUSING TO START: security_profile=production runs in FIPS 140-3
+approved-only mode, and this JVM is not in it: ...</code>. Start production nodes with the agent jar, whose crypto boot sets the
+mode up (<a href="../fips/">FIPS</a>).</p>
+<h2 id="discovery-in-production">Discovery in production<a class="headerlink" href="#discovery-in-production" title="Permanent link">&para;</a></h2>
+<p>Discovery is authenticated by the operator's PKI alone. The exchange has the same four messages as the standard
+profile's discovery v2 (HELLO, CHALLENGE, PROOF, RESULT, over fresh nonces from both sides), but each side signs the
+transcript with its provisioned identity key instead of keying a MAC with a shared secret:</p>
+<ul>
+<li>the joiner's whole chain must verify to <code>trust_anchors</code> as what it claims (name, role, validity, revocation, the
+  region's CA scope) before the responder signs anything for it;</li>
+<li>the responder's chain must verify the same way as the controller it answered as (a GLOBAL answer only from a
+  certificate carrying <code>cresco:role:global</code>), and its signature (over both nonces, both identities, both chains and its
+  broker port) must verify under its leaf before the joiner answers;</li>
+<li>the joiner's signature must verify under the leaf it presented, so a copied (public) chain without its key gets
+  nothing, and a replayed or altered exchange fails;</li>
+<li>nothing is issued, enrolled or pinned on first use.</li>
+</ul>
+<p>Locators (the UDP broadcast and the first TCP probe) carry no secret either: a production controller answers a PKI
+locator with its region, name and broker port and nothing else, and does not answer a secret-keyed locator or a legacy
+exchange (<code>Discovery: REFUSED ... authenticated by the operator's PKI only ...</code>, once per address). A production node and
+a standard-profile node never complete a discovery exchange with each other.</p>
 <h2 id="plugins-follow-the-nodes-profile">Plugins follow the node's profile<a class="headerlink" href="#plugins-follow-the-nodes-profile" title="Permanent link">&para;</a></h2>
 <p>Plugins read the profile from their controller, <code>PluginBuilder.getSecurityProfile()</code> (<code>PRODUCTION</code> when the
 controller cannot be asked), never from their own configuration. wsapi refuses to start when its own <code>security_profile</code>
@@ -2992,10 +3102,10 @@ in production.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

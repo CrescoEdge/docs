@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1147,6 +1147,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -2132,6 +2160,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2912,8 +2968,9 @@ is <em>not</em> enough on its own.</p>
 <p><strong>1. Message priority (queue layer).</strong> <code>MsgQoS</code> classifies every MsgEvent into a tier —
 <code>LIVENESS</code> (JMS priority 9, persistent), <code>CONTROL</code> (7, persistent), <code>TELEMETRY</code> (4,
 non-persistent), <code>BULK</code> (1). <code>AgentProducer</code> routes the control-plane tiers to a dedicated
-<code>ControlPlaneSender</code>. The broker has <code>prioritizedMessages</code> on and producer flow control off, so a
-backed-up destination never blocks a producer.</p>
+<code>ControlPlaneSender</code>. The broker has <code>prioritizedMessages</code> on and producer flow control off on queues, so a
+backed-up control destination never blocks a producer. (Topics, the data plane, now run with producer flow control on:
+<a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">dataplane backpressure</a>.)</p>
 <p>This orders messages <strong>within one destination</strong>. It does nothing across destinations, and nothing
 at all below the queue layer.</p>
 <p><strong>2. Dedicated sockets (transport layer).</strong> Priority is powerless once frames are on the wire: a
@@ -3014,8 +3071,8 @@ threshold). The legacy <code>period_multiplier</code> is still honoured as a fal
 </tr>
 <tr>
 <td><code>broker_bridge_prefetch_data</code></td>
-<td><code>10</code></td>
-<td>Prefetch on data bridge connectors.</td>
+<td><code>64</code></td>
+<td>Prefetch on data bridge connectors (was 10 when this was written; raised 2026-09-26: at 10 a bridge that fell briefly behind shed frames).</td>
 </tr>
 <tr>
 <td><code>queue_prefetch_limit</code></td>
@@ -3116,10 +3173,10 @@ threshold). The legacy <code>period_multiplier</code> is still honoured as a fal
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

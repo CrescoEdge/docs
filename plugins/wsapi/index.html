@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1147,6 +1147,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -1718,6 +1746,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#api-rpcs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API RPCs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataplane-backpressure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataplane backpressure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuration-read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2259,6 +2309,34 @@
     
   
     Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
   
 
     
@@ -2899,6 +2977,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#api-rpcs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API RPCs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataplane-backpressure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataplane backpressure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuration-read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2969,7 +3069,7 @@
 </tr>
 <tr>
 <td>Java files</td>
-<td>10</td>
+<td>34</td>
 </tr>
 <tr>
 <td>Loaded</td>
@@ -2990,7 +3090,7 @@
 </tbody>
 </table>
 <h2 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
-<p>All three endpoints sit behind the <code>WsRouter</code> handler, which runs first (right after HTTP aggregation) and authenticates the WebSocket upgrade: a request is rejected with <code>401 UNAUTHORIZED</code> unless its <code>cresco_service_key</code> HTTP header matches the configured key. It then routes the upgrade to the handler for the requested path.</p>
+<p>All three endpoints sit behind the <code>WsRouter</code> handler, which runs first (right after HTTP aggregation) and authenticates the WebSocket upgrade: every connection is authenticated, by a user and password, an API token or the legacy <code>cresco_service_key</code> header in the standard profile, and by a client certificate in production (see <a href="../../security/api-auth/">API authentication</a>). It then routes the upgrade to the handler for the requested path.</p>
 <table>
 <thead>
 <tr>
@@ -3028,7 +3128,7 @@
 <tbody>
 <tr>
 <td><code>Plugin</code></td>
-<td>Builds and manages the <code>NettyWsServer</code>; ensures a self-signed <code>ws.keystore</code> (BouncyCastle RSA-2048, <code>SHA256WithRSA</code>) in the plugin data directory; reads the port/buffer config and starts the server.</td>
+<td>Builds and manages the <code>NettyWsServer</code>; ensures its managed TLS keystore <code>ws.keystore</code> in the plugin data directory (key and signature from the fabric crypto policy: EC P-384 with <code>SHA384withECDSA</code> by default; a random password in <code>ws.keystore.pass</code>; BCFKS in FIPS mode) or loads a CA-issued one (<code>wsapi_keystore_file</code>); reads the port/buffer config and starts the server.</td>
 </tr>
 <tr>
 <td><code>NettyWsServer</code></td>
@@ -3036,7 +3136,7 @@
 </tr>
 <tr>
 <td><code>WsRouter</code></td>
-<td>First pipeline handler after HTTP aggregation: authenticates the <code>cresco_service_key</code> header (<code>401</code> on mismatch) and routes the upgrade to the per-path handler.</td>
+<td>First pipeline handler after HTTP aggregation: authenticates the upgrade (<code>Authenticator</code>, <code>auth</code> package) and routes it to the per-path handler.</td>
 </tr>
 <tr>
 <td><code>ApiSocketWsHandler</code> / <code>DataPlaneWsHandler</code> / <code>LogStreamerWsHandler</code></td>
@@ -3059,12 +3159,76 @@
 <h2 id="tls-and-performance-tuning">TLS and performance tuning<a class="headerlink" href="#tls-and-performance-tuning" title="Permanent link">&para;</a></h2>
 <p><code>NettyWsServer</code> is tuned for high-throughput streaming:</p>
 <ul>
-<li>TLS via an SSL context whose provider is selectable with <code>wsapi_ssl_provider</code> (default <code>JDK</code>).</li>
+<li>TLS via an SSL context whose provider is selectable with <code>wsapi_ssl_provider</code> (default <code>JDK</code>; <code>OPENSSL</code> is refused in FIPS mode).</li>
 <li>Adaptive receive-buffer allocation (<code>AdaptiveRecvByteBufAllocator</code>, 2 KB … 64 KB … up to <code>wsapi_read_chunk_bytes</code>) and <code>wsapi_socket_buffer_bytes</code> (4 MB) socket buffers, with a <code>wsapi_write_high_water_bytes</code> (2 MB) write watermark for backpressure.</li>
 <li><strong><code>permessage-deflate</code> is disabled</strong> (<code>WsRouter</code> sets <code>allowExtensions(false)</code>) — WebSocket compression was the single biggest data-plane CPU bottleneck, so it is deliberately off. See <a href="../../architecture/dataplane/">Data Plane</a> and <a href="../../architecture/metrics/">Metrics &amp; Measurements</a>.</li>
 </ul>
 <h2 id="authentication-and-identity">Authentication and identity<a class="headerlink" href="#authentication-and-identity" title="Permanent link">&para;</a></h2>
-<p>Clients authenticate with the <code>cresco_service_key</code> HTTP header on the WebSocket upgrade. On the return path, external identity — a client's region/agent/plugin — is read from the TLS peer certificate DN. See <a href="../../architecture/security/">Security &amp; Identity</a>.</p>
+<p>Every connection is authenticated on the WebSocket upgrade; the credentials, roles and limits are in
+<a href="../../security/api-auth/">API authentication</a>. wsapi stamps each request with the verified API user as its caller and
+removes the fabric's own stamps (<code>cresco_sig*</code>, <code>cresco_caller*</code>, routing annotations, RPC plumbing) from what a client
+sends and receives. On the return path, external identity — a client's region/agent/plugin — is read from the TLS peer
+certificate DN. See <a href="../../architecture/security/">Security &amp; Identity</a>.</p>
+<h2 id="api-rpcs">API RPCs<a class="headerlink" href="#api-rpcs" title="Permanent link">&para;</a></h2>
+<p>An RPC from <code>/api/apisocket</code> (<code>is_rpc</code>) waits for its reply on a bounded pool, never on a Netty event loop: an idle thread
+takes the next RPC at once (the most recently idle first), with at most 640 RPCs in flight (128 + 512). A full pool is
+answered at once with <code>503 busy</code>, and a caller past its own in-flight limit (<code>wsapi_rpc_max_inflight_user</code>, 8;
+<code>wsapi_rpc_max_inflight_admin</code>, 32) with <code>429 busy</code>. Replies may complete out of order; clients correlate them
+(pycrescolib stamps <code>client_rpc_id</code>, echoed back).</p>
+<h2 id="dataplane-backpressure">Dataplane backpressure<a class="headerlink" href="#dataplane-backpressure" title="Permanent link">&para;</a></h2>
+<p>A dataplane consumer (<code>/api/dataplane</code>) is a <code>PacedListener</code>: the controller gives it a JMS session of its own with a
+consumer prefetch of 16 (<code>dataplane_paced_prefetch</code>). Frames queue on the WebSocket past Netty's write high-water mark up
+to the consumer's budget (<code>wsapi_dataplane_egress_buffer_bytes</code>, 32 MiB; all consumers together
+<code>wsapi_dataplane_egress_global_bytes</code>, a quarter of the heap, at most 512 MiB). Past it the listener <strong>waits</strong> until the
+backlog is back to half the budget; meanwhile the rest of the stream stays at the broker, whose flow control slows the
+stream's writers (<a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">Data Plane</a>). Nothing is lost and
+the order is kept.</p>
+<p>A consumer that reads nothing for <code>wsapi_dataplane_stall_close_ms</code> (30 s) while frames wait for it is closed with
+WebSocket status <strong>1013</strong> (<code>stalled: nothing read in 30000 ms</code>; counted in <code>wsapi.dataplane.egress.stalled</code>): a stopped
+reader would otherwise hold every writer of its topic on that broker. <code>wsapi_dataplane_backpressure=false</code> restores the
+earlier budget, past which frames are dropped (counted in <code>wsapi.dataplane.egress.dropped</code>).</p>
+<p>Client frames are published off the Netty event loop, on a per-connection send thread (order kept; up to
+<code>wsapi_dataplane_send_threads</code> threads, the core count from 2 to 32), with reading paused while more than
+<code>wsapi_dataplane_ingress_queue_bytes</code> (16 MiB) wait to be published and resumed at half of it, so a send that waits on a
+full topic never stalls the event loop or the other connections it serves. A frame the controller does not take is
+counted (<code>wsapi.dataplane.ingress.failed</code>) and logged.</p>
+<p>Close codes a client may see:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Reason</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1013</td>
+<td><code>stalled: nothing read in &lt;ms&gt; ms</code></td>
+<td>a dataplane consumer read nothing for <code>wsapi_dataplane_stall_close_ms</code> while frames waited</td>
+</tr>
+<tr>
+<td>1013</td>
+<td><code>too many message bytes in flight (...); retry shortly</code></td>
+<td>a caller (<code>wsapi_max_inflight_bytes_per_user</code>, 256 MiB) or all callers (<code>wsapi_max_inflight_bytes</code>) held too many inbound message bytes</td>
+</tr>
+<tr>
+<td>1008</td>
+<td><code>Subscription refused: ...</code></td>
+<td>a dataplane subscription the caller may not make</td>
+</tr>
+<tr>
+<td>1008</td>
+<td><code>credentials revoked or changed: authenticate again</code></td>
+<td>the connection's credential was revoked or changed (checked every <code>wsapi_revocation_check_ms</code>, 1 s)</td>
+</tr>
+<tr>
+<td>1009</td>
+<td><code>message larger than &lt;n&gt; bytes (...)</code></td>
+<td>an inbound message over its size cap</td>
+</tr>
+</tbody>
+</table>
 <h2 id="configuration-read">Configuration read<a class="headerlink" href="#configuration-read" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3081,19 +3245,19 @@
 <td>WSS/HTTPS listen port.</td>
 </tr>
 <tr>
-<td><code>wsapi_keystore_password</code></td>
-<td><code>cresco</code></td>
-<td>Password for the auto-generated <code>ws.keystore</code>.</td>
+<td><code>wsapi_keystore_file</code>, <code>wsapi_keystore_password</code></td>
+<td>—</td>
+<td>A CA-issued PKCS12 keystore and its password (or <code>wsapi_keystore_password_file</code>); unset: wsapi's managed <code>ws.keystore</code>.</td>
 </tr>
 <tr>
 <td><code>cresco_service_key</code></td>
 <td>—</td>
-<td>Shared-secret auth header value.</td>
+<td>The legacy service key (an <code>admin</code> of the agent's tenant); refused in production.</td>
 </tr>
 <tr>
 <td><code>wsapi_ssl_provider</code></td>
 <td><code>JDK</code></td>
-<td>Netty SSL provider (<code>JDK</code> or <code>OPENSSL</code>).</td>
+<td>Netty SSL provider (<code>JDK</code> or <code>OPENSSL</code>; <code>OPENSSL</code> refused in FIPS mode).</td>
 </tr>
 <tr>
 <td><code>dataplane_io_buffer_bytes</code></td>
@@ -3113,15 +3277,49 @@
 <tr>
 <td><code>wsapi_write_high_water_bytes</code></td>
 <td><code>2097152</code></td>
-<td>Write-buffer high-water mark for backpressure (2 MB).</td>
+<td>Netty write-buffer high-water mark (2 MB).</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_backpressure</code></td>
+<td><code>true</code></td>
+<td>a consumer past its budget waits (its stream slows); <code>false</code>: frames past it are dropped, counted</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_egress_buffer_bytes</code></td>
+<td><code>33554432</code></td>
+<td>one consumer's egress budget (32 MiB)</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_egress_global_bytes</code></td>
+<td>min(512 MiB, heap / 4)</td>
+<td>all consumers' egress budget</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_stall_close_ms</code></td>
+<td><code>30000</code></td>
+<td>a waiting consumer that reads nothing this long is closed (1013); at least 1000</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_send_threads</code></td>
+<td>cores, 2 to 32</td>
+<td>threads publishing client frames (one per connection, order kept); <code>0</code>: publish on the event loop</td>
+</tr>
+<tr>
+<td><code>wsapi_dataplane_ingress_queue_bytes</code></td>
+<td><code>16777216</code></td>
+<td>client bytes waiting to be published before reading pauses (16 MiB; at least 1 MiB)</td>
 </tr>
 </tbody>
 </table>
+<p>The authentication settings (<code>wsapi_users_file</code>, tokens, lockouts, client certificates) are in
+<a href="../../security/api-auth/">API authentication</a>.</p>
 <p>See <a href="../../getting-started/configuration/">Configuration</a>.</p>
 <h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Metrics</strong> — <code>getmetrics</code> exposes <code>MeasurementEngine</code> gauges <code>wsapi.dataplane.connections</code>,
-  <code>wsapi.dataplane.bytes</code>, and <code>wsapi.dataplane.messages</code> (process-wide dataplane ingress counters),
+<li><strong>Metrics</strong> — <code>getmetrics</code> exposes <code>MeasurementEngine</code> gauges for the dataplane (<code>wsapi.dataplane.connections</code>,
+  <code>.bytes</code>, <code>.messages</code>, <code>.egress.pending.bytes</code>, <code>.egress.max.pending.bytes</code>, <code>.egress.paused</code>, <code>.egress.stalled</code>,
+  <code>.egress.dropped</code>, <code>.ingress.failed</code>), authentication (<code>wsapi.auth.failures</code>, <code>.servicekey.failures</code>, <code>.refused</code>,
+  <code>.revoked.connections</code>) and inbound memory (<code>wsapi.inbound.inflight.bytes</code>, <code>wsapi.inbound.budget.closed</code>),
   aggregated by <code>getmetricinventory</code>. See
   <a href="../../architecture/metrics/#plugin-wsapi">Metrics &amp; Measurements › wsapi</a>.</li>
 <li><strong>Health</strong> — registers the <code>wsapi</code> Felix HealthCheck (tag <code>local</code>), <strong>only after the Netty server
@@ -3188,10 +3386,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

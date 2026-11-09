@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -940,10 +940,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-join-secret" class="md-nav__link">
+  <a href="#the-join-secret-standard-profile" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The join secret
+        The join secret (standard profile)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discovery-in-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discovery in production
       
     </span>
   </a>
@@ -1223,6 +1234,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2228,6 +2267,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2811,10 +2878,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-join-secret" class="md-nav__link">
+  <a href="#the-join-secret-standard-profile" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The join secret
+        The join secret (standard profile)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discovery-in-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discovery in production
       
     </span>
   </a>
@@ -2862,8 +2940,8 @@
 
 <h1 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h1>
 <p>Before a node can join the mesh it must <strong>find</strong> a parent (region/global) and prove it is <strong>allowed</strong> to
-join. Cresco does this with a discovery protocol gated by a pre-shared secret, implemented under the
-controller's <code>netdiscovery</code> package.</p>
+join. Cresco does this with an authenticated discovery exchange, keyed by a pre-shared secret in the standard
+profile and by the operator's PKI in production, implemented under the controller's <code>netdiscovery</code> package.</p>
 <h2 id="how-a-node-finds-a-parent">How a node finds a parent<a class="headerlink" href="#how-a-node-finds-a-parent" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2886,7 +2964,7 @@ controller's <code>netdiscovery</code> package.</p>
 <p>Discovery exchanges <code>DiscoveryNode</code> records carrying the peer's region/agent identity, IP/port, agent
 count, a validator, and a measured latency. Discovery runs per tier: <code>AGENT</code>, <code>REGION</code>, <code>GLOBAL</code>,
 <code>NETWORK</code>.</p>
-<h2 id="the-join-secret">The join secret<a class="headerlink" href="#the-join-secret" title="Permanent link">&para;</a></h2>
+<h2 id="the-join-secret-standard-profile">The join secret (standard profile)<a class="headerlink" href="#the-join-secret-standard-profile" title="Permanent link">&para;</a></h2>
 <p>A node proves it may join by demonstrating knowledge of the <strong>tier join secret</strong>. There is one secret per
 tier:</p>
 <table>
@@ -2911,25 +2989,67 @@ tier:</p>
 </tr>
 </tbody>
 </table>
-<p>The joining node encrypts a known challenge with the secret; the responder decrypts it with its configured
-secret and only proceeds if the challenge matches. A node that doesn't hold the right secret cannot join.</p>
+<p>Locator messages (<code>DISCOVER</code> / <code>DISCOVERED</code>) carry a validator keyed from the secret (AES-256-GCM, a fresh IV each time,
+the key derived with PBKDF2-HMAC-SHA-384): they only find a controller. Trust is established by <strong>discovery v2</strong>, a
+mutually authenticated, replay-proof exchange of four messages over fresh 32-byte nonces from both sides:</p>
+<table>
+<thead>
+<tr>
+<th>Message</th>
+<th>From</th>
+<th>Carries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HELLO</code></td>
+<td>joiner</td>
+<td>type, its nonce, its region/agent and certificate chain</td>
+</tr>
+<tr>
+<td><code>CHALLENGE</code></td>
+<td>responder</td>
+<td>its nonce, region/agent, chain, broker port, and MAC "S1" over the transcript</td>
+</tr>
+<tr>
+<td><code>PROOF</code></td>
+<td>joiner</td>
+<td>MAC "C" over the transcript and its own whole chain</td>
+</tr>
+<tr>
+<td><code>RESULT</code></td>
+<td>responder</td>
+<td>ok or the reason, the result chain, MAC "S2"</td>
+</tr>
+</tbody>
+</table>
+<p>The MACs are HMAC-SHA-384 under a key derived from that tier's secret (PBKDF2-HMAC-SHA-384, 210,000 iterations). The
+transcript covers both nonces, both identities, both leaf keys, the responder's broker port and both whole chains, so a
+replayed or altered exchange fails, and neither side records a name, pin, bridge peer or enrollment before the other has
+proven itself. A node that doesn't hold the right secret cannot join.</p>
 <div class="admonition danger">
 <p class="admonition-title">Set your secrets</p>
 <p>If <code>discovery_secret_*</code> are unset a node generates random values and nobody can join it. For a real
-fabric, set fixed shared values (as <code>run/cresco.env</code> does). See <a href="../../getting-started/configuration/">Configuration</a>.</p>
+fabric, set fixed shared values. See <a href="../../getting-started/configuration/">Configuration</a>.</p>
 </div>
+<h2 id="discovery-in-production">Discovery in production<a class="headerlink" href="#discovery-in-production" title="Permanent link">&para;</a></h2>
+<p>Under <code>security_profile=production</code> no discovery secret is used or accepted (one set refuses the start). The same four
+messages run on the operator's PKI: each side signs the transcript with its provisioned identity key, and its chain must
+verify to <code>trust_anchors</code> as what it claims (a GLOBAL answer only from a certificate carrying <code>cresco:role:global</code>).
+Nothing is issued, enrolled or pinned on first use. See <a href="../../security/profiles/#discovery-in-production">Security profiles</a>.</p>
 <h2 id="certification-establishing-trust-at-join">Certification (establishing trust at join)<a class="headerlink" href="#certification-establishing-trust-at-join" title="Permanent link">&para;</a></h2>
 <p>Discovery is also where nodes exchange the cryptographic material that later secures the broker
-connections. Two modes (see <a href="../security/">Security &amp; Identity</a>):</p>
+connections. In the standard profile (see <a href="../security/">Security &amp; Identity</a>):</p>
 <ul>
-<li><strong>Direct trust (default):</strong> peers exchange leaf certificates during discovery and add each other to
-  their trust stores.</li>
+<li><strong>Direct trust (default):</strong> peers exchange leaf certificates during discovery; a joiner pins the controller it
+  joined (its key, and under the regional CA its region CA), and a different key for that name later is refused.</li>
 <li><strong>Regional-CA (<code>security_regional_ca=true</code>):</strong> the responder (a region/global acting as an issuing
   authority) signs the joiner a leaf certificate under its CA and returns the chain; the joiner installs
   it and trusts the issuing CA. This collapses trust material from O(nodes²) to O(regions).</li>
 </ul>
-<p>The join secret is the enrollment gate for both — you must pass the secret challenge before any certificate
-is issued or trusted.</p>
+<p>The authenticated exchange is the enrollment gate for both: nothing is issued or trusted before it completes. The
+legacy single-message exchange of earlier builds is accepted only inside the <a href="../../security/upgrade/">upgrade window</a>,
+and never between controllers.</p>
 <h2 id="after-discovery">After discovery<a class="headerlink" href="#after-discovery" title="Permanent link">&para;</a></h2>
 <p>Once a parent is found and trust is established, the node opens its <a href="../messaging/">messaging</a> channels
 (inbox queue + producers), and — if it is a controller — starts its broker and the <strong>federation bridge</strong>
@@ -2989,10 +3109,10 @@ to its parent. Liveness <a href="../health/">health</a> checks then keep the par
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

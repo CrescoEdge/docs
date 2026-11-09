@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1127,6 +1127,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2289,6 +2317,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3068,11 +3124,11 @@ destination identity:</p>
 <h2 id="config">Config<a class="headerlink" href="#config" title="Permanent link">&para;</a></h2>
 <p><code>Config</code> provides typed access to a node's <a href="../../getting-started/configuration/">configuration</a>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">Config</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getConfig</span><span class="p">();</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">int</span><span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getIntegerParam</span><span class="p">(</span><span class="s">"broker_port"</span><span class="p">,</span><span class="w"> </span><span class="mi">32010</span><span class="p">);</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kt">long</span><span class="w">   </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getLongParam</span><span class="p">(</span><span class="s">"controlplane_ttl"</span><span class="p">,</span><span class="w"> </span><span class="mi">300000L</span><span class="p">);</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kt">boolean</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getBooleanParam</span><span class="p">(</span><span class="s">"broker_security_enabled"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">String</span><span class="w">  </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getStringParam</span><span class="p">(</span><span class="s">"tenant_id"</span><span class="p">,</span><span class="w"> </span><span class="s">"default"</span><span class="p">);</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kt">double</span><span class="w">  </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getDoubleParam</span><span class="p">(</span><span class="s">"prefetch_rate_multiplier"</span><span class="p">,</span><span class="w"> </span><span class="mf">2.5</span><span class="p">);</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">int</span><span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getIntegerParam</span><span class="p">(</span><span class="s">&quot;broker_port&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">32010</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kt">long</span><span class="w">   </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getLongParam</span><span class="p">(</span><span class="s">&quot;controlplane_ttl&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">300000L</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kt">boolean</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getBooleanParam</span><span class="p">(</span><span class="s">&quot;broker_security_enabled&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">String</span><span class="w">  </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getStringParam</span><span class="p">(</span><span class="s">&quot;tenant_id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">);</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kt">double</span><span class="w">  </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">getDoubleParam</span><span class="p">(</span><span class="s">&quot;prefetch_rate_multiplier&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">2.5</span><span class="p">);</span>
 </code></pre></div>
 <p>Resolution is <strong>system property → config map → default</strong>; the default preserves shipped behavior. See the
 full <a href="../../reference/configuration/">Configuration Parameters reference</a>.</p>
@@ -3161,6 +3217,12 @@ list. Build one from a <code>PluginBuilder</code> factory, set params (including
 </tbody>
 </table>
 <p><code>TopicType</code> is <code>AGENT</code> (node-local), <code>REGION</code>, or <code>GLOBAL</code> (mesh-reachable via wsapi).</p>
+<p><strong>Paced listeners (backpressure).</strong> A listener that implements <code>io.cresco.library.data.PacedListener</code> (a marker
+sub-interface of <code>MessageListener</code>) may block in <code>onMessage</code> to slow its stream: what it has not taken stays at the
+broker, whose producer flow control slows the stream's writers. The data plane gives each paced listener a JMS session
+of its own (consumer prefetch <code>dataplane_paced_prefetch</code>, 16), so a wait holds back only its own messages, in order. It
+must not wait forever: give up on a consumer that reads nothing, return, and remove the listener. wsapi's WebSocket
+consumers are paced listeners. See <a href="../../architecture/dataplane/#backpressure-nothing-lost-order-kept">Data Plane</a>.</p>
 <h2 id="measurementengine-metrics">MeasurementEngine — metrics<a class="headerlink" href="#measurementengine-metrics" title="Permanent link">&para;</a></h2>
 <p>Register and update metrics; see <a href="../../architecture/metrics/">Metrics &amp; Measurements</a>.</p>
 <table>
@@ -3205,12 +3267,32 @@ list. Build one from a <code>PluginBuilder</code> factory, set params (including
 <td>identity ⇄ cert DN (<code>tenant</code>/<code>region</code>/<code>agent</code>/<code>uid</code>)</td>
 </tr>
 <tr>
+<td><code>Caller</code></td>
+<td>the verified caller of a message (kind, principal, tenant, roles), stamped by infrastructure, never by a sender</td>
+</tr>
+<tr>
+<td><code>ActionAuthorizer</code></td>
+<td>decides whether a message's verified caller may run its action (<code>@CrescoAction(roles=...)</code>); refusal answers <code>403</code></td>
+</tr>
+<tr>
+<td><code>SecurityProfile</code></td>
+<td><code>PRODUCTION</code>, <code>STANDARD</code> or <code>INSECURE</code> (debug mode); plugins read the node's with <code>PluginBuilder.getSecurityProfile()</code></td>
+</tr>
+<tr>
 <td><code>TenantNamespace</code></td>
 <td>qualify/parse tenant-namespaced destinations (<code>T.&lt;tenant&gt;.&lt;raw&gt;</code>)</td>
 </tr>
 <tr>
+<td><code>JarSignatures</code></td>
+<td>verify a plugin jar's signature against a trust store (<code>verify</code>; <code>verifyCms</code> through the installed providers only, used in production)</td>
+</tr>
+<tr>
+<td><code>OwnerOnlyFile</code></td>
+<td>read a secret only from an owner-only file (the <code>&lt;name&gt;_file</code> secret sources)</td>
+</tr>
+<tr>
 <td><code>MessageSigner</code></td>
-<td>sign/verify a message payload with the leaf key</td>
+<td>sign/verify a byte payload with a private key / a certificate's public key</td>
 </tr>
 <tr>
 <td><code>CertTrust</code></td>
@@ -3322,10 +3404,10 @@ re-exports for plugins (Guava, jakarta.jms, Micrometer, Siddhi). See <a href="..
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

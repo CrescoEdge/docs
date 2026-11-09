@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -811,6 +811,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#authentication-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication end to end
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-broker-fabric" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1245,6 +1256,34 @@
     
   
     Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
   
 
     
@@ -2250,6 +2289,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2844,6 +2911,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#authentication-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication end to end
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-broker-fabric" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2957,6 +3035,19 @@ arbitrary default. Transit regions then <strong>relay</strong> the flow toward i
 <em>next hop</em> from <code>getForwardDst()</code>. Under <a href="../tenancy/">tenant namespacing</a> the origin tenant is stamped
 once and preserved, so every relay qualifies the destination queue identically.</p>
 </div>
+<h2 id="authentication-end-to-end">Authentication end to end<a class="headerlink" href="#authentication-end-to-end" title="Permanent link">&para;</a></h2>
+<p>Every broker stamps the verified caller of each hop (<code>cresco_caller</code>). Beyond one hop, the origin's word is carried by
+the message itself: every MsgEvent a node originates is authenticated by its origin and checked by its recipient before
+dispatch (<a href="../../security/message-auth/">Message authentication</a>):</p>
+<ul>
+<li>between a node and its own parent or child (no relay) it travels unsigned, attested first hand by the receiving
+  broker (<code>cresco_direct</code>);</li>
+<li>otherwise it carries a signature (RSA-3072/SHA-384, batched under load) or, between two nodes that hold a session key,
+  an HMAC-SHA-384.</li>
+</ul>
+<p>The signature or MAC covers the <strong>recipient</strong> the origin's router chose (<code>cresco_sig_to</code>): a relay can carry a message
+on, but a copy re-sent to any other node is refused there. Relays do not sign what they carry, and a message a node only
+carries on is checked wherever it is finally dispatched.</p>
 <h2 id="the-broker-fabric">The broker fabric<a class="headerlink" href="#the-broker-fabric" title="Permanent link">&para;</a></h2>
 <p>Region and global controllers run an embedded ActiveMQ (<code>SslBrokerService</code>) via <code>ActiveBroker</code>. Agents
 connect as clients via <code>ActiveClient</code> using a <code>failover:(nio+ssl://host:port)</code> URL; the in-JVM controller
@@ -2966,10 +3057,15 @@ connects over <code>vm://localhost</code>. Producers and consumers are managed b
 <ul>
 <li><strong>KahaDB</strong> persistence with journal disk-syncs off by default (persistence is used as a flow-control
   mechanism, not for crash durability).</li>
-<li>Producer flow control off, prioritized messages on, per-destination memory limits, large socket buffers.</li>
+<li>Prioritized messages on, per-destination memory limits, large socket buffers. Producer flow control is <strong>off on
+  queues</strong> (the control plane: a liveness ping must never wait behind bulk) and <strong>on for topics</strong> (the
+  <a href="../dataplane/#backpressure-nothing-lost-order-kept">data plane</a>: a subscriber that falls behind slows the topic's
+  writers instead of losing messages; <code>activemq_topic_producer_flow_control</code>, <code>dataplane_backpressure</code>).</li>
 <li><strong>Network bridges</strong> (<code>AddNetworkConnector</code> / <code>buildConnector</code>) are duplex, demand-forwarding, with a
-  configurable <code>networkTTL</code>; parallel connectors per peer can be added/removed at runtime
-  (<code>addBridgeConnections</code>) for throughput.</li>
+  configurable <code>networkTTL</code>. Each bridge group is split by destination type (<code>broker_control_bridge_split</code>): connector 0
+  forwards queues only (the MsgEvent control fabric, prefetch <code>broker_bridge_prefetch</code>, 100), connectors 1..N topics only
+  (the data plane, prefetch <code>broker_bridge_prefetch_data</code>, 64, sending synchronously so the prefetch is the bridge's
+  credit window). Parallel connectors per peer can be added/removed at runtime (<code>addBridgeConnections</code>) for throughput.</li>
 </ul>
 <h2 id="federation-network-of-brokers">Federation (network of brokers)<a class="headerlink" href="#federation-network-of-brokers" title="Permanent link">&para;</a></h2>
 <p>Regions federate to globals (and globals to each other) via ActiveMQ <strong>network bridges</strong>. A bridge only
@@ -3082,10 +3178,10 @@ a 10 ms link must not read as ~100 ms.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

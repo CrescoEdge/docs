@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1152,6 +1152,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pki/" class="md-nav__link">
         
   
@@ -2217,6 +2245,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2855,6 +2911,14 @@ repo README.</p>
 <li>A signature carrying a trusted RFC 3161 timestamp (the TSA's certificate has the time-stamping extended key usage and
   chains to the trust store) is judged at the stamped time, so a stored jar stays installable after its signing
   certificate expires. Without one, re-sign jars before the signing certificate expires.</li>
+<li><strong>In production</strong> (<code>security_profile=production</code>) the check runs entirely through the node's installed JCA providers,
+  that is the FIPS 140-3 modules in approved-only mode, never the JDK's internal jar verifier
+  (<code>JarSignatures.verifyCms</code>): each signature block is verified as CMS SignedData over its <code>.SF</code> with Bouncy Castle FIPS,
+  the signer must chain to <code>plugin_signing_truststore</code> and may sign code, a trusted RFC 3161 timestamp moves the date the
+  signature is judged at, the <code>.SF</code> must cover the whole manifest (or, after a manifest was extended, its unchanged main
+  attributes and each signed section), and every entry must match its section's digest. Only SHA-256, SHA-384 and SHA-512
+  digests count. Without Bouncy Castle FIPS every jar is refused. The standard profile uses the JDK's verifier
+  (<code>JarSignatures.verify</code>); the library's tests hold both verifiers to the same decisions.</li>
 <li>Jars embedded in the agent jar are trusted as part of it (the release itself is signed: <code>scripts/sign-release.sh</code>,
   <code>scripts/verify-release.sh</code> in the agent repository).</li>
 </ul>
@@ -2941,10 +3005,10 @@ repo README.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
