@@ -102,7 +102,7 @@ Close codes a client may see:
 
 | Code | Reason | When |
 |---|---|---|
-| 1013 | `stalled: nothing read in <ms> ms` | a dataplane consumer read nothing for `wsapi_dataplane_stall_close_ms` while frames waited |
+| 1013 | `stalled: <n> B read in <ms> ms, less than <m>` | a held dataplane consumer read less than half its budget in `wsapi_dataplane_stall_close_ms` while frames waited |
 | 1013 | `too many message bytes in flight (...); retry shortly` | a caller (`wsapi_max_inflight_bytes_per_user`, 256 MiB) or all callers (`wsapi_max_inflight_bytes`) held too many inbound message bytes |
 | 1008 | `Subscription refused: ...` | a dataplane subscription the caller may not make |
 | 1008 | `credentials revoked or changed: authenticate again` | the connection's credential was revoked or changed (checked every `wsapi_revocation_check_ms`, 1 s) |
