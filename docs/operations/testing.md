@@ -66,6 +66,7 @@ pycrescolib:
 | `dataplane_backpressure_test.sh` | [backpressure](../architecture/dataplane.md#backpressure-nothing-lost-order-kept): fast and slow readers on one broker and across a bridge each way, every frame delivered whole, once and in order, the writer slowed to a slow reader, nothing discarded |
 | `control_plane_bench.sh` | MsgEvent round-trip latency (p50/p90/p99) and concurrent rate, direct and across a bridge, per build and mode (`MODE=standard`, `nosign`, `nodirect`, `insecure`, `production`) |
 | `many_agents_bench.sh` | membership at scale: N light agents started together, time until the global lists them all, controller CPU, refusals |
+| `dgx/gate.sh` + `dgx/report.py` | the multi-host release gate: control plane, dataplane across hosts and scale, an earlier build against a candidate in both profiles ([results](performance.md)) |
 
 The dataplane client they drive is the agent repository's `scripts/bench/dataplane_perf.py`: it streams frames through
 wsapi (optionally across a broker bridge to another agent's wsapi), checks every frame (whole, once, in order), can read

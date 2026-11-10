@@ -183,6 +183,9 @@ an agent of another region, across its region's bridge, 8 concurrent callers.
 | production (FIPS), per-message signatures | 7.1 ms | 1094/s |
 | production (FIPS), with session keys | 1.8 ms | 3228/s |
 
+The multi-host release gate, the release against the previous build in both profiles, is on
+[Performance](../operations/performance.md).
+
 ## Settings
 
 | Setting | Default | Meaning |

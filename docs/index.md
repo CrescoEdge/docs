@@ -70,7 +70,7 @@ Nodes communicate two ways:
 - **[API Reference](api/plugin-actions.md)** — all plugin actions, the Library API, the MsgEvent structure,
   and the full [configuration parameter](reference/configuration.md) reference.
 - **[Client Libraries](clients/overview.md)** — Java, Python, and C++ (Arduino/ESP32) SDK references.
-- **[Operations](operations/deployment.md)** — deployment, testing and troubleshooting.
+- **[Operations](operations/deployment.md)** — deployment, testing, troubleshooting and measured performance.
 - **[Reference](reference/glossary.md)** — glossary and the underlying design documents.
 
 ## Project layout
