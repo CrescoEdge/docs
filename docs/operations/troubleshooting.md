@@ -74,7 +74,7 @@ slows its writers; nothing is lost.
 | Symptom | Meaning | What to do |
 |---|---|---|
 | a writer's sends slow down or block | a subscriber of the same topic on that broker is slower than the writer, and the topic's memory (`activemq_topic_memory_limit`) is full | find the slow reader (`wsapi.dataplane.egress.paused`, `.pending.bytes`); a stopped reader is closed after 30 s |
-| a WebSocket client closed with **1013** `stalled: nothing read in 30000 ms` | the client read nothing for `wsapi_dataplane_stall_close_ms` while frames waited for it, holding its topic's writers | read the stream continuously, or raise the setting; reconnect and resume (`cresco_seq` says where) |
+| a WebSocket client closed with **1013** `stalled: <n> B read in 30000 ms, less than <m>` | while frames waited for it the client read less than half its egress budget in `wsapi_dataplane_stall_close_ms` (nothing, or a trickle), holding its topic's writers | read the stream continuously, or raise the setting; reconnect and resume (`cresco_seq` says where) |
 | a WebSocket client closed with **1013** `too many message bytes in flight (...); retry shortly` | the caller (or all callers) sent more than `wsapi_max_inflight_bytes_per_user` / `wsapi_max_inflight_bytes` that is not yet handled | send less at once, then retry |
 | **1008** `Subscription refused: ...` | the caller may not subscribe to that stream (e.g. another identity's recipient-bound stream) | the stream name and the caller's tenant and role |
 | **1008** `credentials revoked or changed: authenticate again` | the connection's credential was revoked or changed | authenticate again |
