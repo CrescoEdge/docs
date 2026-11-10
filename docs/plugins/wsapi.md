@@ -60,19 +60,36 @@ answered at once with `503 busy`, and a caller past its own in-flight limit (`ws
 `wsapi_rpc_max_inflight_admin`, 32) with `429 busy`. Replies may complete out of order; clients correlate them
 (pycrescolib stamps `client_rpc_id`, echoed back).
 
+A message sent without waiting for a reply (`is_rpc` false in `message_info`) has no reply to count, so it counts
+against a rate: `wsapi_send_max_per_second_user` (50) or `wsapi_send_max_per_second_admin` (500) a second for each
+caller, across its connections. Such sends go to the controller off the network threads, one at a time for each caller,
+in the order they arrived; what arrives faster waits (wsapi stops reading from a connection with 64 sends, or 1 MiB of
+them, waiting) and nothing is dropped. A send and an RPC that follows it on the same connection may reach the
+controller in either order.
+
+What a client may not set: every parameter infrastructure writes is removed from a client's payload -- the caller
+stamp, signatures, routing parameters, call ids, and the hop count `ttl` and the RPC flag `is_rpc` (whether a request
+is an RPC is said in its `message_info`). A `user` addresses only its own region; that is decided from the message
+wsapi builds, so a message for the global controller is one whatever `region_id` it names, and is refused (403) when
+the global controller is in another region.
+
 ## Dataplane backpressure
 
 A dataplane consumer (`/api/dataplane`) is a `PacedListener`: the controller gives it a JMS session of its own with a
 consumer prefetch of 16 (`dataplane_paced_prefetch`). Frames queue on the WebSocket past Netty's write high-water mark up
 to the consumer's budget (`wsapi_dataplane_egress_buffer_bytes`, 32 MiB; all consumers together
-`wsapi_dataplane_egress_global_bytes`, a quarter of the heap, at most 512 MiB). Past it the listener **waits** until the
-backlog is back to half the budget; meanwhile the rest of the stream stays at the broker, whose flow control slows the
+`wsapi_dataplane_egress_global_bytes`, a quarter of the heap, at most 512 MiB, shared equally by the consumers that hold
+a backlog). A consumer past its own budget, or past its share when all together are past theirs, **waits** until its
+backlog is back to half; a consumer that keeps up never waits for another's backlog. Meanwhile the rest of the stream stays at the broker, whose flow control slows the
 stream's writers ([Data Plane](../architecture/dataplane.md#backpressure-nothing-lost-order-kept)). Nothing is lost and
 the order is kept.
 
-A consumer that reads nothing for `wsapi_dataplane_stall_close_ms` (30 s) while frames wait for it is closed with
-WebSocket status **1013** (`stalled: nothing read in 30000 ms`; counted in `wsapi.dataplane.egress.stalled`): a stopped
-reader would otherwise hold every writer of its topic on that broker. `wsapi_dataplane_backpressure=false` restores the
+A held consumer that reads less than half its budget in `wsapi_dataplane_stall_close_ms` (16 MiB in 30 s by default,
+about 0.5 MiB/s) is closed with WebSocket status **1013** (`stalled: <n> B read in 30000 ms, less than <m>`; counted in
+`wsapi.dataplane.egress.stalled`): a reader that stopped, or one that takes a trickle, would otherwise hold every
+writer of its topic on that broker. A link that is legitimately slower than that needs a smaller
+`wsapi_dataplane_egress_buffer_bytes` or a longer `wsapi_dataplane_stall_close_ms`. Client frames are published by send
+threads that belong to a dataplane shard: a stream whose topic is full holds only the threads of its own shard. `wsapi_dataplane_backpressure=false` restores the
 earlier budget, past which frames are dropped (counted in `wsapi.dataplane.egress.dropped`).
 
 Client frames are published off the Netty event loop, on a per-connection send thread (order kept; up to
@@ -106,7 +123,8 @@ Close codes a client may see:
 | `wsapi_dataplane_backpressure` | `true` | a consumer past its budget waits (its stream slows); `false`: frames past it are dropped, counted |
 | `wsapi_dataplane_egress_buffer_bytes` | `33554432` | one consumer's egress budget (32 MiB) |
 | `wsapi_dataplane_egress_global_bytes` | min(512 MiB, heap / 4) | all consumers' egress budget |
-| `wsapi_dataplane_stall_close_ms` | `30000` | a waiting consumer that reads nothing this long is closed (1013); at least 1000 |
+| `wsapi_dataplane_stall_close_ms` | `30000` | a held consumer that reads less than half its budget in this long is closed (1013); at least 1000 |
+| `wsapi_send_max_per_second_user` / `wsapi_send_max_per_second_admin` | `50` / `500` | messages without a reply (`is_rpc` false) per caller per second; more wait, none is dropped |
 | `wsapi_dataplane_send_threads` | cores, 2 to 32 | threads publishing client frames (one per connection, order kept); `0`: publish on the event loop |
 | `wsapi_dataplane_ingress_queue_bytes` | `16777216` | client bytes waiting to be published before reading pauses (16 MiB; at least 1 MiB) |
 

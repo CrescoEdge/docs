@@ -50,7 +50,9 @@ With `security_profile=production` wsapi accepts **client certificates only** (m
 - the certificate is the caller, from its SANs: exactly one `cresco:api:<tenant>/<user>`, exactly one
   `cresco:role:admin` or `cresco:role:user`, any number of `cresco:grant:<stream or prefix*>`; `tools/cresco-pki.sh api`
   issues them;
-- passwords and the service key are refused (401), API tokens too unless `wsapi_allow_tokens=true`;
+- passwords and the service key are refused (401), API tokens too unless `wsapi_allow_tokens=true`; with tokens
+  allowed, the client certificate is still checked first (deny list, CRL, expiry) and stays part of the session's
+  credential: no token session opens over a revoked certificate, and revoking it closes the token sessions over it;
 - revocation: `wsapi_client_deny_file` (SHA-256 fingerprints) and `wsapi_client_crl` are re-read when they change, and
   close the open connections of a revoked certificate within a second or two.
 
