@@ -3050,8 +3050,9 @@ refusal names its reason in the log; the lines below are quoted as the code writ
 </tbody>
 </table>
 <h2 id="message-signature-refused">Message signature refused<a class="headerlink" href="#message-signature-refused" title="Permanent link">&para;</a></h2>
-<p><strong><code>MESSAGE SIGNATURE: REFUSED &lt;why&gt; (&lt;n&gt; refused so far; logged at most every 10 s)</code></strong>: a message failed its end-to-end
-authentication and was not dispatched; an RPC request is answered <code>401 unauthenticated</code>. See
+<p><strong><code>MESSAGE SIGNATURE: REFUSED &lt;why&gt; [&lt;type&gt; &lt;action&gt;] (&lt;n&gt; refused so far; logged at most every 10 s)</code></strong>: a message
+failed its end-to-end authentication and was not dispatched; an RPC request is answered <code>401 unauthenticated</code>. The
+bracket names the refused message (builds before 2026-11-10 leave it out). See
 <a href="../../security/message-auth/">Message authentication</a>.</p>
 <table>
 <thead>
@@ -3069,8 +3070,8 @@ authentication and was not dispatched; an RPC request is answered <code>401 unau
 </tr>
 <tr>
 <td><code>a message signed for &lt;r&gt;/&lt;a&gt;, not for this node (...)</code> / <code>a message signed for plugin ..., delivered to ...</code></td>
-<td>the message names another recipient</td>
-<td>a copy re-sent or misrouted; nothing to fix on the receiver</td>
+<td>the message reached a node other than the one it is for, and was not run there</td>
+<td>on a fabric of two or more regions, <code>[EXEC ping]</code> about every 45 s at the global and at each regional controller came from a Cresco defect (fixed 2026-11-10: controller 21b432c, agent daeb294): each regional controller's path probe "via the global" was sent with source routing off, the global did not relay it, and its 401 reply was signed for the wrong node. Upgrade the regional controllers and the global. Any other message: the sender or a relay routed it to the wrong node; report it with the type and action from the bracket</td>
 </tr>
 <tr>
 <td><code>a message that names no recipient (cresco_sig_to)</code></td>

@@ -3253,7 +3253,8 @@ time; <strong>Cresco decides which hops.</strong></p>
 several candidate paths to each connected region:</p>
 <ul>
 <li>the <strong>direct</strong> region↔region bridge,</li>
-<li>the <strong>via-global</strong> path (2-hop, forced with a source-route waypoint),</li>
+<li>the <strong>via-global</strong> path (2-hop, forced with a source-route waypoint; only with <code>net_source_routing</code> on, since a
+  global with it off does not relay the probe),</li>
 <li>and any <strong>steered</strong> multi-hop path the graph suggests.</li>
 </ul>
 <div class="admonition note">
@@ -3366,12 +3367,12 @@ is data-plane pub/sub, the same state can be <strong>streamed</strong> to a brow
 <tr>
 <td><code>net_source_routing</code></td>
 <td><code>false</code></td>
-<td>Carry and honor the <code>srcroute</code> waypoint stack (source routing).</td>
+<td>Carry and honor the <code>srcroute</code> waypoint stack (source routing). Off, a node starts no source route and relays none: a message source-routed through it is not run there (an RPC gets a <code>route_unavailable</code> error); one whose route ends there is delivered. Set it on every node.</td>
 </tr>
 <tr>
 <td><code>net_cost_routing</code></td>
 <td><code>false</code></td>
-<td>Measure path cost, select the cheaper path, and inject its route at ingress.</td>
+<td>Measure path cost, select the cheaper path, and inject its route at ingress (with <code>net_source_routing</code> on).</td>
 </tr>
 <tr>
 <td><code>net_route_advertise_interval_sec</code></td>
