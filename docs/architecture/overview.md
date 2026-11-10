@@ -12,9 +12,9 @@ and a set of [plugins](../plugins/overview.md). A node runs in one of five **con
 |------|-------------|
 | `STANDALONE` | A single node with no parent. |
 | `AGENT` | A leaf; connects as a client to a regional controller's broker. |
-| `REGION` | A regional controller; runs an embedded broker and federates up to a global. |
-| `REGION_GLOBAL` | Both a region and the global (a self-contained fabric). |
-| `GLOBAL` | The top of the hierarchy; federates regions together. |
+| `REGION` | A regional controller running its embedded broker, not (yet) federated to a global: while it joins one, or for good when it runs region-first (`global_optional`). |
+| `REGION_GLOBAL` | A regional controller that has federated up to a global. |
+| `GLOBAL` | The top of the hierarchy; federates regions together. A global is also its own region and agent, so one global is a complete fabric. |
 
 ```
                          ┌────────────────────┐

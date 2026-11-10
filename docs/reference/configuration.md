@@ -70,11 +70,13 @@ The broker and tenancy flags:
 |---|---|---|---|
 | `broker_security_enabled` | boolean | `true` | Master switch for broker authentication/authorization. When on, external (non-`vm://`) clients must assert an identity (JMS username `tenant\|region\|agent`, or a cert subject under mutual TLS) and are checked against the tenant policy; when off the ACL plugin is never installed and the broker behaves as before. |
 | `broker_require_client_auth` | boolean | follows security (`true`) | Require mutual TLS (client certificate) on the broker transport connector. When on, clients without a trusted certificate are rejected at the TLS layer. |
-| `broker_security_secret` | String | `cresco` | Shared password the local controller and clients present as the JMS password when `broker_security_enabled` is on. Change this from the default in any secured deployment. |
+| `broker_security_secret` | String | `cresco` | Shared password the local controller and clients present as the JMS password when `broker_security_enabled` is on. Change this from the default in any secured deployment; refused under `security_profile=production`. |
 | `broker_superuser_tenants` | String | `cresco-system` | Comma-separated list of tenant IDs whose **network** clients are granted the cross-tenant SUPERUSER ("god view") role — e.g. a fabric-admin dashboard that must see every tenant. The local `vm://` controller and broker bridges are already exempt. |
+| `broker_cross_tenant_sinks` | String | *(empty)* | Named cross-tenant flows: `;`- or `,`-separated `<source tenant>-><destination>[:write\|read\|any]` rules (globs `*`, `?`; `write` by default) letting a tenant reach destinations outside its own `T.<tenant>.` subtree. A rule never grants READ unless it says so. Empty = strict tenant isolation. See [Multi-Tenancy](../architecture/tenancy.md#named-cross-tenant-flows). |
+| `broker_allow_unverified_bridges` | boolean | `false` | Migration only: exempt a client that claims to be a broker bridge without a client certificate from tenant authorization (a WARNING at boot). Refused in production. |
 | `broker_shared_destinations` | String | `agent.event,region.event,global.event` | Comma-separated destination prefixes treated as fabric-shared control destinations that all tenants may use (the control-plane event topics). |
 | `broker_security_log_allow` | boolean | `false` | Log *allowed* (not just denied) authorization decisions in the broker ACL plugin — verbose; for debugging tenant policy only. |
-| `security_regional_ca` | boolean | `false` | Enable Regional-CA identity mode ("Option C"): during discovery the region acts as issuing authority and signs each joining node a region-signed leaf certificate, and joiners present that identity. When off, the legacy self-signed discovery exchange is used. |
+| `security_regional_ca` | boolean | `false` | Enable Regional-CA identity mode ("Option C"): during the authenticated discovery exchange the region acts as issuing authority and signs each joining node a region-signed leaf certificate, and joiners present that identity. When off (direct trust), each node makes its own certificate and a joiner pins the controller it joined. Standard profile only: refused in production. See [Discovery](../architecture/discovery.md#certification-establishing-trust-at-join). |
 | `tenant_namespacing` | boolean | follows security (`true`) | Namespace broker destinations, dataplane topics, and producer routing per tenant so that tenants are isolated on shared topics. Off = the historical single flat namespace. |
 | `tenant_id` | String | `default` | The tenant this node belongs to; used to build the asserted broker identity, tenant-namespaced destinations, and the node's certificate subject. |
 | `discovery_secret_agent` | String | random UUID | Shared secret validating **agent**-level discovery messages. Computed default is a random UUID per boot, so peers must be given a matching explicit value to discover each other. Standard profile only: refused in production, whose discovery is the operator's PKI. |
@@ -506,8 +508,8 @@ Where the node stores its data, plugin cache, and jar repository.
 
 ## wsapi (WebSocket API gateway)
 
-Settings for the wsapi plugin: listener port, TLS material, socket tuning, and the service
-key that authenticates HTTP-upgrade requests.
+Settings for the wsapi plugin: listener port, TLS material, socket tuning, dataplane egress and the legacy service
+key. Every HTTP upgrade is authenticated ([API authentication](../security/api-auth.md)).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

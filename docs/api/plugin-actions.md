@@ -6,7 +6,7 @@ handles the action and, for RPC, returns a reply `MsgEvent` whose params carry t
 external client reaches Cresco only over the WebSocket message bus (the [`wsapi`](../plugins/wsapi.md)
 plugin), **actions are the entire callable surface** — there are no direct method calls into the fabric.
 
-This page is the canonical human reference for every action across the fabric — **≈119 actions** over 9
+This page is the canonical human reference for every action across the fabric — **≈130 actions** over 9
 namespaces (the three controller tiers — global, regional, agent — plus the `sysinfo`, `stunnel`, `wsapi`,
 `repo`, `filerepo`, and `executor` plugins). The same information is produced, machine-readable, by the
 capability inventory described below.
@@ -176,7 +176,7 @@ registry, discovery, resource inventory, and global application (pipeline) sched
 
 Routed to a specific **agent controller** (`global_agent_msgevent`, requiring `region` + `agent`). This is
 the per-node control API: plugin lifecycle on that agent, logs, files, controller/JVM lifecycle, and
-dataplane log streaming. Namespace `agent` — **29 actions**. All actions take routing identity
+dataplane log streaming. Namespace `agent` — **30 actions**. All actions take routing identity
 `region`, `agent`.
 
 | Action | Type | Description | Key params | Returns |
@@ -190,6 +190,7 @@ dataplane log streaming. Namespace `agent` — **29 actions**. All actions take 
 | `getcapabilities` | EXEC | Return the agent controller's self-describing capability document. | `region`, `agent` | `capabilities` |
 | `getcapabilityinventory` | EXEC | Return this node's capability inventory (node scope). | `region`, `agent`, `action_include_plugins`, `action_include_osgi` | `capabilityinventory` |
 | `getcontrollerstatus` | EXEC | Return this agent's controller state code. | `region`, `agent` | `controller_status` |
+| `getcryptopolicy` | EXEC | Return the fabric crypto policy this node holds (set at the global controller). | `region`, `agent` | `crypto_policy`, `crypto_policy_id`, `crypto_policy_level`, `crypto_policy_source` |
 | `getfiledata` | EXEC | Stream a chunk of a file on this agent (seek + read). | `region`, `agent`, `filepath`, `skiplength`, `partsize` | `payload` *(compressed)* |
 | `getfileinfo` | EXEC | Return metadata (md5, size) for a file on this agent. | `region`, `agent`, `filepath` | `md5`, `size` |
 | `getislogdp` | CONFIG | Query whether dataplane log streaming is enabled for a session. | `region`, `agent`, `session_id` | `islogdp` |
@@ -282,9 +283,9 @@ Plugin-artifact repository ([`repo`](../plugins/repo.md)) — stores and serves 
 | Action | Type | Description | Key params | Returns |
 |---|---|---|---|---|
 | `getcapabilities` | EXEC | Return this plugin's self-describing capability document. | `region`, `agent`, `pluginid` | `capabilities` |
-| `getjar` | EXEC | Retrieve a plugin JAR's bytes by name + md5. | `region`, `agent`, `pluginid`, `action_pluginname`, `action_pluginmd5` | `jardata` |
+| `getjar` | EXEC | Retrieve a plugin JAR's bytes by name + content hash (`md5` field). | `region`, `agent`, `pluginid`, `action_pluginname`, `action_pluginmd5` | `jardata` |
 | `getmetrics` | EXEC | Return repo inventory metrics (plugin count, bytes on disk). | `region`, `agent`, `pluginid` | `metrics` |
-| `putjar` | EXEC | Store a plugin JAR into the repo (writes disk, verifies md5). | `region`, `agent`, `pluginid`, `pluginname`, `md5`, `jarfile`, `version`, `jardata` | `uploaded`, `md5-confirm` |
+| `putjar` | EXEC | Store a signed plugin JAR into the repo (verifies its signature against `plugin_signing_truststore`; writes the verified bytes). | `region`, `agent`, `pluginid`, `pluginname`, `md5`, `jarfile`, `version`, `jardata` | `uploaded`, `md5-confirm` |
 | `repolist` | EXEC | List every plugin JAR plus the repo's server identity. | `region`, `agent`, `pluginid` | `repolist` *(compressed)* |
 
 ### filerepo plugin
@@ -292,46 +293,54 @@ Plugin-artifact repository ([`repo`](../plugins/repo.md)) — stores and serves 
 Distributed file/artifact repository ([`filerepo`](../plugins/filerepo.md)) — scans a directory,
 tracks files in an embedded catalog, and moves files/jars across the mesh (inline transfer, byte-range
 dataplane streaming, watched-directory sync, push-to-remote). `target=plugin` (`region`, `agent`,
-`pluginid`). Namespace `filerepo` — **16 actions**.
+`pluginid`). Namespace `filerepo` — **25 actions**.
 
 | Action | Type | Description | Key params | Returns |
 |---|---|---|---|---|
 | `repolist` | EXEC | Plugin/jar inventory of the repo dir. | `region`, `agent`, `pluginid` | `repolist` *(compressed)* |
 | `getrepofilelist` | EXEC | List catalog rows (path/md5/size/mtime); paginated. | `repo_name`, `limit`, `offset` | `repofilelist` *(compressed)*, `repo_total` |
 | `getfile` | EXEC | Return a cataloged file inline (≤ `max_inline_bytes`). | `file_path` | `file_data` *(bytes)*, `file_metadata` |
-| `getjar` | EXEC | Return a plugin jar inline, matched by name+md5. | `action_pluginname`, `action_pluginmd5` | `jardata` *(bytes)* |
-| `putjar` | EXEC | Write a plugin jar (md5-verified, path-traversal-safe). | `pluginname`, `md5`, `jarfile`, `version`, `jardata` | `uploaded` |
+| `getjar` | EXEC | Return a plugin jar inline, matched by name + content hash (`md5` field). | `action_pluginname`, `action_pluginmd5` | `jardata` *(bytes)* |
+| `putjar` | EXEC | Write a signed plugin jar (signature-verified, path-traversal-safe). | `pluginname`, `md5`, `jarfile`, `version`, `jardata` | `uploaded` |
 | `putfiles` | EXEC | Land pushed files (MsgEvent attachments) into a repo. | `repo_name`, `overwrite` | (status) |
 | `putfilesremote` | EXEC | Push a set of files from this repo to another agent's repo. | `file_list`, `dst_region`, `dst_agent`, `dst_plugin`, `repo_name` | `status` |
 | `streamfile` | EXEC | Stream a byte-range over the dataplane in chunks (any size). | `file_path`, `start_byte`, `byte_length`, `transfer_id`, `ident_key`, `ident_id`, `buffer_size` | `status` |
 | `streamfilecancel` | EXEC | Cancel an in-flight streamfile transfer. | `transfer_id` | `status_code` |
 | `getscandir` | EXEC | Report the configured scan directory. | `region`, `agent`, `pluginid` | `scan_dir` |
 | `removefile` | EXEC | Remove a file (disk + catalog row), path-traversal-safe. | `repo_name`, `file_name` | `status` |
-| `clearrepo` | EXEC | Delete all files in a repo. | `repo_name` | `status` |
+| `clearrepo` | EXEC | Clear the repository directory, armed explicitly (`confirm` names the directory; an `ONLY_COPY` needs `force=true` and `admin`; protected and live-tier directories are refused). | `repo_name`, `confirm`, `force` | `status`, `refusal` |
 | `repolistin` | EXEC | Sync consumer side — receive a producer's diff and pull changed files. | `repolistin`, `transfer_id` | `status_code` |
 | `repoconfirm` | EXEC | Sync handshake ack. | `transfer_id` | (status) |
+| `reposubscribe` / `reposubscribed` | EXEC | Sync protocol 2: a subscriber asks a producer to serve it / the producer's answer (plugin-to-plugin). | `filerepo_name`, `sync_gen` | `refill` |
+| `reporefill` | EXEC | A subscriber asks its producer for files it lost; they are offered to it alone. | `filerepo_name`, `sync_gen`, `names`, `transfer_id` | `refill` |
+| `syncpin` | EXEC | Pin a mirror's producer (`region/agent#<key fingerprint>`) or forget the pin (`infra`/`admin`). | `confirm` | `pinned_producer` |
+| `releasedeletes` / `releaserewrites` | EXEC | Release the deletes / rewrites the mass-delete or rewrite guard is holding (`infra`/`admin`). | `confirm`, `hold_id` | `released` |
+| `repostate` | EXEC | Report what this repo is: `LIVE`, `WORKSPACE_CLEAN`, `WORKSPACE_DIRTY`, `MIRROR` or `ONLY_COPY`. | — | `state`, `backing` |
+| `liverelay` | EXEC | Relay a request signed by its end user, unchanged, through this agent's live-tier provider (`infra`/`admin`). | `request` | `reply`, `reply_status` |
+| `liverealise` | EXEC | Keep a live-backed repo's copy live: realise it again at this node (`infra`/`admin`). | `lease_ms`, `request_id` | `job_id`, `reply_status` |
 | `getmetrics` | EXEC | Return filerepo metrics (cataloged file count, in-flight transfers). | `region`, `agent`, `pluginid` | `metrics` |
 | `getcapabilities` | EXEC | Return this plugin's self-describing capability document. | `region`, `agent`, `pluginid` | `capabilities` |
 
 ### executor plugin
 
 Process/shell execution plugin ([`executor`](../plugins/executor.md)) — runs OS processes and shell
-commands, streaming stdout/stderr over the dataplane and accepting stdin over the dataplane.
-`target=plugin` (`region`, `agent`, `pluginid`). Namespace `executor` — **8 actions**.
+commands, streaming stdout/stderr over the dataplane and taking stdin through `write_stdin` (never the dataplane).
+`target=plugin` (`region`, `agent`, `pluginid`). Namespace `executor` — **9 actions**.
 
 | Action | Type | Description | Key params | Returns |
 |---|---|---|---|---|
-| `config_process` | CONFIG | Register a runner (a named command); does not start it. | `stream_name`, `command`, `metrics` | `config_status` |
+| `config_process` | CONFIG | Register a runner (a named command); does not start it. | `stream_name`, `command`, `metrics`, `stdin` | `config_status`, `stdin` |
 | `run_process` | EXEC | Start a configured runner. | `stream_name` | `status` |
 | `start_process` | CONFIG | Start a runner (CONFIG variant). | `stream_name` | `start_status` |
 | `status_process` | CONFIG | Is the runner currently running? | `stream_name` | `run_status` |
 | `end_process` | CONFIG | Kill the process (whole tree) and free the runner. | `stream_name` | `end_status` |
+| `write_stdin` | EXEC | Write to a running runner's stdin (one line of text, or bytes); only its starter, an admin or infra. | `stream_name`, `data` or `data_b64`, `close_stdin` | `status` |
 | `reset_runners` | CONFIG | Stop every runner on this executor. | `region`, `agent`, `pluginid` | `reset_status` |
 | `getmetrics` | EXEC | Return live executor gauges (configured/active runners). | `region`, `agent`, `pluginid` | `metrics` |
 | `getcapabilities` | EXEC | Return this plugin's self-describing capability document. | `region`, `agent`, `pluginid` | `capabilities` |
 
-Runner stdio rides the **GLOBAL** dataplane topic sharded by `stream_name` (type `output`/`error`,
-stdin `input`); an external client reads/writes via `get_dataplane(stream_name)`.
+Runner output rides the **GLOBAL** dataplane topic sharded by `stream_name` (type `output`/`error`); an external
+client reads it via `get_dataplane(stream_name)` and writes stdin with `write_stdin`.
 
 ---
 

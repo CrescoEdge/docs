@@ -49,6 +49,20 @@ Enforced at every broker by `TenantPolicy` via `CrescoAuthorizationBroker`:
 This closes a real hole in the flat-name scheme: previously a tenant could **write** into a same-region
 peer's `region_agent` inbox; with tenant-scoped inboxes that is denied.
 
+### Named cross-tenant flows
+
+Short of `SUPERUSER`, the only way across the tenant boundary is an explicit allow-list,
+`broker_cross_tenant_sinks` (empty by default: the strict own-subtree rule). Each entry is
+`<source tenant>-><destination>[:write|read|any]` (globs: `*` any run of characters, `?` one character; `write` when
+no access is named), separated by `;` or `,`:
+
+```
+-Dbroker_cross_tenant_sinks='*->T.gfs-federation.*:write ; gfs-federation->T.*:write'
+```
+
+A principal whose tenant matches the source may reach the matching destinations with that access. A rule never grants
+READ unless it says so, so a tenant still cannot consume another tenant's inbox.
+
 ## What is and isn't guaranteed
 
 **Guaranteed** (with mutual TLS + `broker_security_enabled` + `tenant_namespacing`): a tenant client cannot

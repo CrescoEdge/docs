@@ -21,7 +21,7 @@ into a three-tier hierarchy:
 |------|------|
 | **Agent** | A leaf node. Runs plugins, connects to a regional controller. |
 | **Region** | A regional controller. Runs an embedded ActiveMQ broker; the agents in its region connect to it. |
-| **Global** | A global controller. Federates regions together; the top of the hierarchy. A node can be `REGION_GLOBAL` (both). |
+| **Global** | A global controller. Federates regions together; the top of the hierarchy. A global is also its own region and agent, so one global is a complete fabric. |
 
 Nodes communicate two ways:
 
@@ -37,7 +37,7 @@ Nodes communicate two ways:
   [Messaging & Routing](architecture/messaging.md).
 - **Plugins with self-describing actions** — functionality is packaged as OSGi bundles that expose
   `@CrescoAction` operations, aggregated fabric-wide into a [capability inventory](api/plugin-actions.md)
-  (≈119 actions across 9 namespaces today).
+  (≈130 actions across 9 namespaces today).
 - **Dynamic cost-aware routing** — a pushed link-state view and per-hop cost let the controller pick the
   cheapest path across a federated mesh, with automatic broker-bridge scaling under load. See
   [Dynamic Cost-Aware Routing](architecture/dynamic-routing.md).
@@ -71,7 +71,8 @@ Nodes communicate two ways:
   and the full [configuration parameter](reference/configuration.md) reference.
 - **[Client Libraries](clients/overview.md)** — Java, Python, and C++ (Arduino/ESP32) SDK references.
 - **[Operations](operations/deployment.md)** — deployment, testing, troubleshooting and measured performance.
-- **[Reference](reference/glossary.md)** — glossary and the underlying design documents.
+- **[Reference](reference/glossary.md)** — glossary, the underlying design documents, and the
+  [projects built on Cresco](reference/projects.md).
 
 ## Project layout
 

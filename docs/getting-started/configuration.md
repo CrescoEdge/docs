@@ -49,7 +49,7 @@ The role flags select which tier a node runs as (see [Architecture](../architect
 | `broker_port` | `32010` | this node's embedded ActiveMQ broker |
 | `discovery_port` | `32010` | broker port used to **connect** to a parent controller |
 | `netdiscoveryport` | `32005` | this node's discovery listener |
-| `port` | `8080` | Felix console / HTTP |
+| `port` | `8080` | Felix web console port, used only with `enable_console=true` (bound to loopback by default) |
 | `enable_wsapi` | varies | run the [wsapi](../plugins/wsapi.md) WebSocket endpoint (`:8282`) for clients |
 
 ## Security & tenancy

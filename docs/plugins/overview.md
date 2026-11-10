@@ -45,7 +45,7 @@ A **functional plugin** is a much thinner thing: an OSGi `@Component` implementi
 
 The controller's `StaticPluginLoader` (see [controller](controller.md)) waits for the controller to become active, then loads the enabled system plugins and restarts any persisted ones. Lifecycle is driven by `PluginAdmin`:
 
-1. **Resolve** the plugin JAR (bundle / absolute path / local cache / embedded / remote [repo](repo.md)), MD5-verified.
+1. **Resolve** the plugin JAR (bundle / absolute path / local cache / embedded / remote [repo](repo.md)). A jar that is not embedded in the agent jar must verify against `plugin_signing_truststore` ([Signed plugins](../security/signed-plugins.md)); jars are named by a SHA-256 content hash (still carried in a field called `md5`).
 2. **Install & start** the OSGi bundle.
 3. **Register** a `PluginNode` (in-memory record + Derby row) and poll for the `PluginService` to appear.
 4. **Run** — the plugin reports a status code; `10` = working, which the controller's `PluginHealthCheck` rolls into the `plugins` verdict. In addition, each functional plugin **registers its own `local`-tagged Felix Health Check** (executor/filerepo/repo/sysinfo/wsapi/stunnel), discovered by `CrescoHealthExecutor` alongside the controller's built-in checks and queryable via `gethealthinventory`. See [Health & State](../architecture/health.md).
@@ -62,7 +62,7 @@ Plugins are identified by a generated `pluginID` (e.g. `system-<UUID>` for syste
 | core | `io.cresco.core` | `CoreState` service — stop/restart/update the controller & JVM. | [core](core.md) |
 | logger | `io.cresco.logger` | Logging bootstrap (Pax Logging / log4j2 via ConfigAdmin). | [logger](logger.md) |
 | controller | `io.cresco.controller` | **The fabric brain** — state machine, messaging, discovery, persistence, health, roles. | [controller](controller.md) |
-| repo | `io.cresco.repo` | Plugin/JAR repository — stores, reports, and serves plugins (MD5-verified). | [repo](repo.md) |
+| repo | `io.cresco.repo` | Plugin/JAR repository — stores, reports, and serves signed plugin jars. | [repo](repo.md) |
 | filerepo | `io.cresco.filerepo` | Distributed file/artifact repository — catalog + any-size transfer/streaming/sync. | [filerepo](filerepo.md) |
 | sysinfo | `io.cresco.sysinfo` | Host metrics (OSHI) + on-demand SciMark2 CPU benchmark. | [sysinfo](sysinfo.md) |
 | wsapi | `io.cresco.wsapi` | WebSocket/HTTPS API — external client entrypoint over `wss://…:8282`. | [wsapi](wsapi.md) |

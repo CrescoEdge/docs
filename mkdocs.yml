@@ -109,6 +109,7 @@ nav:
   - Reference:
       - Glossary: reference/glossary.md
       - Design Docs: reference/design-docs.md
+      - Projects Built on Cresco: reference/projects.md
   - Design Documents:
       - Distributed Identity & Trust: design/distributed-identity-trust-design.md
       - Tenant Isolation: design/tenant-isolation-design.md

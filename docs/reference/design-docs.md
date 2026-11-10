@@ -9,6 +9,13 @@ knowledge lives in one place.
     These are engineering documents. Some contain source-path references (`code/...`) that are links within
     the repository rather than this site.
 
+!!! warning "Point-in-time records"
+    Each document records the design as it stood when it was written. Several predate the 1.3 secure defaults and
+    say that security, tenant namespacing or other features are off by default or flag-gated; since 1.3 they are on
+    by default. Where a design document and the rest of this site disagree, the narrative pages win:
+    [Secure defaults](../security/secure-defaults.md), [Security profiles](../security/profiles.md) and the
+    [Configuration reference](configuration.md).
+
 ## Security, identity & tenancy
 
 | Document | Covers |

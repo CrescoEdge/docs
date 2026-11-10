@@ -38,7 +38,7 @@ python -m build        # build sdist + wheel into dist/
 | Requirement | Value |
 |---|---|
 | Package name | `pycrescolib` |
-| Version | 1.3.0 |
+| Version | 1.4.1 |
 | Python | 3.8+ (tested through 3.12) |
 | License | Apache-2.0 |
 
@@ -62,15 +62,23 @@ The single entry point is the `clientlib` class:
 ```python
 from pycrescolib.clientlib import clientlib
 
-client = clientlib(host, port, service_key, verify_ssl=False)
+client = clientlib(host, port, service_key=None, verify_ssl=None, *, ca_file=None, fingerprint=None,
+                   check_hostname=True, user=None, password=None, token=None,
+                   client_cert=None, client_key=None, client_key_password=None)
 ```
 
 | Argument | Type | Description |
 |---|---|---|
 | `host` | `str` | Host or IP of an agent running the `wsapi` plugin. |
 | `port` | `int` | `wsapi` WebSocket port (typically `8282`). |
-| `service_key` | `str` | The `wsapi` service key; sent as the `cresco_service_key` header on every socket. |
-| `verify_ssl` | `bool` | Verify the server TLS certificate. Defaults to `False` because agents typically present a self-signed certificate. |
+| `service_key` | `str` | The legacy `wsapi` service key (an `admin` of the agent's tenant), sent as the `cresco_service_key` header. Omit it when giving another credential. |
+| `fingerprint` / `ca_file` | `str` | How to trust wsapi's certificate: its pinned SHA-256 or SHA-384 fingerprint (from `ws.fingerprint`; several allowed for a rotation), or a PEM file (`ws.crt.pem` or a CA bundle). Unset: `CRESCO_TLS_FINGERPRINT` / `CRESCO_TLS_CA_FILE`, then the system trust store. |
+| `verify_ssl` | `bool` | Not given (the default): verify. `False` turns verification off; the credentials then go to whoever answers and every connection logs a WARNING. |
+| `user` / `password` | `str` | A per-user credential from wsapi's credential file (HTTP Basic inside TLS). |
+| `token` | `str` | An API token (`cwt1_...`), sent as `Authorization: Bearer`; the choice for tools and automation. Unset with no other credential: `CRESCO_API_TOKEN`. |
+| `client_cert` / `client_key` / `client_key_password` | `str` | A client certificate (PEM with its key, or PKCS12) presented on every connection; the only credential wsapi accepts under the `production` profile. |
+
+See [API authentication](../security/api-auth.md) for the credentials and how wsapi checks them.
 
 Constructing a `clientlib` wires up the transport and the interface objects but does **not**
 open the socket. Call `connect()` to establish the connection:
@@ -84,13 +92,13 @@ else:
     print("failed to connect")
 ```
 
-Under the hood, `connect()` opens `wss://{host}:{port}/api/apisocket`, authenticates with the
-service key, verifies the socket is live, and reads the mesh identity (region / agent / plugin)
+Under the hood, `connect()` checks wsapi's certificate, opens `wss://{host}:{port}/api/apisocket`, authenticates with
+the client's credential, verifies the socket is live, and reads the mesh identity (region / agent / plugin)
 out of the server certificate's Distinguished Name (`O`=region, `OU`=agent, `CN`=plugin).
 
 | Method | Signature | Description |
 |---|---|---|
-| Construct | `clientlib(host, port, service_key, verify_ssl=False)` | Create the client for a `wsapi` endpoint (does not connect). |
+| Construct | `clientlib(host, port, service_key=None, verify_ssl=None, *, ...)` | Create the client for a `wsapi` endpoint (does not connect). |
 | Connect | `connect() -> bool` | Open and verify the control connection. Returns `True` on success. |
 | Status | `connected() -> bool` | Whether the control connection is currently live. |
 | Close | `close() -> None` | Close the control connection and every managed stream. |
@@ -104,21 +112,26 @@ established:
 ```python
 from pycrescolib.clientlib import clientlib
 
-client = clientlib("localhost", 8282, "your-service-key", verify_ssl=False)
+client = clientlib("localhost", 8282, "your-service-key", fingerprint="sha384:AB:CD:...")
 with client.connection() as c:
     print(c.globalcontroller.get_region_list())
 # connection is closed automatically here
 ```
 
-### SSL verification
+### TLS verification
 
-By default certificate verification is disabled, because Cresco agents commonly present
-self-signed certificates. If your deployment uses certificates trusted by the local trust
-store, enable verification:
+Since 1.4.0 every connection (the API socket, every dataplane and every log stream) verifies wsapi's certificate
+before it sends anything; 1.3.2 and earlier did not verify. wsapi makes its own certificate, so pin it or trust its PEM
+file:
 
 ```python
-client = clientlib("localhost", 8282, "your-service-key", verify_ssl=True)
+client = clientlib("localhost", 8282, "your-service-key", fingerprint="sha384:AB:CD:...")   # pin it
+client = clientlib("localhost", 8282, "your-service-key", ca_file="ws.crt.pem")             # or trust it
 ```
+
+With neither (and no `CRESCO_TLS_*` variable) the system trust store applies, which does not trust a self-signed
+wsapi. A server that does not match gets nothing: `connect()` returns `False` and `client.last_error` says why
+(`pycrescolib.tls`: `CertificateMismatch`, `CertificateVerificationError`, `AuthenticationError`, `TLSConfigError`).
 
 ---
 
@@ -137,9 +150,10 @@ reason about threads and timeouts:
 - **RPC vs. fire-and-forget.** Each messaging call carries an `is_rpc` flag. When `True`, the
   call blocks for the reply and returns it as a `dict`. When `False`, the message is flushed
   and the call returns `None` without waiting.
-- **Timeouts.** RPC calls take a `timeout` (default `8.0` seconds). On timeout or a broken
-  socket the connection is marked failed and subsequent RPC calls short-circuit (returning an
-  empty `dict`) until you reconnect.
+- **Timeouts.** RPC calls take a `timeout` (default `8.0` seconds). A control socket the server
+  closed raises `ConnectionError` and `connected()` turns `False`, so reconnect with `connect()`.
+  Inventory queries raise (`CrescoQueryError`, `TimeoutError`, `ConnectionError`) when they could not
+  ask, and return an empty list or `None` only when the fabric answered "none" (since 1.3.2).
 - **Retries.** Transient `ConnectionError` / `TimeoutError` failures are retried with
   exponential backoff (up to 3 attempts) via `backoff`.
 - **Stream sockets self-manage.** Each dataplane and logstreamer spins up its own event loop
@@ -163,8 +177,15 @@ groups a set of related operations.
 | `client.agents` | `agents` | Per-agent plugin lifecycle, agent info/logs, controller status, CEP. |
 | `client.admin` | `admin` | Administrative controls: restart / stop controller, restart framework, kill JVM. |
 | `client.messaging` | `messaging_sync` | Low-level typed message routing (the transport all interfaces build on). |
+| `client.stunnel` | `stunnel` | Secure TCP tunnels through the [stunnel](../plugins/stunnel.md) plugin. |
+| `client.executor` | `executor` | OS processes and their stdin through the [executor](../plugins/executor.md) plugin. |
+| `client.filerepo` | `filerepo` | Verified file downloads from the [filerepo](../plugins/filerepo.md) plugin. |
 | `get_dataplane(...)` | `dataplane` | Open a data-plane stream socket (created on demand). |
 | `get_logstreamer(...)` | `logstreamer` | Open a live-log stream socket (created on demand). |
+
+The method tables for `stunnel`, `executor` and `filerepo` are in the
+[pycrescolib README](https://github.com/CrescoEdge/pycrescolib#api-reference); the names match the Java client's
+(see [Java › stunnel](java.md#stunnel)).
 
 ### `api`
 
@@ -330,7 +351,7 @@ ls = client.get_logstreamer(name=None, callback=None)
 
 These mirror the runnable, standardized examples in
 `examples/standard_examples.py`, which have byte-for-byte counterparts in the Java client
-(`StandardExamples.java`). Set `HOST`, `PORT`, and `SERVICE_KEY` for your environment.
+(`StandardExamples.java`). Set `HOST`, `PORT`, `SERVICE_KEY` and `FINGERPRINT` for your environment.
 
 ```python
 from pycrescolib.clientlib import clientlib
@@ -338,11 +359,12 @@ from pycrescolib.clientlib import clientlib
 HOST = "127.0.0.1"
 PORT = 8282
 SERVICE_KEY = "a-service-key"
+FINGERPRINT = "sha384:AB:CD:..."   # from ws.fingerprint in the wsapi plugin data directory
 
 
 def new_client():
     """Create a connected client, or None if the connection failed."""
-    client = clientlib(HOST, PORT, SERVICE_KEY, verify_ssl=False)
+    client = clientlib(HOST, PORT, SERVICE_KEY, fingerprint=FINGERPRINT)
     if not client.connect():
         print("Failed to connect")
         return None
