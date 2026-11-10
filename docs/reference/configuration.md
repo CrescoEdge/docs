@@ -377,7 +377,7 @@ buffer sizes used when auto-tuning is off.
 | `net_autotune_sendlat_low_ms` | double | `2.0` | Send-latency (ms) below which idle links are scaled down. |
 | `net_autotune_bdp_safety` | double | `3.0` | Bandwidth-delay-product multiplier used to size socket buffers with headroom. |
 | `net_link_speed_bps` | long | `0` | Configured uplink capacity (bits/s) used as a BDP cap; `0` = unknown. |
-| `net_source_routing` | boolean | `false` | Carry and honor a source-route waypoint stack (`srcroute`) so a flow can be steered along a chosen multi-hop path. See [Dynamic Routing](../architecture/dynamic-routing.md). |
+| `net_source_routing` | boolean | `false` | Carry and honor a source-route waypoint stack (`srcroute`) so a flow can be steered along a chosen multi-hop path. Off, a node starts no source route (not even the via-global path probe) and relays none; set it on every node. See [Dynamic Routing](../architecture/dynamic-routing.md). |
 | `net_cost_routing` | boolean | `false` | Measure candidate-path latency, select the lowest-cost path (Dijkstra over the pushed link-state graph), and **inject** its route at the origin. Requires `net_source_routing` to enforce multi-hop paths. |
 | `net_route_advertise_interval_sec` | int | `5` | How often each controller pushes its link-state advertisement onto the `GLOBAL` data-plane topic. |
 | `net_route_stale_sec` | int | `20` | Age after which a silent node's advertisement is dropped from the mesh-wide `RouteView`. |

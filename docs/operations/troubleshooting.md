@@ -21,14 +21,15 @@ refusal names its reason in the log; the lines below are quoted as the code writ
 
 ## Message signature refused
 
-**`MESSAGE SIGNATURE: REFUSED <why> (<n> refused so far; logged at most every 10 s)`**: a message failed its end-to-end
-authentication and was not dispatched; an RPC request is answered `401 unauthenticated`. See
+**`MESSAGE SIGNATURE: REFUSED <why> [<type> <action>] (<n> refused so far; logged at most every 10 s)`**: a message
+failed its end-to-end authentication and was not dispatched; an RPC request is answered `401 unauthenticated`. The
+bracket names the refused message (builds before 2026-11-10 leave it out). See
 [Message authentication](../security/message-auth.md).
 
 | `<why>` | Meaning | What to check |
 |---|---|---|
 | `an unsigned message (from ..., not delivered first hand)` | an unsigned message that did not come straight from the receiver's parent or child | a node of an earlier build outside the upgrade window (`from agent:...`), or a sender with `msg_signing_required=false` |
-| `a message signed for <r>/<a>, not for this node (...)` / `a message signed for plugin ..., delivered to ...` | the message names another recipient | a copy re-sent or misrouted; nothing to fix on the receiver |
+| `a message signed for <r>/<a>, not for this node (...)` / `a message signed for plugin ..., delivered to ...` | the message reached a node other than the one it is for, and was not run there | on a fabric of two or more regions, `[EXEC ping]` about every 45 s at the global and at each regional controller came from a Cresco defect (fixed 2026-11-10: controller 21b432c, agent daeb294): each regional controller's path probe "via the global" was sent with source routing off, the global did not relay it, and its 401 reply was signed for the wrong node. Upgrade the regional controllers and the global. Any other message: the sender or a relay routed it to the wrong node; report it with the type and action from the bracket |
 | `a message that names no recipient (cresco_sig_to)` | a sender of a build before recipient binding | upgrade the sender |
 | `a message for the global above ..., which is not a region controller of this global` | an agent's global function arrived at a global that is not its region's | the region's federation |
 | `a signature made <n> s from now (msg_signature_max_age_ms=...)` | the signing time is more than 5 min off this node's clock, either way | clock synchronization (NTP) on both nodes |
