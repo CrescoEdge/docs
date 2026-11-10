@@ -2295,6 +2295,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3097,7 +3125,8 @@ measures the dataplane through running agents, on one node or across the broker 
 </table>
 <p>End to end, on one DGX node (Xeon 8480CL, 8 cores; <code>dataplane_perf.py</code>, the Python client, 2000 x 256 KiB frames;
 2026-11-08, the build before dataplane backpressure): a production (FIPS) mesh moved 299 MiB/s through one agent and
-280 MiB/s from one agent to another across the broker bridge; a standard mesh 246 and 219 MiB/s. On Linux the default FIPS mode is faster than the JDK. Where ACCP-FIPS has no build (macOS, Windows) BC-FJA serves
+280 MiB/s from one agent to another across the broker bridge; a standard mesh 246 and 219 MiB/s. Across hosts, the
+release gate measured the production and standard profiles side by side: see <a href="../../operations/performance/">Performance</a>. On Linux the default FIPS mode is faster than the JDK. Where ACCP-FIPS has no build (macOS, Windows) BC-FJA serves
 everything in pure Java and TLS is far slower (the agent logs a WARNING): run production on Linux.</p>
 <h2 id="clients">Clients<a class="headerlink" href="#clients" title="Permanent link">&para;</a></h2>
 <p>Clients connect to a FIPS node with TLS 1.3, AES-GCM and P-256/P-384, which OpenSSL (pycrescolib) and the JDK (clientlib)
