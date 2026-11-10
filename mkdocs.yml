@@ -105,6 +105,7 @@ nav:
       - Deployment: operations/deployment.md
       - Testing: operations/testing.md
       - Troubleshooting: operations/troubleshooting.md
+      - Performance: operations/performance.md
   - Reference:
       - Glossary: reference/glossary.md
       - Design Docs: reference/design-docs.md

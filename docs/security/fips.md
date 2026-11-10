@@ -82,7 +82,8 @@ measures the dataplane through running agents, on one node or across the broker 
 
 End to end, on one DGX node (Xeon 8480CL, 8 cores; `dataplane_perf.py`, the Python client, 2000 x 256 KiB frames;
 2026-11-08, the build before dataplane backpressure): a production (FIPS) mesh moved 299 MiB/s through one agent and
-280 MiB/s from one agent to another across the broker bridge; a standard mesh 246 and 219 MiB/s. On Linux the default FIPS mode is faster than the JDK. Where ACCP-FIPS has no build (macOS, Windows) BC-FJA serves
+280 MiB/s from one agent to another across the broker bridge; a standard mesh 246 and 219 MiB/s. Across hosts, the
+release gate measured the production and standard profiles side by side: see [Performance](../operations/performance.md). On Linux the default FIPS mode is faster than the JDK. Where ACCP-FIPS has no build (macOS, Windows) BC-FJA serves
 everything in pure Java and TLS is far slower (the agent logs a WARNING): run production on Linux.
 
 ## Clients
