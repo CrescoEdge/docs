@@ -2460,6 +2460,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3044,7 +3072,7 @@
 </tbody>
 </table>
 <h2 id="what-it-does">What it does<a class="headerlink" href="#what-it-does" title="Permanent link">&para;</a></h2>
-<p><code>repo</code> serves and stores plugin JARs from a per-plugin data directory, MD5-verified. Multiple repo instances can exist across the mesh; the <a href="../controller/">controller</a>'s global tier tracks them (<code>listrepoinstances</code>) and a <code>savetorepo</code> operation fans a <code>putjar</code> RPC out to every repo instance so a plugin JAR is replicated fabric-wide.</p>
+<p><code>repo</code> serves and stores plugin JARs from a per-plugin data directory. It stores and serves only jars that verify against <code>plugin_signing_truststore</code> (<a href="../../security/signed-plugins/">Signed plugins</a>); a jar is named by its SHA-256 content hash, carried in the field still called <code>md5</code> (advisory: a mismatch is refused, a match proves nothing). Multiple repo instances can exist across the mesh; the <a href="../controller/">controller</a>'s global tier tracks them (<code>listrepoinstances</code>) and a <code>savetorepo</code> operation fans a <code>putjar</code> RPC out to every repo instance so a plugin JAR is replicated fabric-wide.</p>
 <h2 id="executor-actions">Executor actions<a class="headerlink" href="#executor-actions" title="Permanent link">&para;</a></h2>
 <p><code>ExecutorImpl</code> handles EXEC actions (<a href="../../api/msgevent/"><code>MsgEvent</code></a> type <code>EXEC</code>):</p>
 <table>
@@ -3061,11 +3089,11 @@
 </tr>
 <tr>
 <td><code>getjar</code></td>
-<td>Find a JAR by <code>action_pluginname</code> + <code>action_pluginmd5</code> and attach its bytes as <code>jardata</code>.</td>
+<td>Find a JAR by <code>action_pluginname</code> + <code>action_pluginmd5</code> (its content hash) and attach its bytes as <code>jardata</code>.</td>
 </tr>
 <tr>
 <td><code>putjar</code></td>
-<td>Write a supplied JAR to the repo directory, recompute its MD5, and set <code>uploaded</code> / <code>md5-confirm</code>.</td>
+<td>Verify the supplied JAR's signature, write exactly the verified bytes to the repo directory, recompute its content hash, and set <code>uploaded</code> / <code>md5-confirm</code>; an unsigned or foreign-signed jar is refused (<code>status 9</code>, <code>refusal=signature</code>).</td>
 </tr>
 </tbody>
 </table>
@@ -3088,7 +3116,7 @@
 </table>
 <p>See <a href="../../getting-started/configuration/">Configuration</a>.</p>
 <h2 id="where-it-fits">Where it fits<a class="headerlink" href="#where-it-fits" title="Permanent link">&para;</a></h2>
-<p>When the global scheduler places a plugin on an agent, the agent's <code>PluginAdmin</code> resolves the JAR — checking bundle / absolute path / local cache / embedded resources, and finally a <strong>remote repo</strong> via an RPC <code>getjar</code> (MD5-verified). <code>repo</code> is the endpoint that answers those calls, and <code>putjar</code>/<code>savetorepo</code> is how new plugin artifacts are published into the fabric. See <a href="../controller/">controller</a> for the plugin lifecycle and the global tier.</p>
+<p>When the global scheduler places a plugin on an agent, the agent's <code>PluginAdmin</code> resolves the JAR — checking bundle / absolute path / local cache / embedded resources, and finally a <strong>remote repo</strong> via an RPC <code>getjar</code> (the fetched jar is installed only if its signature verifies). <code>repo</code> is the endpoint that answers those calls, and <code>putjar</code>/<code>savetorepo</code> is how new plugin artifacts are published into the fabric. See <a href="../controller/">controller</a> for the plugin lifecycle and the global tier.</p>
 <h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Metrics</strong> — <code>getmetrics</code> exposes <code>MeasurementEngine</code> gauges <code>repo.plugin.count</code> (jars in the

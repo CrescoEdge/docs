@@ -2346,6 +2346,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2859,7 +2887,7 @@
 </tr>
 <tr>
 <td><strong>Data plane</strong></td>
-<td>The <a href="../../architecture/dataplane/">pub/sub streaming channel</a> over ActiveMQ topics (<code>agent.event</code> / <code>region.event</code> / <code>global.event</code>).</td>
+<td>The <a href="../../architecture/dataplane/">pub/sub streaming channel</a> over ActiveMQ topics (<code>agent.event</code> / <code>region.event</code> / <code>global.event</code>). Also written <em>dataplane</em>, as in its code and metric names (<code>/api/dataplane</code>, <code>dataplane.*</code>).</td>
 </tr>
 <tr>
 <td><strong>Control plane</strong></td>
@@ -2944,6 +2972,10 @@
 <tr>
 <td><strong>Role</strong></td>
 <td>An authorization role: <code>SUPERUSER</code> (all tenants) or <code>TENANT</code> (own tenant only).</td>
+</tr>
+<tr>
+<td><strong>Cross-tenant sink</strong></td>
+<td>A named exception to tenant isolation (<code>broker_cross_tenant_sinks</code>): tenants matching a rule may write (or, if the rule says so, read) destinations outside their own <code>T.&lt;tenant&gt;.</code> subtree. See <a href="../../architecture/tenancy/#named-cross-tenant-flows">Multi-Tenancy</a>.</td>
 </tr>
 <tr>
 <td><strong>Health check</strong></td>

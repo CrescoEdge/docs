@@ -2112,10 +2112,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ssl-verification" class="md-nav__link">
+  <a href="#tls-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SSL verification
+        TLS verification
       
     </span>
   </a>
@@ -2671,6 +2671,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3179,10 +3207,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ssl-verification" class="md-nav__link">
+  <a href="#tls-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SSL verification
+        TLS verification
       
     </span>
   </a>
@@ -3474,7 +3502,7 @@ an event loop of your own. See <a href="#async-model">Async model</a> for detail
 </tr>
 <tr>
 <td>Version</td>
-<td>1.3.0</td>
+<td>1.4.1</td>
 </tr>
 <tr>
 <td>Python</td>
@@ -3520,7 +3548,9 @@ cross-language conformance suite.</p>
 <p>The single entry point is the <code>clientlib</code> class:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">service_key</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">service_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ca_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>                   <span class="n">check_hostname</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>                   <span class="n">client_cert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">client_key_password</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 <table>
 <thead>
@@ -3544,15 +3574,36 @@ cross-language conformance suite.</p>
 <tr>
 <td><code>service_key</code></td>
 <td><code>str</code></td>
-<td>The <code>wsapi</code> service key; sent as the <code>cresco_service_key</code> header on every socket.</td>
+<td>The legacy <code>wsapi</code> service key (an <code>admin</code> of the agent's tenant), sent as the <code>cresco_service_key</code> header. Omit it when giving another credential.</td>
+</tr>
+<tr>
+<td><code>fingerprint</code> / <code>ca_file</code></td>
+<td><code>str</code></td>
+<td>How to trust wsapi's certificate: its pinned SHA-256 or SHA-384 fingerprint (from <code>ws.fingerprint</code>; several allowed for a rotation), or a PEM file (<code>ws.crt.pem</code> or a CA bundle). Unset: <code>CRESCO_TLS_FINGERPRINT</code> / <code>CRESCO_TLS_CA_FILE</code>, then the system trust store.</td>
 </tr>
 <tr>
 <td><code>verify_ssl</code></td>
 <td><code>bool</code></td>
-<td>Verify the server TLS certificate. Defaults to <code>False</code> because agents typically present a self-signed certificate.</td>
+<td>Not given (the default): verify. <code>False</code> turns verification off; the credentials then go to whoever answers and every connection logs a WARNING.</td>
+</tr>
+<tr>
+<td><code>user</code> / <code>password</code></td>
+<td><code>str</code></td>
+<td>A per-user credential from wsapi's credential file (HTTP Basic inside TLS).</td>
+</tr>
+<tr>
+<td><code>token</code></td>
+<td><code>str</code></td>
+<td>An API token (<code>cwt1_...</code>), sent as <code>Authorization: Bearer</code>; the choice for tools and automation. Unset with no other credential: <code>CRESCO_API_TOKEN</code>.</td>
+</tr>
+<tr>
+<td><code>client_cert</code> / <code>client_key</code> / <code>client_key_password</code></td>
+<td><code>str</code></td>
+<td>A client certificate (PEM with its key, or PKCS12) presented on every connection; the only credential wsapi accepts under the <code>production</code> profile.</td>
 </tr>
 </tbody>
 </table>
+<p>See <a href="../../security/api-auth/">API authentication</a> for the credentials and how wsapi checks them.</p>
 <p>Constructing a <code>clientlib</code> wires up the transport and the interface objects but does <strong>not</strong>
 open the socket. Call <code>connect()</code> to establish the connection:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
@@ -3562,8 +3613,8 @@ open the socket. Call <code>connect()</code> to establish the connection:</p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">else</span><span class="p">:</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"failed to connect"</span><span class="p">)</span>
 </code></pre></div>
-<p>Under the hood, <code>connect()</code> opens <code>wss://{host}:{port}/api/apisocket</code>, authenticates with the
-service key, verifies the socket is live, and reads the mesh identity (region / agent / plugin)
+<p>Under the hood, <code>connect()</code> checks wsapi's certificate, opens <code>wss://{host}:{port}/api/apisocket</code>, authenticates with
+the client's credential, verifies the socket is live, and reads the mesh identity (region / agent / plugin)
 out of the server certificate's Distinguished Name (<code>O</code>=region, <code>OU</code>=agent, <code>CN</code>=plugin).</p>
 <table>
 <thead>
@@ -3576,7 +3627,7 @@ out of the server certificate's Distinguished Name (<code>O</code>=region, <code
 <tbody>
 <tr>
 <td>Construct</td>
-<td><code>clientlib(host, port, service_key, verify_ssl=False)</code></td>
+<td><code>clientlib(host, port, service_key=None, verify_ssl=None, *, ...)</code></td>
 <td>Create the client for a <code>wsapi</code> endpoint (does not connect).</td>
 </tr>
 <tr>
@@ -3602,17 +3653,21 @@ exit (including on exception). It raises <code>ConnectionError</code> if the con
 established:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="s2">"sha384:AB:CD:..."</span><span class="p">)</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">connection</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_region_list</span><span class="p">())</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># connection is closed automatically here</span>
 </code></pre></div>
-<h3 id="ssl-verification">SSL verification<a class="headerlink" href="#ssl-verification" title="Permanent link">&para;</a></h3>
-<p>By default certificate verification is disabled, because Cresco agents commonly present
-self-signed certificates. If your deployment uses certificates trusted by the local trust
-store, enable verification:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<h3 id="tls-verification">TLS verification<a class="headerlink" href="#tls-verification" title="Permanent link">&para;</a></h3>
+<p>Since 1.4.0 every connection (the API socket, every dataplane and every log stream) verifies wsapi's certificate
+before it sends anything; 1.3.2 and earlier did not verify. wsapi makes its own certificate, so pin it or trust its PEM
+file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="s2">"sha384:AB:CD:..."</span><span class="p">)</span>   <span class="c1"># pin it</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">ca_file</span><span class="o">=</span><span class="s2">"ws.crt.pem"</span><span class="p">)</span>             <span class="c1"># or trust it</span>
 </code></pre></div>
+<p>With neither (and no <code>CRESCO_TLS_*</code> variable) the system trust store applies, which does not trust a self-signed
+wsapi. A server that does not match gets nothing: <code>connect()</code> returns <code>False</code> and <code>client.last_error</code> says why
+(<code>pycrescolib.tls</code>: <code>CertificateMismatch</code>, <code>CertificateVerificationError</code>, <code>AuthenticationError</code>, <code>TLSConfigError</code>).</p>
 <hr />
 <h2 id="async-model">Async model<a class="headerlink" href="#async-model" title="Permanent link">&para;</a></h2>
 <p>Although the calls you make are blocking, it is worth understanding the machinery so you can
@@ -3628,9 +3683,10 @@ reason about threads and timeouts:</p>
 <li><strong>RPC vs. fire-and-forget.</strong> Each messaging call carries an <code>is_rpc</code> flag. When <code>True</code>, the
   call blocks for the reply and returns it as a <code>dict</code>. When <code>False</code>, the message is flushed
   and the call returns <code>None</code> without waiting.</li>
-<li><strong>Timeouts.</strong> RPC calls take a <code>timeout</code> (default <code>8.0</code> seconds). On timeout or a broken
-  socket the connection is marked failed and subsequent RPC calls short-circuit (returning an
-  empty <code>dict</code>) until you reconnect.</li>
+<li><strong>Timeouts.</strong> RPC calls take a <code>timeout</code> (default <code>8.0</code> seconds). A control socket the server
+  closed raises <code>ConnectionError</code> and <code>connected()</code> turns <code>False</code>, so reconnect with <code>connect()</code>.
+  Inventory queries raise (<code>CrescoQueryError</code>, <code>TimeoutError</code>, <code>ConnectionError</code>) when they could not
+  ask, and return an empty list or <code>None</code> only when the fabric answered "none" (since 1.3.2).</li>
 <li><strong>Retries.</strong> Transient <code>ConnectionError</code> / <code>TimeoutError</code> failures are retried with
   exponential backoff (up to 3 attempts) via <code>backoff</code>.</li>
 <li><strong>Stream sockets self-manage.</strong> Each dataplane and logstreamer spins up its own event loop
@@ -3678,6 +3734,21 @@ groups a set of related operations.</p>
 <td>Low-level typed message routing (the transport all interfaces build on).</td>
 </tr>
 <tr>
+<td><code>client.stunnel</code></td>
+<td><code>stunnel</code></td>
+<td>Secure TCP tunnels through the <a href="../../plugins/stunnel/">stunnel</a> plugin.</td>
+</tr>
+<tr>
+<td><code>client.executor</code></td>
+<td><code>executor</code></td>
+<td>OS processes and their stdin through the <a href="../../plugins/executor/">executor</a> plugin.</td>
+</tr>
+<tr>
+<td><code>client.filerepo</code></td>
+<td><code>filerepo</code></td>
+<td>Verified file downloads from the <a href="../../plugins/filerepo/">filerepo</a> plugin.</td>
+</tr>
+<tr>
 <td><code>get_dataplane(...)</code></td>
 <td><code>dataplane</code></td>
 <td>Open a data-plane stream socket (created on demand).</td>
@@ -3689,6 +3760,9 @@ groups a set of related operations.</p>
 </tr>
 </tbody>
 </table>
+<p>The method tables for <code>stunnel</code>, <code>executor</code> and <code>filerepo</code> are in the
+<a href="https://github.com/CrescoEdge/pycrescolib#api-reference">pycrescolib README</a>; the names match the Java client's
+(see <a href="../java/#stunnel">Java › stunnel</a>).</p>
 <h3 id="api"><code>api</code><a class="headerlink" href="#api" title="Permanent link">&para;</a></h3>
 <p>Identity of the agent hosting the <code>wsapi</code> plugin and of the global controller. The API
 identity values are read from the server certificate at connect time; the global identity is
@@ -4154,21 +4228,22 @@ log lines from a target agent to your callback.</p>
 <h2 id="worked-examples">Worked examples<a class="headerlink" href="#worked-examples" title="Permanent link">&para;</a></h2>
 <p>These mirror the runnable, standardized examples in
 <code>examples/standard_examples.py</code>, which have byte-for-byte counterparts in the Java client
-(<code>StandardExamples.java</code>). Set <code>HOST</code>, <code>PORT</code>, and <code>SERVICE_KEY</code> for your environment.</p>
+(<code>StandardExamples.java</code>). Set <code>HOST</code>, <code>PORT</code>, <code>SERVICE_KEY</code> and <code>FINGERPRINT</code> for your environment.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">HOST</span> <span class="o">=</span> <span class="s2">"127.0.0.1"</span>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">PORT</span> <span class="o">=</span> <span class="mi">8282</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">SERVICE_KEY</span> <span class="o">=</span> <span class="s2">"a-service-key"</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="n">FINGERPRINT</span> <span class="o">=</span> <span class="s2">"sha384:AB:CD:..."</span>   <span class="c1"># from ws.fingerprint in the wsapi plugin data directory</span>
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">new_client</span><span class="p">():</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="sd">"""Create a connected client, or None if the connection failed."""</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="n">SERVICE_KEY</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Failed to connect"</span><span class="p">)</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="k">return</span> <span class="kc">None</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">return</span> <span class="n">client</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">new_client</span><span class="p">():</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="sd">"""Create a connected client, or None if the connection failed."""</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="n">SERVICE_KEY</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="n">FINGERPRINT</span><span class="p">)</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Failed to connect"</span><span class="p">)</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">return</span> <span class="n">client</span>
 </code></pre></div>
 <h3 id="connect-and-list-the-mesh">Connect and list the mesh<a class="headerlink" href="#connect-and-list-the-mesh" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_connect</span><span class="p">():</span>

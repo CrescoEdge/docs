@@ -2676,6 +2676,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3587,13 +3615,25 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 <td><code>broker_security_secret</code></td>
 <td>String</td>
 <td><code>cresco</code></td>
-<td>Shared password the local controller and clients present as the JMS password when <code>broker_security_enabled</code> is on. Change this from the default in any secured deployment.</td>
+<td>Shared password the local controller and clients present as the JMS password when <code>broker_security_enabled</code> is on. Change this from the default in any secured deployment; refused under <code>security_profile=production</code>.</td>
 </tr>
 <tr>
 <td><code>broker_superuser_tenants</code></td>
 <td>String</td>
 <td><code>cresco-system</code></td>
 <td>Comma-separated list of tenant IDs whose <strong>network</strong> clients are granted the cross-tenant SUPERUSER ("god view") role — e.g. a fabric-admin dashboard that must see every tenant. The local <code>vm://</code> controller and broker bridges are already exempt.</td>
+</tr>
+<tr>
+<td><code>broker_cross_tenant_sinks</code></td>
+<td>String</td>
+<td><em>(empty)</em></td>
+<td>Named cross-tenant flows: <code>;</code>- or <code>,</code>-separated <code>&lt;source tenant&gt;-&gt;&lt;destination&gt;[:write\|read\|any]</code> rules (globs <code>*</code>, <code>?</code>; <code>write</code> by default) letting a tenant reach destinations outside its own <code>T.&lt;tenant&gt;.</code> subtree. A rule never grants READ unless it says so. Empty = strict tenant isolation. See <a href="../../architecture/tenancy/#named-cross-tenant-flows">Multi-Tenancy</a>.</td>
+</tr>
+<tr>
+<td><code>broker_allow_unverified_bridges</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>Migration only: exempt a client that claims to be a broker bridge without a client certificate from tenant authorization (a WARNING at boot). Refused in production.</td>
 </tr>
 <tr>
 <td><code>broker_shared_destinations</code></td>
@@ -3611,7 +3651,7 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 <td><code>security_regional_ca</code></td>
 <td>boolean</td>
 <td><code>false</code></td>
-<td>Enable Regional-CA identity mode ("Option C"): during discovery the region acts as issuing authority and signs each joining node a region-signed leaf certificate, and joiners present that identity. When off, the legacy self-signed discovery exchange is used.</td>
+<td>Enable Regional-CA identity mode ("Option C"): during the authenticated discovery exchange the region acts as issuing authority and signs each joining node a region-signed leaf certificate, and joiners present that identity. When off (direct trust), each node makes its own certificate and a joiner pins the controller it joined. Standard profile only: refused in production. See <a href="../../architecture/discovery/#certification-establishing-trust-at-join">Discovery</a>.</td>
 </tr>
 <tr>
 <td><code>tenant_namespacing</code></td>
@@ -5239,8 +5279,8 @@ default</strong> (unset = no credentials, appropriate for the embedded Derby dri
 </table>
 <hr />
 <h2 id="wsapi-websocket-api-gateway">wsapi (WebSocket API gateway)<a class="headerlink" href="#wsapi-websocket-api-gateway" title="Permanent link">&para;</a></h2>
-<p>Settings for the wsapi plugin: listener port, TLS material, socket tuning, and the service
-key that authenticates HTTP-upgrade requests.</p>
+<p>Settings for the wsapi plugin: listener port, TLS material, socket tuning, dataplane egress and the legacy service
+key. Every HTTP upgrade is authenticated (<a href="../../security/api-auth/">API authentication</a>).</p>
 <table>
 <thead>
 <tr>

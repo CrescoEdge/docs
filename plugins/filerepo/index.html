@@ -1668,6 +1668,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#live-backed-repositories-and-live-tier-roots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live-backed repositories and live-tier roots
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repostate-and-clearing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repostate and clearing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuration-read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2449,6 +2471,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2939,6 +2989,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#live-backed-repositories-and-live-tier-roots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live-backed repositories and live-tier roots
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repostate-and-clearing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repostate and clearing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#configuration-read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3013,7 +3085,7 @@ watched-directory sync between peers, and push-to-remote-repo.</p>
 </tr>
 <tr>
 <td>Catalog</td>
-<td>Embedded Derby (file path / md5 / size / mtime)</td>
+<td>Embedded Derby (file path / content hash in the <code>md5</code> column / size / mtime)</td>
 </tr>
 <tr>
 <td>Loaded</td>
@@ -3040,8 +3112,9 @@ or synced from peers. Files move by one of three mechanisms:</p>
   which pulls only the changed files.</li>
 </ul>
 <p>Safeguards throughout: all catalog queries are parameterized (SQL-injection-safe); <code>putjar</code>/<code>getfile</code>
-paths are canonicalized and confined to the repo dir (path-traversal-safe); md5 is verified on write
-(a mismatch is deleted and rejected); the transfer pool is bounded and cleaned up on stop.</p>
+paths are canonicalized and confined to the repo dir (path-traversal-safe); <code>putjar</code> accepts only a jar signed by a
+signer chaining to <code>plugin_signing_truststore</code> and computes its content hash itself (a supplied <code>md5</code> that differs is
+refused); the transfer pool is bounded and cleaned up on stop.</p>
 <h2 id="executor-actions">Executor actions<a class="headerlink" href="#executor-actions" title="Permanent link">&para;</a></h2>
 <p><code>ExecutorImpl</code> handles EXEC actions (<a href="../../api/msgevent/"><code>MsgEvent</code></a> type <code>EXEC</code>). <code>status</code>/
 <code>status_code</code> <code>10</code> = success; <code>object</code> returns are gzip+base64 compressed, <code>bytes</code> returns are base64.
@@ -3068,7 +3141,7 @@ Full table: <a href="../../api/plugin-actions/#filerepo-plugin">Plugin Actions â
 </tr>
 <tr>
 <td><code>putjar</code> / <code>putfiles</code></td>
-<td>Write a jar (md5-verified) / land pushed files into a repo.</td>
+<td>Write a signed jar (signature-verified) / land pushed files into a repo.</td>
 </tr>
 <tr>
 <td><code>putfilesremote</code></td>
@@ -3080,7 +3153,7 @@ Full table: <a href="../../api/plugin-actions/#filerepo-plugin">Plugin Actions â
 </tr>
 <tr>
 <td><code>removefile</code> / <code>clearrepo</code></td>
-<td>Remove one file / wipe a repo (disk + catalog).</td>
+<td>Remove one file / clear the repository directory (disk + catalog), armed explicitly: see <a href="#repostate-and-clearing"><code>repostate</code> and clearing</a>.</td>
 </tr>
 <tr>
 <td><code>repolistin</code> / <code>repoconfirm</code></td>
@@ -3091,11 +3164,69 @@ Full table: <a href="../../api/plugin-actions/#filerepo-plugin">Plugin Actions â
 <td>Report the configured scan directory.</td>
 </tr>
 <tr>
+<td><code>repostate</code></td>
+<td>What would be lost with this repository: <code>LIVE</code>, <code>WORKSPACE_CLEAN</code>, <code>WORKSPACE_DIRTY</code>, <code>MIRROR</code> or <code>ONLY_COPY</code>.</td>
+</tr>
+<tr>
+<td><code>liverelay</code> / <code>liverealise</code></td>
+<td>Carry a signed request to the agent's live-tier provider unchanged / realise a live-backed repository's copy again (<code>infra</code>/<code>admin</code>).</td>
+</tr>
+<tr>
 <td><code>getmetrics</code></td>
 <td>Central metrics â€” see <a href="#observability">Observability</a>.</td>
 </tr>
 </tbody>
 </table>
+<h2 id="live-backed-repositories-and-live-tier-roots">Live-backed repositories and live-tier roots<a class="headerlink" href="#live-backed-repositories-and-live-tier-roots" title="Permanent link">&para;</a></h2>
+<p>filerepo is a <strong>client</strong> of a live tier, never part of it: it talks only to a live-tier provider service registered by
+another bundle on the same agent (<code>LiveTierClient</code>; GaiaKeep's live tier is one, see
+<a href="../../reference/projects/">Projects built on Cresco</a>). Without a provider it behaves as before.</p>
+<ul>
+<li><strong>Live-backed repository.</strong> A repository whose configuration names <code>live_row</code> is a live-tier copy or workspace held
+  at this node. It runs no scanner, broadcast or subscription, answers only <code>repostate</code>, <code>liverelay</code>, <code>liverealise</code>,
+  <code>getmetrics</code> and <code>getcapabilities</code>, and refuses every other verb (<code>status 9</code>, <code>refusal=live-backed</code>), even when the
+  provider cannot be reached. The backing is read once at start; no message can change it.</li>
+<li><strong>Live-tier roots.</strong> Files under a provider's live root are the provider's. filerepo learns each registered
+  provider's root (and takes <code>live_roots</code> from configuration) and remembers it in its catalog: <code>getfile</code>, <code>streamfile</code>,
+  <code>putfilesremote</code> and <code>putfiles</code> refuse a file in a live root (<code>refusal=live-root</code>), a repository whose directory is or
+  holds a live root is refused like a live-backed one, and while any registered provider's root is unknown every file
+  path is refused.</li>
+</ul>
+<h2 id="repostate-and-clearing"><code>repostate</code> and clearing<a class="headerlink" href="#repostate-and-clearing" title="Permanent link">&para;</a></h2>
+<p><code>repostate</code> answers from the provider's cached answers (live-backed) or from configuration and filerepo's own catalog,
+never from a walk of the tree:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LIVE</code></td>
+<td>backed by a live copy: read-only here, recreatable by realising it again</td>
+</tr>
+<tr>
+<td><code>WORKSPACE_CLEAN</code> / <code>WORKSPACE_DIRTY</code></td>
+<td>backed by a workspace without / with unpublished changes (unknown counts as dirty)</td>
+</tr>
+<tr>
+<td><code>MIRROR</code></td>
+<td>a subscriber mirror: its producer holds what it holds</td>
+</tr>
+<tr>
+<td><code>ONLY_COPY</code></td>
+<td>the origin of what it holds: a producer, an on-demand repository, or a mirror that files were landed in directly</td>
+</tr>
+</tbody>
+</table>
+<p><code>clearrepo</code> is armed explicitly: <code>confirm</code> must name the repository directory exactly (<code>refusal=unconfirmed</code>); it
+refuses an <code>ONLY_COPY</code> unless <code>force=true</code>, which needs the <code>admin</code> role (<code>refusal=only-copy</code>,
+<code>refusal=force-needs-admin</code>); and it never clears a protected directory (the filesystem root, a system directory, the
+home, working, JVM, agent-data or plugin-data directory, or one that is or holds a live-tier root;
+<code>refusal=protected-dir</code>). A clear holds the repository gate exclusively, so nothing lands between its check and its
+delete. A live-backed repository refuses <code>clearrepo</code>, forced or not.</p>
 <h2 id="configuration-read">Configuration read<a class="headerlink" href="#configuration-read" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3128,8 +3259,8 @@ Full table: <a href="../../api/plugin-actions/#filerepo-plugin">Plugin Actions â
 </tr>
 <tr>
 <td><code>repo_dir</code></td>
-<td><code>filerepo</code></td>
-<td>Repo directory for on-demand/consumer storage.</td>
+<td><code>&lt;agent data dir&gt;/filerepo/repos/&lt;filerepo_name or default&gt;</code></td>
+<td>Repo directory for on-demand/consumer storage. Every verb uses one directory: <code>scan_dir</code>, else <code>repo_dir</code>, else this default.</td>
 </tr>
 <tr>
 <td><code>max_inline_bytes</code></td>
@@ -3145,6 +3276,21 @@ Full table: <a href="../../api/plugin-actions/#filerepo-plugin">Plugin Actions â
 <td><code>transfer_threads</code></td>
 <td><code>8</code></td>
 <td>Max concurrent streamfile transfers (bounded pool).</td>
+</tr>
+<tr>
+<td><code>live_row</code></td>
+<td><em>(unset)</em></td>
+<td>Back this repository by a live-tier row held at this node (read once at start).</td>
+</tr>
+<tr>
+<td><code>live_roots</code></td>
+<td><em>(unset)</em></td>
+<td>Comma-separated live-tier roots to refuse from the start, before any provider registers.</td>
+</tr>
+<tr>
+<td><code>live_list_cache_ms</code></td>
+<td><code>1000</code></td>
+<td>How long a live-backed repository reuses the provider's <code>list</code> answer for <code>repostate</code>.</td>
 </tr>
 </tbody>
 </table>

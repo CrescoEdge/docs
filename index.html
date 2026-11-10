@@ -2420,6 +2420,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2969,7 +2997,7 @@ into a three-tier hierarchy:</p>
 </tr>
 <tr>
 <td><strong>Global</strong></td>
-<td>A global controller. Federates regions together; the top of the hierarchy. A node can be <code>REGION_GLOBAL</code> (both).</td>
+<td>A global controller. Federates regions together; the top of the hierarchy. A global is also its own region and agent, so one global is a complete fabric.</td>
 </tr>
 </tbody>
 </table>
@@ -2987,7 +3015,7 @@ into a three-tier hierarchy:</p>
   <a href="architecture/messaging/">Messaging &amp; Routing</a>.</li>
 <li><strong>Plugins with self-describing actions</strong> — functionality is packaged as OSGi bundles that expose
   <code>@CrescoAction</code> operations, aggregated fabric-wide into a <a href="api/plugin-actions/">capability inventory</a>
-  (≈119 actions across 9 namespaces today).</li>
+  (≈130 actions across 9 namespaces today).</li>
 <li><strong>Dynamic cost-aware routing</strong> — a pushed link-state view and per-hop cost let the controller pick the
   cheapest path across a federated mesh, with automatic broker-bridge scaling under load. See
   <a href="architecture/dynamic-routing/">Dynamic Cost-Aware Routing</a>.</li>
@@ -3021,7 +3049,8 @@ into a three-tier hierarchy:</p>
   and the full <a href="reference/configuration/">configuration parameter</a> reference.</li>
 <li><strong><a href="clients/overview/">Client Libraries</a></strong> — Java, Python, and C++ (Arduino/ESP32) SDK references.</li>
 <li><strong><a href="operations/deployment/">Operations</a></strong> — deployment, testing, troubleshooting and measured performance.</li>
-<li><strong><a href="reference/glossary/">Reference</a></strong> — glossary and the underlying design documents.</li>
+<li><strong><a href="reference/glossary/">Reference</a></strong> — glossary, the underlying design documents, and the
+  <a href="reference/projects/">projects built on Cresco</a>.</li>
 </ul>
 <h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cresco/

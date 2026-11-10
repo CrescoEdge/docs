@@ -2427,6 +2427,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2968,15 +2996,15 @@ and a set of <a href="../../plugins/overview/">plugins</a>. A node runs in one o
 </tr>
 <tr>
 <td><code>REGION</code></td>
-<td>A regional controller; runs an embedded broker and federates up to a global.</td>
+<td>A regional controller running its embedded broker, not (yet) federated to a global: while it joins one, or for good when it runs region-first (<code>global_optional</code>).</td>
 </tr>
 <tr>
 <td><code>REGION_GLOBAL</code></td>
-<td>Both a region and the global (a self-contained fabric).</td>
+<td>A regional controller that has federated up to a global.</td>
 </tr>
 <tr>
 <td><code>GLOBAL</code></td>
-<td>The top of the hierarchy; federates regions together.</td>
+<td>The top of the hierarchy; federates regions together. A global is also its own region and agent, so one global is a complete fabric.</td>
 </tr>
 </tbody>
 </table>

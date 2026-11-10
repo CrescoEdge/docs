@@ -2704,6 +2704,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3500,8 +3528,9 @@
 
 <h1 id="java-client-clientlib">Java Client (<code>clientlib</code>)<a class="headerlink" href="#java-client-clientlib" title="Permanent link">&para;</a></h1>
 <p><code>clientlib</code> is the external Java SDK for Cresco. It connects to an agent running
-the <strong><code>wsapi</code></strong> plugin over a secure WebSocket (<code>wss://host:8282</code>, authenticated
-with the <code>cresco_service_key</code> header) and drives the fabric: controlling agents,
+the <strong><code>wsapi</code></strong> plugin over a secure WebSocket (<code>wss://host:8282</code>, the server
+certificate verified, authenticated with a per-user credential, an API token, the
+legacy <code>cresco_service_key</code> or a client certificate) and drives the fabric: controlling agents,
 deploying plugins, submitting pipelines, streaming the data plane, and tailing
 logs.</p>
 <p>For the shared connect-then-use-submodules model and the Java/Python/C++ parity
@@ -3522,7 +3551,9 @@ a shaded, self-contained jar at <code>target/clientlib-1.3-SNAPSHOT.jar</code>.<
 <li><strong>JDK 21.</strong></li>
 <li>Network reachability to an agent hosting the <code>wsapi</code> plugin (default port
   <code>8282</code>).</li>
-<li>The <code>wsapi</code> <strong>service key</strong> configured on that agent.</li>
+<li>wsapi's certificate fingerprint (from <code>ws.fingerprint</code> in its plugin data directory) or its <code>ws.crt.pem</code>.</li>
+<li>A credential: a user and password or API token from wsapi's credential file, the <code>wsapi</code> <strong>service key</strong>, or (production
+  profile) a client certificate (<a href="../../security/api-auth/">API authentication</a>).</li>
 </ul>
 <p>The transport is built on Netty (TLS + WebSocket). By default it uses the JDK
 TLS provider; set <code>-Dcresco.client.ssl_provider=OPENSSL</code> to use native
@@ -3531,16 +3562,19 @@ BoringSSL (via <code>netty-tcnative</code>) when the native library is present.<
 <p>The entry point is <code>crescoclient.CrescoClient</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.CrescoClient</span><span class="p">;</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1">// host/ip of an agent running wsapi, its port, the wsapi service key,</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// and whether to verify the TLS certificate.</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">CrescoClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CrescoClient</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span><span class="w"> </span><span class="mi">8282</span><span class="p">,</span><span class="w"> </span><span class="s">"your-service-key"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">connect</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_region_name</span><span class="p">()</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s">" "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_agent_name</span><span class="p">());</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_agent_list</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">}</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1">// host/ip of an agent running wsapi, its port, a credential, and the wsapi</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// certificate's fingerprint (from ws.fingerprint), which the client verifies.</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">CrescoClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CrescoClient</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span><span class="w"> </span><span class="mi">8282</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="p">.</span><span class="na">serviceKey</span><span class="p">(</span><span class="s">"your-service-key"</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="p">.</span><span class="na">pinnedFingerprint</span><span class="p">(</span><span class="s">"sha384:AB:CD:..."</span><span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">connect</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_region_name</span><span class="p">()</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">        </span><span class="o">+</span><span class="w"> </span><span class="s">" "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_agent_name</span><span class="p">());</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_agent_list</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="constructors">Constructors<a class="headerlink" href="#constructors" title="Permanent link">&para;</a></h3>
 <table>
@@ -3552,19 +3586,28 @@ BoringSSL (via <code>netty-tcnative</code>) when the native library is present.<
 </thead>
 <tbody>
 <tr>
+<td><code>CrescoClient.builder(String host, int port)</code> ... <code>.build()</code></td>
+<td>Name the trust (<code>pinnedFingerprint(...)</code>, <code>caFile(Path)</code>, <code>checkHostname(boolean)</code>, or <code>insecure()</code>) and the credential (<code>serviceKey(...)</code>, <code>credentials(user, password)</code>, <code>token(...)</code>, <code>clientCertificate(chain, key, password)</code> or <code>clientCertificatePkcs12(p12, password)</code>).</td>
+</tr>
+<tr>
 <td><code>CrescoClient(String host, int port, String service_key)</code></td>
-<td>Create a client with SSL verification disabled.</td>
+<td>A client with the service key; the certificate is verified against <code>-Dcresco.client.tls.fingerprint</code> / <code>.ca_file</code> or <code>CRESCO_TLS_FINGERPRINT</code> / <code>CRESCO_TLS_CA_FILE</code>, else the JDK trust store.</td>
 </tr>
 <tr>
 <td><code>CrescoClient(String host, int port, String service_key, boolean verify_ssl)</code></td>
-<td>Create a client, choosing whether to verify the TLS certificate.</td>
+<td>As above; <code>false</code> turns verification off (every connection logs a WARNING), unless an operator pin or CA file is set, which always wins.</td>
+</tr>
+<tr>
+<td><code>CrescoClient(String host, int port, ClientSecurity security)</code></td>
+<td>Explicit trust and credentials.</td>
 </tr>
 </tbody>
 </table>
-<p>Cresco agents use self-signed certificates, so <code>verify_ssl</code> defaults to
-<code>false</code>. The <code>host</code> and <code>port</code> identify the agent running the <code>wsapi</code> plugin;
-<code>service_key</code> is sent as the <code>cresco_service_key</code> header on the WebSocket
-upgrade.</p>
+<p>The client verifies wsapi's certificate on every connection by default and sends
+nothing to a server it does not trust; wsapi makes its own certificate, so pin its
+fingerprint or trust its <code>ws.crt.pem</code> (the JDK trust store does not trust it). The
+<code>host</code> and <code>port</code> identify the agent running the <code>wsapi</code> plugin. See
+<a href="../../security/api-auth/">API authentication</a>.</p>
 <h3 id="lifecycle-methods">Lifecycle methods<a class="headerlink" href="#lifecycle-methods" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3596,7 +3639,11 @@ upgrade.</p>
 </tr>
 <tr>
 <td><code>boolean verify_ssl()</code></td>
-<td>Whether SSL certificate verification is enabled for this client.</td>
+<td>Whether TLS certificate verification is enabled for this client.</td>
+</tr>
+<tr>
+<td><code>String last_error()</code></td>
+<td>Why the last connect failed (e.g. a certificate mismatch; nothing was sent).</td>
 </tr>
 </tbody>
 </table>
@@ -3652,8 +3699,10 @@ closed and enumerated centrally.</p>
 </tbody>
 </table>
 <h2 id="submodule-handles">Submodule handles<a class="headerlink" href="#submodule-handles" title="Permanent link">&para;</a></h2>
-<p>A connected client exposes six submodule fields — <code>api</code>, <code>admin</code>, <code>agents</code>,
-<code>globalcontroller</code>, <code>messaging</code>, and <code>stunnel</code> — documented below. Every public
+<p>A connected client exposes eight submodule fields — <code>api</code>, <code>admin</code>, <code>agents</code>,
+<code>globalcontroller</code>, <code>messaging</code> and <code>stunnel</code>, documented below, and <code>executor</code> and
+<code>filerepo</code>, whose method tables are in the
+<a href="https://github.com/CrescoEdge/clientlib#api-reference">clientlib README</a>. Every public
 class and method also carries Javadoc (see <a href="#api-reference-javadoc">API reference (Javadoc)</a>).</p>
 <h3 id="api"><code>api</code><a class="headerlink" href="#api" title="Permanent link">&para;</a></h3>
 <p>Identity lookups for the local <code>wsapi</code> host and the global controller. Local
@@ -4182,7 +4231,7 @@ interface:</p>
 <code>example/standard/StandardExamples.java</code>; the connect, pipeline, plugin, data
 plane, log and admin examples have byte-for-byte counterparts in the Python
 client's <code>standard_examples.py</code>. Run one with</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CRESCO_HOST</span><span class="o">=</span>localhost<span class="w"> </span><span class="nv">CRESCO_PORT</span><span class="o">=</span><span class="m">8282</span><span class="w"> </span><span class="nv">CRESCO_SERVICE_KEY</span><span class="o">=</span>...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CRESCO_HOST</span><span class="o">=</span>localhost<span class="w"> </span><span class="nv">CRESCO_PORT</span><span class="o">=</span><span class="m">8282</span><span class="w"> </span><span class="nv">CRESCO_SERVICE_KEY</span><span class="o">=</span>...<span class="w"> </span><span class="nv">CRESCO_TLS_FINGERPRINT</span><span class="o">=</span>sha384:...
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>java<span class="w"> </span>-cp<span class="w"> </span>target/clientlib-1.3-SNAPSHOT.jar<span class="w"> </span>example.standard.StandardExamples<span class="w"> </span>connect
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># others: pipeline | plugin_lifecycle &lt;region&gt; &lt;agent&gt; &lt;jar&gt; | dataplane &lt;stream&gt; |</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">#         logstreamer &lt;region&gt; &lt;agent&gt; | admin &lt;region&gt; &lt;agent&gt; | messaging &lt;region&gt; &lt;agent&gt; |</span>
@@ -4191,26 +4240,27 @@ client's <code>standard_examples.py</code>. Run one with</p>
 <h3 id="connect-and-list-the-mesh">Connect and list the mesh<a class="headerlink" href="#connect-and-list-the-mesh" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">crescoclient.CrescoClient</span><span class="p">;</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">CrescoClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CrescoClient</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">,</span><span class="w"> </span><span class="mi">8282</span><span class="p">,</span><span class="w"> </span><span class="s">"a-service-key"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="na">connect</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Failed to connect"</span><span class="p">);</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1">// API identity of the agent hosting wsapi.</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_region_name</span><span class="p">());</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_agent_name</span><span class="p">());</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"plugin: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_plugin_name</span><span class="p">());</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1">// Global controller identity.</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_region</span><span class="p">());</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_agent</span><span class="p">());</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="c1">// List regions and agents.</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"regions: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_region_list</span><span class="p">());</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agents : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_agent_list</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">client</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">// verifies wsapi's certificate against CRESCO_TLS_FINGERPRINT (or CRESCO_TLS_CA_FILE)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">CrescoClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CrescoClient</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">,</span><span class="w"> </span><span class="mi">8282</span><span class="p">,</span><span class="w"> </span><span class="s">"a-service-key"</span><span class="p">);</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="na">connect</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Failed to connect"</span><span class="p">);</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1">// API identity of the agent hosting wsapi.</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_region_name</span><span class="p">());</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_agent_name</span><span class="p">());</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"plugin: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_api_plugin_name</span><span class="p">());</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="c1">// Global controller identity.</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global region: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_region</span><span class="p">());</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"global agent : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">get_global_agent</span><span class="p">());</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="c1">// List regions and agents.</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"regions: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_region_list</span><span class="p">());</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"agents : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">globalcontroller</span><span class="p">.</span><span class="na">get_agent_list</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="n">client</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
 </code></pre></div>
 <h3 id="submit-a-pipeline-and-poll-its-status">Submit a pipeline and poll its status<a class="headerlink" href="#submit-a-pipeline-and-poll-its-status" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>

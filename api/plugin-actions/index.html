@@ -2588,6 +2588,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3272,7 +3300,7 @@
 handles the action and, for RPC, returns a reply <code>MsgEvent</code> whose params carry the result. Because an
 external client reaches Cresco only over the WebSocket message bus (the <a href="../../plugins/wsapi/"><code>wsapi</code></a>
 plugin), <strong>actions are the entire callable surface</strong> — there are no direct method calls into the fabric.</p>
-<p>This page is the canonical human reference for every action across the fabric — <strong>≈119 actions</strong> over 9
+<p>This page is the canonical human reference for every action across the fabric — <strong>≈130 actions</strong> over 9
 namespaces (the three controller tiers — global, regional, agent — plus the <code>sysinfo</code>, <code>stunnel</code>, <code>wsapi</code>,
 <code>repo</code>, <code>filerepo</code>, and <code>executor</code> plugins). The same information is produced, machine-readable, by the
 capability inventory described below.</p>
@@ -3677,7 +3705,7 @@ registry, discovery, resource inventory, and global application (pipeline) sched
 <h3 id="agent-tier">agent tier<a class="headerlink" href="#agent-tier" title="Permanent link">&para;</a></h3>
 <p>Routed to a specific <strong>agent controller</strong> (<code>global_agent_msgevent</code>, requiring <code>region</code> + <code>agent</code>). This is
 the per-node control API: plugin lifecycle on that agent, logs, files, controller/JVM lifecycle, and
-dataplane log streaming. Namespace <code>agent</code> — <strong>29 actions</strong>. All actions take routing identity
+dataplane log streaming. Namespace <code>agent</code> — <strong>30 actions</strong>. All actions take routing identity
 <code>region</code>, <code>agent</code>.</p>
 <table>
 <thead>
@@ -3752,6 +3780,13 @@ dataplane log streaming. Namespace <code>agent</code> — <strong>29 actions</st
 <td>Return this agent's controller state code.</td>
 <td><code>region</code>, <code>agent</code></td>
 <td><code>controller_status</code></td>
+</tr>
+<tr>
+<td><code>getcryptopolicy</code></td>
+<td>EXEC</td>
+<td>Return the fabric crypto policy this node holds (set at the global controller).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>crypto_policy</code>, <code>crypto_policy_id</code>, <code>crypto_policy_level</code>, <code>crypto_policy_source</code></td>
 </tr>
 <tr>
 <td><code>getfiledata</code></td>
@@ -4182,7 +4217,7 @@ connect to. <code>target=plugin</code> (<code>region</code>, <code>agent</code>,
 <tr>
 <td><code>getjar</code></td>
 <td>EXEC</td>
-<td>Retrieve a plugin JAR's bytes by name + md5.</td>
+<td>Retrieve a plugin JAR's bytes by name + content hash (<code>md5</code> field).</td>
 <td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_pluginname</code>, <code>action_pluginmd5</code></td>
 <td><code>jardata</code></td>
 </tr>
@@ -4196,7 +4231,7 @@ connect to. <code>target=plugin</code> (<code>region</code>, <code>agent</code>,
 <tr>
 <td><code>putjar</code></td>
 <td>EXEC</td>
-<td>Store a plugin JAR into the repo (writes disk, verifies md5).</td>
+<td>Store a signed plugin JAR into the repo (verifies its signature against <code>plugin_signing_truststore</code>; writes the verified bytes).</td>
 <td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>pluginname</code>, <code>md5</code>, <code>jarfile</code>, <code>version</code>, <code>jardata</code></td>
 <td><code>uploaded</code>, <code>md5-confirm</code></td>
 </tr>
@@ -4213,7 +4248,7 @@ connect to. <code>target=plugin</code> (<code>region</code>, <code>agent</code>,
 <p>Distributed file/artifact repository (<a href="../../plugins/filerepo/"><code>filerepo</code></a>) — scans a directory,
 tracks files in an embedded catalog, and moves files/jars across the mesh (inline transfer, byte-range
 dataplane streaming, watched-directory sync, push-to-remote). <code>target=plugin</code> (<code>region</code>, <code>agent</code>,
-<code>pluginid</code>). Namespace <code>filerepo</code> — <strong>16 actions</strong>.</p>
+<code>pluginid</code>). Namespace <code>filerepo</code> — <strong>25 actions</strong>.</p>
 <table>
 <thead>
 <tr>
@@ -4249,14 +4284,14 @@ dataplane streaming, watched-directory sync, push-to-remote). <code>target=plugi
 <tr>
 <td><code>getjar</code></td>
 <td>EXEC</td>
-<td>Return a plugin jar inline, matched by name+md5.</td>
+<td>Return a plugin jar inline, matched by name + content hash (<code>md5</code> field).</td>
 <td><code>action_pluginname</code>, <code>action_pluginmd5</code></td>
 <td><code>jardata</code> <em>(bytes)</em></td>
 </tr>
 <tr>
 <td><code>putjar</code></td>
 <td>EXEC</td>
-<td>Write a plugin jar (md5-verified, path-traversal-safe).</td>
+<td>Write a signed plugin jar (signature-verified, path-traversal-safe).</td>
 <td><code>pluginname</code>, <code>md5</code>, <code>jarfile</code>, <code>version</code>, <code>jardata</code></td>
 <td><code>uploaded</code></td>
 </tr>
@@ -4305,9 +4340,9 @@ dataplane streaming, watched-directory sync, push-to-remote). <code>target=plugi
 <tr>
 <td><code>clearrepo</code></td>
 <td>EXEC</td>
-<td>Delete all files in a repo.</td>
-<td><code>repo_name</code></td>
-<td><code>status</code></td>
+<td>Clear the repository directory, armed explicitly (<code>confirm</code> names the directory; an <code>ONLY_COPY</code> needs <code>force=true</code> and <code>admin</code>; protected and live-tier directories are refused).</td>
+<td><code>repo_name</code>, <code>confirm</code>, <code>force</code></td>
+<td><code>status</code>, <code>refusal</code></td>
 </tr>
 <tr>
 <td><code>repolistin</code></td>
@@ -4322,6 +4357,55 @@ dataplane streaming, watched-directory sync, push-to-remote). <code>target=plugi
 <td>Sync handshake ack.</td>
 <td><code>transfer_id</code></td>
 <td>(status)</td>
+</tr>
+<tr>
+<td><code>reposubscribe</code> / <code>reposubscribed</code></td>
+<td>EXEC</td>
+<td>Sync protocol 2: a subscriber asks a producer to serve it / the producer's answer (plugin-to-plugin).</td>
+<td><code>filerepo_name</code>, <code>sync_gen</code></td>
+<td><code>refill</code></td>
+</tr>
+<tr>
+<td><code>reporefill</code></td>
+<td>EXEC</td>
+<td>A subscriber asks its producer for files it lost; they are offered to it alone.</td>
+<td><code>filerepo_name</code>, <code>sync_gen</code>, <code>names</code>, <code>transfer_id</code></td>
+<td><code>refill</code></td>
+</tr>
+<tr>
+<td><code>syncpin</code></td>
+<td>EXEC</td>
+<td>Pin a mirror's producer (<code>region/agent#&lt;key fingerprint&gt;</code>) or forget the pin (<code>infra</code>/<code>admin</code>).</td>
+<td><code>confirm</code></td>
+<td><code>pinned_producer</code></td>
+</tr>
+<tr>
+<td><code>releasedeletes</code> / <code>releaserewrites</code></td>
+<td>EXEC</td>
+<td>Release the deletes / rewrites the mass-delete or rewrite guard is holding (<code>infra</code>/<code>admin</code>).</td>
+<td><code>confirm</code>, <code>hold_id</code></td>
+<td><code>released</code></td>
+</tr>
+<tr>
+<td><code>repostate</code></td>
+<td>EXEC</td>
+<td>Report what this repo is: <code>LIVE</code>, <code>WORKSPACE_CLEAN</code>, <code>WORKSPACE_DIRTY</code>, <code>MIRROR</code> or <code>ONLY_COPY</code>.</td>
+<td>—</td>
+<td><code>state</code>, <code>backing</code></td>
+</tr>
+<tr>
+<td><code>liverelay</code></td>
+<td>EXEC</td>
+<td>Relay a request signed by its end user, unchanged, through this agent's live-tier provider (<code>infra</code>/<code>admin</code>).</td>
+<td><code>request</code></td>
+<td><code>reply</code>, <code>reply_status</code></td>
+</tr>
+<tr>
+<td><code>liverealise</code></td>
+<td>EXEC</td>
+<td>Keep a live-backed repo's copy live: realise it again at this node (<code>infra</code>/<code>admin</code>).</td>
+<td><code>lease_ms</code>, <code>request_id</code></td>
+<td><code>job_id</code>, <code>reply_status</code></td>
 </tr>
 <tr>
 <td><code>getmetrics</code></td>
@@ -4341,8 +4425,8 @@ dataplane streaming, watched-directory sync, push-to-remote). <code>target=plugi
 </table>
 <h3 id="executor-plugin">executor plugin<a class="headerlink" href="#executor-plugin" title="Permanent link">&para;</a></h3>
 <p>Process/shell execution plugin (<a href="../../plugins/executor/"><code>executor</code></a>) — runs OS processes and shell
-commands, streaming stdout/stderr over the dataplane and accepting stdin over the dataplane.
-<code>target=plugin</code> (<code>region</code>, <code>agent</code>, <code>pluginid</code>). Namespace <code>executor</code> — <strong>8 actions</strong>.</p>
+commands, streaming stdout/stderr over the dataplane and taking stdin through <code>write_stdin</code> (never the dataplane).
+<code>target=plugin</code> (<code>region</code>, <code>agent</code>, <code>pluginid</code>). Namespace <code>executor</code> — <strong>9 actions</strong>.</p>
 <table>
 <thead>
 <tr>
@@ -4358,8 +4442,8 @@ commands, streaming stdout/stderr over the dataplane and accepting stdin over th
 <td><code>config_process</code></td>
 <td>CONFIG</td>
 <td>Register a runner (a named command); does not start it.</td>
-<td><code>stream_name</code>, <code>command</code>, <code>metrics</code></td>
-<td><code>config_status</code></td>
+<td><code>stream_name</code>, <code>command</code>, <code>metrics</code>, <code>stdin</code></td>
+<td><code>config_status</code>, <code>stdin</code></td>
 </tr>
 <tr>
 <td><code>run_process</code></td>
@@ -4390,6 +4474,13 @@ commands, streaming stdout/stderr over the dataplane and accepting stdin over th
 <td><code>end_status</code></td>
 </tr>
 <tr>
+<td><code>write_stdin</code></td>
+<td>EXEC</td>
+<td>Write to a running runner's stdin (one line of text, or bytes); only its starter, an admin or infra.</td>
+<td><code>stream_name</code>, <code>data</code> or <code>data_b64</code>, <code>close_stdin</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
 <td><code>reset_runners</code></td>
 <td>CONFIG</td>
 <td>Stop every runner on this executor.</td>
@@ -4412,8 +4503,8 @@ commands, streaming stdout/stderr over the dataplane and accepting stdin over th
 </tr>
 </tbody>
 </table>
-<p>Runner stdio rides the <strong>GLOBAL</strong> dataplane topic sharded by <code>stream_name</code> (type <code>output</code>/<code>error</code>,
-stdin <code>input</code>); an external client reads/writes via <code>get_dataplane(stream_name)</code>.</p>
+<p>Runner output rides the <strong>GLOBAL</strong> dataplane topic sharded by <code>stream_name</code> (type <code>output</code>/<code>error</code>); an external
+client reads it via <code>get_dataplane(stream_name)</code> and writes stdin with <code>write_stdin</code>.</p>
 <hr />
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>

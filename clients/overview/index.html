@@ -2044,10 +2044,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ssl-verification" class="md-nav__link">
+  <a href="#tls-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SSL verification
+        TLS verification
       
     </span>
   </a>
@@ -2431,6 +2431,34 @@
     
   
     Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
   
 
     
@@ -2940,10 +2968,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ssl-verification" class="md-nav__link">
+  <a href="#tls-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SSL verification
+        TLS verification
       
     </span>
   </a>
@@ -2993,11 +3021,12 @@ logs.</p>
 <h2 id="the-shared-model">The shared model<a class="headerlink" href="#the-shared-model" title="Permanent link">&para;</a></h2>
 <p>Every interaction follows the same shape regardless of language:</p>
 <ol>
-<li><strong>Connect once.</strong> Construct a client with the target host, port, and the
-   <code>wsapi</code> service key, then <code>connect()</code>. The client opens a single
-   authenticated control connection to the global controller's <code>wsapi</code>
-   endpoint. Identity (region, agent, plugin) is read from the negotiated TLS
-   peer certificate.</li>
+<li><strong>Connect once.</strong> Construct a client with the target host and port, how to
+   trust wsapi's certificate (its pinned fingerprint or a CA file) and a
+   credential (a user and password, an API token, the legacy service key, or a
+   client certificate; see <a href="../../security/api-auth/">API authentication</a>), then
+   <code>connect()</code>. The client opens a single authenticated control connection to
+   the <code>wsapi</code> endpoint.</li>
 <li>
 <p><strong>Use submodule handles.</strong> The connected client exposes a fixed set of
    submodules, each grouping a family of operations:</p>
@@ -3029,6 +3058,18 @@ logs.</p>
 <td><code>messaging</code></td>
 <td>Low-level MsgEvent routing (RPC and fire-and-forget) to controllers, agents, and plugins.</td>
 </tr>
+<tr>
+<td><code>stunnel</code></td>
+<td>Secure TCP tunnels through the <a href="../../plugins/stunnel/">stunnel</a> plugin (Python and Java).</td>
+</tr>
+<tr>
+<td><code>executor</code></td>
+<td>OS processes and their stdin through the <a href="../../plugins/executor/">executor</a> plugin (Python and Java).</td>
+</tr>
+<tr>
+<td><code>filerepo</code></td>
+<td>Verified file downloads from the <a href="../../plugins/filerepo/">filerepo</a> plugin (Python and Java).</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -3046,22 +3087,25 @@ logs.</p>
 <h3 id="rpc-vs-fire-and-forget">RPC vs. fire-and-forget<a class="headerlink" href="#rpc-vs-fire-and-forget" title="Permanent link">&para;</a></h3>
 <p>Messaging calls carry an <code>is_rpc</code> flag. When <code>true</code>, the call blocks for the
 single reply and returns it; when <code>false</code>, the message is sent without waiting.
-The <code>wsapi</code> protocol is one-outstanding-RPC-per-connection with no correlation
-id, so each RPC completes before the next is issued.</p>
+wsapi may complete RPCs out of order, so the clients correlate them: pycrescolib
+stamps each request with a <code>client_rpc_id</code> that the reply echoes, and drops a late
+reply to a call that already timed out instead of reading it as the next call's
+answer (<a href="../../plugins/wsapi/#api-rpcs">wsapi › API RPCs</a>).</p>
 <h2 id="feature-parity">Feature parity<a class="headerlink" href="#feature-parity" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Standardized clients</p>
-<p>The Python, Java, and C++ clients are kept <strong>feature- and name-identical</strong>: the
-same submodules (<code>api</code>, <code>admin</code>, <code>agents</code>, <code>globalcontroller</code>, <code>messaging</code>),
-the same method names (snake_case in all three languages), the same behavior, and
-the same worked examples. Anything you can do in one client, you can do in
-the others with the same call.</p>
+<p>The Python and Java clients are kept <strong>feature- and name-identical</strong>: the same
+submodules (<code>api</code>, <code>admin</code>, <code>agents</code>, <code>globalcontroller</code>, <code>messaging</code>, <code>stunnel</code>,
+<code>executor</code>, <code>filerepo</code>), the same method names (snake_case in both), the same
+behavior, TLS and credential options, and the same worked examples. The C++
+client shares the first five submodules and their names, with the service key
+only (see <a href="#tls-verification">TLS verification</a>).</p>
 </div>
 <p>Parity is enforced by test: the clients ship a self-contained suite that
 asserts they emit <strong>identical wire messages for identical API calls</strong>, verified
 against the same generated golden corpus. A green run proves the clients produce
 byte-for-byte equivalent results.</p>
-<p>The only differences are the ones each platform forces:</p>
+<p>Beyond that, the differences are the ones each platform forces:</p>
 <table>
 <thead>
 <tr>
@@ -3092,11 +3136,22 @@ byte-for-byte equivalent results.</p>
 </tr>
 </tbody>
 </table>
-<h2 id="ssl-verification">SSL verification<a class="headerlink" href="#ssl-verification" title="Permanent link">&para;</a></h2>
-<p>Cresco agents present self-signed certificates by default, so client SSL
-certificate verification is <strong>disabled by default</strong>. All three clients accept a
-<code>verify_ssl</code> constructor flag to enable it when the mesh is fronted by a
-trusted certificate authority.</p>
+<h2 id="tls-verification">TLS verification<a class="headerlink" href="#tls-verification" title="Permanent link">&para;</a></h2>
+<p>wsapi serves its own certificate (written to <code>ws.crt.pem</code>, with its SHA-256 and
+SHA-384 fingerprints in <code>ws.fingerprint</code>, in its plugin data directory). The
+<strong>Python (1.4.0+) and Java clients verify it on every connection by default</strong> and
+send nothing to a server they do not trust: give them the fingerprint
+(<code>fingerprint=</code> / <code>pinnedFingerprint(...)</code>, or <code>CRESCO_TLS_FINGERPRINT</code>) or the PEM
+file (<code>ca_file=</code> / <code>caFile(...)</code>). <code>verify_ssl=False</code> (Java: <code>.insecure()</code>) turns
+verification off and logs a WARNING on every connection. See
+<a href="../../security/api-auth/">API authentication</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">The C++ / Arduino client</p>
+<p><code>cppcrescolib</code> still takes only the service key and defaults to
+<code>verify_ssl=false</code>; it has none of the 1.3 credentials (users, tokens, client
+certificates), so it cannot reach a wsapi running the <code>production</code> profile.
+See <a href="../cpp/">C++ / Arduino</a>.</p>
+</div>
 <h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong><a href="../java/">Java (clientlib)</a></strong> — installation, connection, full interface

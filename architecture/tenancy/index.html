@@ -1015,6 +1015,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Role-based authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#named-cross-tenant-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Named cross-tenant flows
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2438,6 +2455,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2925,6 +2970,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Role-based authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#named-cross-tenant-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Named cross-tenant flows
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3037,6 +3099,15 @@ enforced twice over.</p>
 </table>
 <p>This closes a real hole in the flat-name scheme: previously a tenant could <strong>write</strong> into a same-region
 peer's <code>region_agent</code> inbox; with tenant-scoped inboxes that is denied.</p>
+<h3 id="named-cross-tenant-flows">Named cross-tenant flows<a class="headerlink" href="#named-cross-tenant-flows" title="Permanent link">&para;</a></h3>
+<p>Short of <code>SUPERUSER</code>, the only way across the tenant boundary is an explicit allow-list,
+<code>broker_cross_tenant_sinks</code> (empty by default: the strict own-subtree rule). Each entry is
+<code>&lt;source tenant&gt;-&gt;&lt;destination&gt;[:write|read|any]</code> (globs: <code>*</code> any run of characters, <code>?</code> one character; <code>write</code> when
+no access is named), separated by <code>;</code> or <code>,</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>-Dbroker_cross_tenant_sinks='*-&gt;T.gfs-federation.*:write ; gfs-federation-&gt;T.*:write'
+</code></pre></div>
+<p>A principal whose tenant matches the source may reach the matching destinations with that access. A rule never grants
+READ unless it says so, so a tenant still cannot consume another tenant's inbox.</p>
 <h2 id="what-is-and-isnt-guaranteed">What is and isn't guaranteed<a class="headerlink" href="#what-is-and-isnt-guaranteed" title="Permanent link">&para;</a></h2>
 <p><strong>Guaranteed</strong> (with mutual TLS + <code>broker_security_enabled</code> + <code>tenant_namespacing</code>): a tenant client cannot
 subscribe to or publish into another tenant's subtree at <strong>any</strong> broker in the mesh; identity is
@@ -3048,8 +3119,8 @@ advisory topics can leak destination <em>names</em> (not contents). See the desi
 <h2 id="enabling-it">Enabling it<a class="headerlink" href="#enabling-it" title="Permanent link">&para;</a></h2>
 <p>Namespacing is on by default with the rest of the <a href="../security/">security</a> stack; a node needs only its tenant (and,
 for admin/god-view clients, the superuser tenants):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>-Dtenant_id=&lt;tenant&gt;
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>-Dbroker_superuser_tenants=cresco-system   # the default
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>-Dtenant_id=&lt;tenant&gt;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>-Dbroker_superuser_tenants=cresco-system   # the default
 </code></pre></div>
 <p>With security on, <code>tenant_namespacing=false</code> refuses the start. A fabric of an earlier build is moved over with the
 <a href="../../security/upgrade/">upgrade guide</a>.</p>

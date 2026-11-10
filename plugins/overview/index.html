@@ -2455,6 +2455,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3055,7 +3083,7 @@
 <h3 id="plugin-lifecycle">Plugin lifecycle<a class="headerlink" href="#plugin-lifecycle" title="Permanent link">&para;</a></h3>
 <p>The controller's <code>StaticPluginLoader</code> (see <a href="../controller/">controller</a>) waits for the controller to become active, then loads the enabled system plugins and restarts any persisted ones. Lifecycle is driven by <code>PluginAdmin</code>:</p>
 <ol>
-<li><strong>Resolve</strong> the plugin JAR (bundle / absolute path / local cache / embedded / remote <a href="../repo/">repo</a>), MD5-verified.</li>
+<li><strong>Resolve</strong> the plugin JAR (bundle / absolute path / local cache / embedded / remote <a href="../repo/">repo</a>). A jar that is not embedded in the agent jar must verify against <code>plugin_signing_truststore</code> (<a href="../../security/signed-plugins/">Signed plugins</a>); jars are named by a SHA-256 content hash (still carried in a field called <code>md5</code>).</li>
 <li><strong>Install &amp; start</strong> the OSGi bundle.</li>
 <li><strong>Register</strong> a <code>PluginNode</code> (in-memory record + Derby row) and poll for the <code>PluginService</code> to appear.</li>
 <li><strong>Run</strong> — the plugin reports a status code; <code>10</code> = working, which the controller's <code>PluginHealthCheck</code> rolls into the <code>plugins</code> verdict. In addition, each functional plugin <strong>registers its own <code>local</code>-tagged Felix Health Check</strong> (executor/filerepo/repo/sysinfo/wsapi/stunnel), discovered by <code>CrescoHealthExecutor</code> alongside the controller's built-in checks and queryable via <code>gethealthinventory</code>. See <a href="../../architecture/health/">Health &amp; State</a>.</li>
@@ -3106,7 +3134,7 @@
 <tr>
 <td>repo</td>
 <td><code>io.cresco.repo</code></td>
-<td>Plugin/JAR repository — stores, reports, and serves plugins (MD5-verified).</td>
+<td>Plugin/JAR repository — stores, reports, and serves signed plugin jars.</td>
 <td><a href="../repo/">repo</a></td>
 </tr>
 <tr>

@@ -2460,6 +2460,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects Built on Cresco
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3012,7 +3040,7 @@
 
 <h1 id="executor-process-shell-execution">executor — Process / Shell Execution<a class="headerlink" href="#executor-process-shell-execution" title="Permanent link">&para;</a></h1>
 <p>The <code>executor</code> plugin (bundle <code>io.cresco.executor</code>) runs OS processes and shell commands on an agent,
-<strong>streaming stdout/stderr over the mesh dataplane</strong> and accepting <strong>stdin over the dataplane</strong>, with
+<strong>streaming stdout/stderr over the mesh dataplane</strong> and accepting <strong>stdin through <code>write_stdin</code></strong>, with
 optional per-process metrics. It is the fabric's remote-execution surface.</p>
 <h2 id="at-a-glance">At a glance<a class="headerlink" href="#at-a-glance" title="Permanent link">&para;</a></h2>
 <table>
@@ -3047,11 +3075,15 @@ stream its stdio rides on. Lifecycle: <code>config_process</code> (register) →
 (execute) → <code>status_process</code> (poll) → <code>end_process</code> (kill) → reusable. <code>reset_runners</code> stops
 everything.</p>
 <p><strong>Stdio over the dataplane.</strong> stdout and stderr are forwarded as dataplane <code>TextMessage</code>s on the
-<strong>GLOBAL</strong> topic, sharded by <code>stream_name</code>, with a <code>type</code> of <code>output</code> or <code>error</code>. Stdin is accepted by
-subscribing to the same stream with <code>type=input</code>. An external client reads/writes via
-<code>get_dataplane(stream_name)</code>. On exit, an <code>execution_log</code> event (with the exit code) and a
-<code>delete_exchange</code> event are emitted on the same stream. A command containing <code>-interactive-</code> starts an
-interactive shell driven entirely over stdin.</p>
+<strong>GLOBAL</strong> topic, sharded by <code>stream_name</code>, with a <code>type</code> of <code>output</code> or <code>error</code>; an external client reads them via
+<code>get_dataplane(stream_name)</code>. On exit, an <code>execution_log</code> event (with the exit code) and a <code>delete_exchange</code> event are
+emitted on the same stream.</p>
+<p><strong>Stdin is opt-in, and never on the dataplane.</strong> A runner keeps stdin open only when <code>config_process</code> is sent with
+<code>stdin=true</code> (an <code>-interactive-</code> command always does); otherwise the process sees end-of-file at once. Stdin is written
+with the <code>write_stdin</code> action (a MsgEvent), accepted only from the verified caller that started the runner, or from an
+<code>admin</code> or <code>infra</code> caller (<code>status 9</code>, <code>not-owner</code> / <code>no-stdin</code> / <code>not-running</code> otherwise). A dataplane handshake that
+would write a process's stdin is refused by wsapi for every caller. A command containing <code>-interactive-</code> starts an
+interactive shell driven entirely through <code>write_stdin</code>. Before the 1.3 hardening stdin came from the dataplane.</p>
 <h2 id="executor-actions">Executor actions<a class="headerlink" href="#executor-actions" title="Permanent link">&para;</a></h2>
 <p>Full table: <a href="../../api/plugin-actions/#executor-plugin">Plugin Actions › executor</a>.</p>
 <table>
@@ -3064,7 +3096,11 @@ interactive shell driven entirely over stdin.</p>
 <tbody>
 <tr>
 <td><code>config_process</code></td>
-<td>Register a runner (<code>stream_name</code> + <code>command</code>, optional <code>metrics</code>); does not start it.</td>
+<td>Register a runner (<code>stream_name</code> + <code>command</code>, optional <code>metrics</code> and <code>stdin</code>); does not start it (<code>infra</code>/<code>admin</code>).</td>
+</tr>
+<tr>
+<td><code>write_stdin</code></td>
+<td>Write a line of text (<code>data</code>) or bytes (<code>data_b64</code>) to a running runner's stdin, or close it (<code>close_stdin</code>).</td>
 </tr>
 <tr>
 <td><code>run_process</code> / <code>start_process</code></td>
@@ -3092,8 +3128,8 @@ interactive shell driven entirely over stdin.</p>
 <ul>
 <li><strong>Injection-safe, precise kill</strong> — <code>end_process</code> kills the launched <code>Process</code> and its descendants via
   the JVM <code>ProcessHandle</code>, never by interpolating the command into a <code>ps | grep | kill</code> shell string.</li>
-<li><strong>No thread/handle leaks</strong> — stdout/stderr readers exit on EOF; the stdin dataplane listener is
-  removed when the process ends; every worker is a named daemon; <code>isStopped()</code> kills all runners so
+<li><strong>No thread/handle leaks</strong> — stdout/stderr readers exit on EOF; stdin is closed when the process
+  ends; every worker is a named daemon; <code>isStopped()</code> kills all runners so
   nothing is orphaned.</li>
 <li><strong>Reusable stream names</strong> — <code>end_process</code> removes the runner from the registry, so a <code>stream_name</code>
   can be reconfigured after stop.</li>
