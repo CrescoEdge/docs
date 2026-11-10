@@ -71,7 +71,10 @@ node, whatever re-addressed it on the way. Nothing is dispatched unverified.
 - **Credentials.** A region or global controller presents its leaf certificate. An agent presents an *attestation* from
   its region controller (tenant, region, name, public key, and the certificates its key stands on, by reference), valid
   `msg_signing_attestation_hours` (24) and renewed on its pings when a third of its life is left; until it holds one, its
-  certificate.
+  certificate. An agent uses an attestation only while it is its own: for its present name and key, and from its present
+  region controller. A controller that comes back with another key attests its agents anew on their next ping (each ping
+  names the key that signed the attestation the agent holds), and an agent that joined another controller signs with
+  its certificate until that controller attests it.
 - **The trust bundle.** The global lists the region and global controller keys it verified (each region presents its
   certificate on its pings), signs the list and sends it down on its pongs; each region re-signs what it verified for its
   agents. The bundle carries a version number bumped on each change, so a child's ping costs its parent the same at any
@@ -147,8 +150,9 @@ HMAC-SHA-384 under it instead of a signature, and the signer's credential no lon
 ## What the receiver refuses
 
 An unsigned message (unless delivered first hand on a direct link, or from an earlier-build agent inside the
-[upgrade window](upgrade.md)), a bad signature, MAC or credential, a message that does not name it, a signature older or
-newer than `msg_signature_max_age_ms` (5 min, either way, clock skew included), and one seen before (a replay). Each
+[upgrade window](upgrade.md)), a bad signature, MAC or credential, a message that does not name it, a signature older
+than `msg_signature_max_age_ms` (5 min) or signed more than `msg_signature_max_future_ms` (60 s) ahead of this node's
+clock, and one seen before (a replay). Each
 refusal is logged as `MESSAGE SIGNATURE: REFUSED <why>` (at most every 10 s, with a running count); an RPC request is
 answered `401 unauthenticated`. The reasons are listed in [Troubleshooting](../operations/troubleshooting.md#message-signature-refused).
 
@@ -157,10 +161,18 @@ answered `401 unauthenticated`. The reasons are listed in [Troubleshooting](../o
 Every table is bounded and O(1) per message, so nothing grows with the size of the fleet:
 
 - **Replay memory**: every signature and MAC accepted, kept in the bucket of its signed time for one max-age (the first
-  64 bits of its SHA-256, in primitive tables), split over 64 stripes whose check-and-record is one step under one lock.
-  At most `msg_replay_memory_max` entries; a full stripe drops its oldest bucket and from then on refuses what was signed
-  in or before it, as too old: a replay is never accepted.
+  64 bits of its SHA-256, in primitive tables). Each signer has its own memory, whose check-and-record is one step under
+  one lock: at most an eighth of `msg_replay_memory_max` entries each, and `msg_replay_memory_max` in all. A signer past
+  its bound has its own oldest bucket dropped, and from then on what IT signed in or before that bucket is refused as
+  too old; no other signer is affected, and a replay is never accepted. A signer's memory goes once nothing it holds
+  could still be accepted. (One shared memory let a single node fill it with messages signed ahead of the clock and so
+  have every other signer refused for minutes.)
 - **Credentials**: an LRU of `msg_signing_credentials_max` verified credentials; past it the least recently used goes.
+- **Held messages**: a signed message a node cannot judge YET -- in its first moments with a parent, before that parent's
+  first pong brought its trust data (15 s at most), or later when the signer's controller is not in the trust bundle it
+  holds -- is held, not refused: at most `msg_signing_hold_ms` (5 s), 2048 messages and 32 MiB of text. It is verified
+  again when the trust data changes and once more when its time is over; then it is accepted or refused as it stands.
+  A message that does not fit is refused at once.
 - **Sessions**: one entry per peer node, at most `msg_signing_sessions_max`; a full table gives a new peer no session (its
   messages stay signed) and never evicts one in use.
 
@@ -191,7 +203,8 @@ The multi-host release gate, the release against the previous build in both prof
 | Setting | Default | Meaning |
 |---|---|---|
 | `msg_signing_required` | `true` (with security on; required in production) | authenticate every message a node originates and check it before dispatch |
-| `msg_signature_max_age_ms` | `300000` | the signing time's tolerance either way, clock skew included (at least 10 s) |
+| `msg_signature_max_age_ms` | `300000` | how old a signature may be (at least 10 s) |
+| `msg_signature_max_future_ms` | `60000` | how far ahead of the receiver's clock a signing time may be: the allowance for clock differences between nodes (1 s to the max age) |
 | `msg_signing_attestation_hours` | `24` | an agent attestation's lifetime |
 | `msg_signing_bundle_grace_ms` | `900000` | how long a controller dropped from the global's trust bundle is still trusted |
 | `msg_signing_direct` | `true` | messages between a node and its parent or children travel unsigned, attested first hand by the receiving broker |
@@ -201,7 +214,8 @@ The multi-host release gate, the release against the previous build in both prof
 | `msg_signing_session_seconds` | `3600` | a session key's lifetime, renewed ahead of its end (at least 120) |
 | `msg_signing_sessions_max` | `200000` | peers a node holds sessions with; past it, a new peer stays signed |
 | `msg_signing_credentials_max` | `100000` | credentials held verified (an LRU) |
-| `msg_replay_memory_max` | `4000000` | signatures and MACs the replay memory holds (at least 4096); past it, the oldest signing times are refused as too old |
+| `msg_signing_hold_ms` | `5000` | how long an inbox holds a signed message it cannot judge yet before it is accepted or refused as it stands (at most 60 s; `0`: refused at once) |
+| `msg_replay_memory_max` | `4000000` | signatures and MACs the replay memory holds in all (at least 4096), an eighth of it at most for one signer; a signer past its bound has its own oldest signing times refused as too old |
 
 ## Checking a node
 
