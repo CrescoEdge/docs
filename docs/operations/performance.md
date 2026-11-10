@@ -38,7 +38,7 @@ RPCs through wsapi to each target, one caller at a time (serial) and with severa
 
 Streams across hosts through wsapi with the Python client (`scripts/bench/dataplane_perf.py` in the agent repository):
 from the bench agent through the global, across the bridge to the region, to the agent behind it. "Paced" is a run at a
-fixed offered load, which measures latency instead of throughput.
+fixed offered load of 100 MiB/s per flow, which measures latency instead of throughput.
 
 | | old | std | prod |
 |---|---|---|---|
