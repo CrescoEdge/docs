@@ -53,7 +53,8 @@ All of the routing classes live in the controller's `netmetrics` package
 several candidate paths to each connected region:
 
 - the **direct** region↔region bridge,
-- the **via-global** path (2-hop, forced with a source-route waypoint),
+- the **via-global** path (2-hop, forced with a source-route waypoint; only with `net_source_routing` on, since a
+  global with it off does not relay the probe),
 - and any **steered** multi-hop path the graph suggests.
 
 !!! note "RTT must be measured, not polled"
@@ -174,8 +175,8 @@ is data-plane pub/sub, the same state can be **streamed** to a browser over the
 
 | Parameter | Default | Effect |
 |---|---|---|
-| `net_source_routing` | `false` | Carry and honor the `srcroute` waypoint stack (source routing). |
-| `net_cost_routing` | `false` | Measure path cost, select the cheaper path, and inject its route at ingress. |
+| `net_source_routing` | `false` | Carry and honor the `srcroute` waypoint stack (source routing). Off, a node starts no source route and relays none: a message source-routed through it is not run there (an RPC gets a `route_unavailable` error); one whose route ends there is delivered. Set it on every node. |
+| `net_cost_routing` | `false` | Measure path cost, select the cheaper path, and inject its route at ingress (with `net_source_routing` on). |
 | `net_route_advertise_interval_sec` | `5` | How often each node pushes its link-state advertisement. |
 | `net_route_stale_sec` | `20` | Age after which a silent node's advertisement is dropped from the view. |
 | `net_route_hysteresis_ms` | `10.0` | Margin by which a path must beat the incumbent before the route flips. |
