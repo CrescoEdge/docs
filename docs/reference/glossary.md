@@ -13,7 +13,7 @@ Core Cresco terms, in one place.
 | **MsgEvent** | The unit of the [control plane](../architecture/messaging.md) — a typed, addressed, routed message. See [MsgEvent](../api/msgevent.md). |
 | **Action** | A callable operation a plugin exposes, declared with `@CrescoAction`; invoked by sending a MsgEvent. |
 | **Capability inventory** | The fabric-wide catalog of all actions (`getcapabilityinventory`). |
-| **Data plane** | The [pub/sub streaming channel](../architecture/dataplane.md) over ActiveMQ topics (`agent.event` / `region.event` / `global.event`). |
+| **Data plane** | The [pub/sub streaming channel](../architecture/dataplane.md) over ActiveMQ topics (`agent.event` / `region.event` / `global.event`). Also written *dataplane*, as in its code and metric names (`/api/dataplane`, `dataplane.*`). |
 | **Control plane** | The addressed [MsgEvent](../architecture/messaging.md) channel over ActiveMQ queues. |
 | **MsgRouter** | The controller component that makes the deterministic per-hop routing decision. |
 | **Federation / Network of brokers** | Broker-to-broker ActiveMQ bridges that connect regions to globals (and globals to each other). |
@@ -35,6 +35,7 @@ Core Cresco terms, in one place.
 | **Tenant** | An isolation domain (`O=` in the cert DN). Multiple tenants can share one fabric; see [Multi-Tenancy](../architecture/tenancy.md). |
 | **Tenant namespacing** | Qualifying destinations `T.<tenant>.<raw>` so isolation is enforceable by a local prefix check at every broker. |
 | **Role** | An authorization role: `SUPERUSER` (all tenants) or `TENANT` (own tenant only). |
+| **Cross-tenant sink** | A named exception to tenant isolation (`broker_cross_tenant_sinks`): tenants matching a rule may write (or, if the rule says so, read) destinations outside their own `T.<tenant>.` subtree. See [Multi-Tenancy](../architecture/tenancy.md#named-cross-tenant-flows). |
 | **Health check** | A Felix `HealthCheck` contributing a pass/fail verdict; run centrally by `CrescoHealthExecutor`. |
 | **MeasurementEngine** | The per-bundle Micrometer registry; metrics are aggregated mesh-wide via `getmetricinventory`. |
 | **LinkMetrics** | Per-edge network quality (RTT/jitter/throughput/backlog) in the `netlink` metric group. |

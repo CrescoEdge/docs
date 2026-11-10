@@ -22,7 +22,7 @@ Each node needs a unique `regionname`/`agentname`. Regions and globals need reac
 | `32005` | discovery listener | parents (region/global) |
 | `32010` | ActiveMQ broker | parents; children connect here |
 | `8282` | wsapi (`wss://`) | globals that serve clients |
-| `8080` | Felix console / HTTP | optional |
+| `8080` | Felix web console (`enable_console=true` only; loopback by default) | optional |
 
 On a **single host**, give each node distinct `broker_port` / `netdiscoveryport` and its own working
 directory (the launch scripts do this — `run/nodes/<region>-<agent>/`).

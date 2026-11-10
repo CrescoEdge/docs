@@ -16,11 +16,12 @@ logs.
 
 Every interaction follows the same shape regardless of language:
 
-1. **Connect once.** Construct a client with the target host, port, and the
-   `wsapi` service key, then `connect()`. The client opens a single
-   authenticated control connection to the global controller's `wsapi`
-   endpoint. Identity (region, agent, plugin) is read from the negotiated TLS
-   peer certificate.
+1. **Connect once.** Construct a client with the target host and port, how to
+   trust wsapi's certificate (its pinned fingerprint or a CA file) and a
+   credential (a user and password, an API token, the legacy service key, or a
+   client certificate; see [API authentication](../security/api-auth.md)), then
+   `connect()`. The client opens a single authenticated control connection to
+   the `wsapi` endpoint.
 2. **Use submodule handles.** The connected client exposes a fixed set of
    submodules, each grouping a family of operations:
 
@@ -31,6 +32,9 @@ Every interaction follows the same shape regardless of language:
     | `agents` | Per-agent operations: plugin add/remove/list/status, uploads, logs, CEP. |
     | `globalcontroller` | Mesh-wide inventory and application ops: regions, agents, resources, pipelines, repositories, metric/capability inventories. |
     | `messaging` | Low-level MsgEvent routing (RPC and fire-and-forget) to controllers, agents, and plugins. |
+    | `stunnel` | Secure TCP tunnels through the [stunnel](../plugins/stunnel.md) plugin (Python and Java). |
+    | `executor` | OS processes and their stdin through the [executor](../plugins/executor.md) plugin (Python and Java). |
+    | `filerepo` | Verified file downloads from the [filerepo](../plugins/filerepo.md) plugin (Python and Java). |
 
 3. **Open streams as needed.** Data-plane and log-streamer channels are
    *separate* WebSocket connections opened on demand (`get_dataplane(...)`,
@@ -44,24 +48,27 @@ Every interaction follows the same shape regardless of language:
 
 Messaging calls carry an `is_rpc` flag. When `true`, the call blocks for the
 single reply and returns it; when `false`, the message is sent without waiting.
-The `wsapi` protocol is one-outstanding-RPC-per-connection with no correlation
-id, so each RPC completes before the next is issued.
+wsapi may complete RPCs out of order, so the clients correlate them: pycrescolib
+stamps each request with a `client_rpc_id` that the reply echoes, and drops a late
+reply to a call that already timed out instead of reading it as the next call's
+answer ([wsapi › API RPCs](../plugins/wsapi.md#api-rpcs)).
 
 ## Feature parity
 
 !!! note "Standardized clients"
-    The Python, Java, and C++ clients are kept **feature- and name-identical**: the
-    same submodules (`api`, `admin`, `agents`, `globalcontroller`, `messaging`),
-    the same method names (snake_case in all three languages), the same behavior, and
-    the same worked examples. Anything you can do in one client, you can do in
-    the others with the same call.
+    The Python and Java clients are kept **feature- and name-identical**: the same
+    submodules (`api`, `admin`, `agents`, `globalcontroller`, `messaging`, `stunnel`,
+    `executor`, `filerepo`), the same method names (snake_case in both), the same
+    behavior, TLS and credential options, and the same worked examples. The C++
+    client shares the first five submodules and their names, with the service key
+    only (see [TLS verification](#tls-verification)).
 
 Parity is enforced by test: the clients ship a self-contained suite that
 asserts they emit **identical wire messages for identical API calls**, verified
 against the same generated golden corpus. A green run proves the clients produce
 byte-for-byte equivalent results.
 
-The only differences are the ones each platform forces:
+Beyond that, the differences are the ones each platform forces:
 
 | | Python (`pycrescolib`) | Java (`clientlib`) | C++ (`cppcrescolib`) |
 |---|---|---|---|
@@ -69,12 +76,22 @@ The only differences are the ones each platform forces:
 | Structured returns | `dict` / `list` | `Map` / `List` / JSON | `ArduinoJson::JsonDocument` |
 | Target | server / desktop | server / desktop / JVM | ESP32-S3 edge node |
 
-## SSL verification
+## TLS verification
 
-Cresco agents present self-signed certificates by default, so client SSL
-certificate verification is **disabled by default**. All three clients accept a
-`verify_ssl` constructor flag to enable it when the mesh is fronted by a
-trusted certificate authority.
+wsapi serves its own certificate (written to `ws.crt.pem`, with its SHA-256 and
+SHA-384 fingerprints in `ws.fingerprint`, in its plugin data directory). The
+**Python (1.4.0+) and Java clients verify it on every connection by default** and
+send nothing to a server they do not trust: give them the fingerprint
+(`fingerprint=` / `pinnedFingerprint(...)`, or `CRESCO_TLS_FINGERPRINT`) or the PEM
+file (`ca_file=` / `caFile(...)`). `verify_ssl=False` (Java: `.insecure()`) turns
+verification off and logs a WARNING on every connection. See
+[API authentication](../security/api-auth.md).
+
+!!! warning "The C++ / Arduino client"
+    `cppcrescolib` still takes only the service key and defaults to
+    `verify_ssl=false`; it has none of the 1.3 credentials (users, tokens, client
+    certificates), so it cannot reach a wsapi running the `production` profile.
+    See [C++ / Arduino](cpp.md).
 
 ## Where to go next
 

@@ -1,8 +1,9 @@
 # Java Client (`clientlib`)
 
 `clientlib` is the external Java SDK for Cresco. It connects to an agent running
-the **`wsapi`** plugin over a secure WebSocket (`wss://host:8282`, authenticated
-with the `cresco_service_key` header) and drives the fabric: controlling agents,
+the **`wsapi`** plugin over a secure WebSocket (`wss://host:8282`, the server
+certificate verified, authenticated with a per-user credential, an API token, the
+legacy `cresco_service_key` or a client certificate) and drives the fabric: controlling agents,
 deploying plugins, submitting pipelines, streaming the data plane, and tailing
 logs.
 
@@ -30,7 +31,9 @@ a shaded, self-contained jar at `target/clientlib-1.3-SNAPSHOT.jar`.
 - **JDK 21.**
 - Network reachability to an agent hosting the `wsapi` plugin (default port
   `8282`).
-- The `wsapi` **service key** configured on that agent.
+- wsapi's certificate fingerprint (from `ws.fingerprint` in its plugin data directory) or its `ws.crt.pem`.
+- A credential: a user and password or API token from wsapi's credential file, the `wsapi` **service key**, or (production
+  profile) a client certificate ([API authentication](../security/api-auth.md)).
 
 The transport is built on Netty (TLS + WebSocket). By default it uses the JDK
 TLS provider; set `-Dcresco.client.ssl_provider=OPENSSL` to use native
@@ -43,9 +46,12 @@ The entry point is `crescoclient.CrescoClient`.
 ```java
 import crescoclient.CrescoClient;
 
-// host/ip of an agent running wsapi, its port, the wsapi service key,
-// and whether to verify the TLS certificate.
-CrescoClient client = new CrescoClient("localhost", 8282, "your-service-key", false);
+// host/ip of an agent running wsapi, its port, a credential, and the wsapi
+// certificate's fingerprint (from ws.fingerprint), which the client verifies.
+CrescoClient client = CrescoClient.builder("localhost", 8282)
+        .serviceKey("your-service-key")
+        .pinnedFingerprint("sha384:AB:CD:...")
+        .build();
 
 if (client.connect()) {
     System.out.println(client.api.get_api_region_name()
@@ -59,13 +65,16 @@ if (client.connect()) {
 
 | Constructor | Description |
 |---|---|
-| `CrescoClient(String host, int port, String service_key)` | Create a client with SSL verification disabled. |
-| `CrescoClient(String host, int port, String service_key, boolean verify_ssl)` | Create a client, choosing whether to verify the TLS certificate. |
+| `CrescoClient.builder(String host, int port)` ... `.build()` | Name the trust (`pinnedFingerprint(...)`, `caFile(Path)`, `checkHostname(boolean)`, or `insecure()`) and the credential (`serviceKey(...)`, `credentials(user, password)`, `token(...)`, `clientCertificate(chain, key, password)` or `clientCertificatePkcs12(p12, password)`). |
+| `CrescoClient(String host, int port, String service_key)` | A client with the service key; the certificate is verified against `-Dcresco.client.tls.fingerprint` / `.ca_file` or `CRESCO_TLS_FINGERPRINT` / `CRESCO_TLS_CA_FILE`, else the JDK trust store. |
+| `CrescoClient(String host, int port, String service_key, boolean verify_ssl)` | As above; `false` turns verification off (every connection logs a WARNING), unless an operator pin or CA file is set, which always wins. |
+| `CrescoClient(String host, int port, ClientSecurity security)` | Explicit trust and credentials. |
 
-Cresco agents use self-signed certificates, so `verify_ssl` defaults to
-`false`. The `host` and `port` identify the agent running the `wsapi` plugin;
-`service_key` is sent as the `cresco_service_key` header on the WebSocket
-upgrade.
+The client verifies wsapi's certificate on every connection by default and sends
+nothing to a server it does not trust; wsapi makes its own certificate, so pin its
+fingerprint or trust its `ws.crt.pem` (the JDK trust store does not trust it). The
+`host` and `port` identify the agent running the `wsapi` plugin. See
+[API authentication](../security/api-auth.md).
 
 ### Lifecycle methods
 
@@ -76,7 +85,8 @@ upgrade.
 | `boolean connected()` | Return `true` if currently connected to the `wsapi` endpoint. |
 | `boolean close()` | Close the control connection and all managed streams. |
 | `MsgEventInterface connection()` | Return the underlying WebSocket transport interface. |
-| `boolean verify_ssl()` | Whether SSL certificate verification is enabled for this client. |
+| `boolean verify_ssl()` | Whether TLS certificate verification is enabled for this client. |
+| `String last_error()` | Why the last connect failed (e.g. a certificate mismatch; nothing was sent). |
 
 `connect()` throws `InterruptedException`. The default connect timeout is 5
 seconds; the RPC reply timeout is 30 seconds.
@@ -100,8 +110,10 @@ closed and enumerated centrally.
 
 ## Submodule handles
 
-A connected client exposes six submodule fields — `api`, `admin`, `agents`,
-`globalcontroller`, `messaging`, and `stunnel` — documented below. Every public
+A connected client exposes eight submodule fields — `api`, `admin`, `agents`,
+`globalcontroller`, `messaging` and `stunnel`, documented below, and `executor` and
+`filerepo`, whose method tables are in the
+[clientlib README](https://github.com/CrescoEdge/clientlib#api-reference). Every public
 class and method also carries Javadoc (see [API reference (Javadoc)](#api-reference-javadoc)).
 
 ### `api`
@@ -306,7 +318,7 @@ plane, log and admin examples have byte-for-byte counterparts in the Python
 client's `standard_examples.py`. Run one with
 
 ```bash
-export CRESCO_HOST=localhost CRESCO_PORT=8282 CRESCO_SERVICE_KEY=...
+export CRESCO_HOST=localhost CRESCO_PORT=8282 CRESCO_SERVICE_KEY=... CRESCO_TLS_FINGERPRINT=sha384:...
 java -cp target/clientlib-1.3-SNAPSHOT.jar example.standard.StandardExamples connect
 # others: pipeline | plugin_lifecycle <region> <agent> <jar> | dataplane <stream> |
 #         logstreamer <region> <agent> | admin <region> <agent> | messaging <region> <agent> |
@@ -318,7 +330,8 @@ java -cp target/clientlib-1.3-SNAPSHOT.jar example.standard.StandardExamples con
 ```java
 import crescoclient.CrescoClient;
 
-CrescoClient client = new CrescoClient("127.0.0.1", 8282, "a-service-key", false);
+// verifies wsapi's certificate against CRESCO_TLS_FINGERPRINT (or CRESCO_TLS_CA_FILE)
+CrescoClient client = new CrescoClient("127.0.0.1", 8282, "a-service-key");
 if (!client.connect()) {
     System.out.println("Failed to connect");
     return;

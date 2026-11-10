@@ -14,7 +14,7 @@ The `repo` plugin (bundle `io.cresco.repo`) is a functional plugin that stores, 
 
 ## What it does
 
-`repo` serves and stores plugin JARs from a per-plugin data directory, MD5-verified. Multiple repo instances can exist across the mesh; the [controller](controller.md)'s global tier tracks them (`listrepoinstances`) and a `savetorepo` operation fans a `putjar` RPC out to every repo instance so a plugin JAR is replicated fabric-wide.
+`repo` serves and stores plugin JARs from a per-plugin data directory. It stores and serves only jars that verify against `plugin_signing_truststore` ([Signed plugins](../security/signed-plugins.md)); a jar is named by its SHA-256 content hash, carried in the field still called `md5` (advisory: a mismatch is refused, a match proves nothing). Multiple repo instances can exist across the mesh; the [controller](controller.md)'s global tier tracks them (`listrepoinstances`) and a `savetorepo` operation fans a `putjar` RPC out to every repo instance so a plugin JAR is replicated fabric-wide.
 
 ## Executor actions
 
@@ -23,8 +23,8 @@ The `repo` plugin (bundle `io.cresco.repo`) is a functional plugin that stores, 
 | Action | Behaviour |
 |--------|-----------|
 | `repolist` | Return a compressed `repolist` — the JAR inventory plus this repo's region/agent/pluginID. |
-| `getjar` | Find a JAR by `action_pluginname` + `action_pluginmd5` and attach its bytes as `jardata`. |
-| `putjar` | Write a supplied JAR to the repo directory, recompute its MD5, and set `uploaded` / `md5-confirm`. |
+| `getjar` | Find a JAR by `action_pluginname` + `action_pluginmd5` (its content hash) and attach its bytes as `jardata`. |
+| `putjar` | Verify the supplied JAR's signature, write exactly the verified bytes to the repo directory, recompute its content hash, and set `uploaded` / `md5-confirm`; an unsigned or foreign-signed jar is refused (`status 9`, `refusal=signature`). |
 
 ## Configuration read
 
@@ -36,7 +36,7 @@ See [Configuration](../getting-started/configuration.md).
 
 ## Where it fits
 
-When the global scheduler places a plugin on an agent, the agent's `PluginAdmin` resolves the JAR — checking bundle / absolute path / local cache / embedded resources, and finally a **remote repo** via an RPC `getjar` (MD5-verified). `repo` is the endpoint that answers those calls, and `putjar`/`savetorepo` is how new plugin artifacts are published into the fabric. See [controller](controller.md) for the plugin lifecycle and the global tier.
+When the global scheduler places a plugin on an agent, the agent's `PluginAdmin` resolves the JAR — checking bundle / absolute path / local cache / embedded resources, and finally a **remote repo** via an RPC `getjar` (the fetched jar is installed only if its signature verifies). `repo` is the endpoint that answers those calls, and `putjar`/`savetorepo` is how new plugin artifacts are published into the fabric. See [controller](controller.md) for the plugin lifecycle and the global tier.
 
 ## Observability
 
