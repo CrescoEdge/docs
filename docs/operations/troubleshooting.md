@@ -32,10 +32,11 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 | `a message signed for <r>/<a>, not for this node (...)` / `a message signed for plugin ..., delivered to ...` | the message reached a node other than the one it is for, and was not run there | on a fabric of two or more regions, `[EXEC ping]` about every 45 s at the global and at each regional controller came from a Cresco defect (fixed 2026-11-10: controller 21b432c, agent daeb294): each regional controller's path probe "via the global" was sent with source routing off, the global did not relay it, and its 401 reply was signed for the wrong node. Upgrade the regional controllers and the global. Any other message: the sender or a relay routed it to the wrong node; report it with the type and action from the bracket |
 | `a message that names no recipient (cresco_sig_to)` | a sender of a build before recipient binding | upgrade the sender |
 | `a message for the global above ..., which is not a region controller of this global` | an agent's global function arrived at a global that is not its region's | the region's federation |
-| `a signature made <n> s from now (msg_signature_max_age_ms=...)` | the signing time is more than 5 min off this node's clock, either way | clock synchronization (NTP) on both nodes |
+| `a signature made <n> s ago (msg_signature_max_age_ms=...)` | the message is older than 5 min by this node's clock | clock synchronization (NTP) on both nodes; a message delayed that long is refused by design |
+| `a signature made <n> s ahead of this node's clock (msg_signature_max_future_ms=...)` | the sender's clock is more than 60 s ahead of this node's | clock synchronization (NTP) on both nodes; raise `msg_signature_max_future_ms` only where clocks cannot be kept closer |
 | `a signature seen before (a replay) from ...` | the same signature or MAC arrived twice | a replay; nothing to fix on the receiver |
-| `a message signed <n> s ago while the replay memory is full` / `a message while the replay memory is full` | more traffic within one max-age than `msg_replay_memory_max` entries | raise `msg_replay_memory_max` |
-| `the signer's credential does not verify here (...)` | the signer's certificate or attestation does not chain to anything this node trusts | the trust bundle (has the global listed that region?), anchors, pins |
+| `a message signed <n> s ago while the replay memory for <signer> is full` / `a message while the replay memory for <signer> (or of this node) is full` | that one signer sent more within one max-age than its memory holds (an eighth of `msg_replay_memory_max`), or all signers together more than `msg_replay_memory_max`; only that signer is refused in the first case | if the signer's traffic is expected, raise `msg_replay_memory_max` (size it at 8 x the busiest signer's messages per max-age); otherwise look at that signer |
+| `the signer's credential does not verify here (...)` | the signer's certificate or attestation does not chain to anything this node trusts. A message whose signer is only not known here YET (its controller, or that controller's present key, is not in the trust bundle held) is first held up to `msg_signing_hold_ms` (5 s) and verified again when the trust data changes; this line then means it still did not verify | the trust bundle (has the global listed that region?), anchors, pins |
 | `the signer ... is refused: its key is revoked` / `... is REVOKED by the operator (...)` / `... is not valid now (...)` | a revoked or expired signer or issuer, checked on every message | re-issue the node; refresh an out-of-date CRL (`revocation_file`) |
 | `a message under a session key this node does not hold (...)` | this node restarted or the session ended; the sender returns to signatures by itself | nothing, unless it persists |
 | `the signature does not verify` / `the batch signature does not verify` / `the session MAC does not verify` | the message was altered on the way | the path the message took |
@@ -43,6 +44,14 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 
 On the sending side: `cannot sign a message this node sends (...): it goes unsigned and is refused` means the node's own
 key or provider failed.
+
+A node's first moments: its trust bundle, an agent's attestation and its parent's revocations arrive on its parent's
+first pong. Until then (15 s at most) it holds every signed message but its parent's own, and verifies them when the pong
+is in; nothing is refused for arriving early, and nothing is dispatched unverified.
+
+`route: dropped a message routed more than 10 times or with a ttl outside 0..10 (ttl=...)`: a routing loop, or a sender
+that wrote a `ttl` no router writes. The message ends at that router; an API client's `ttl` and `is_rpc` are removed by
+wsapi.
 
 ## Discovery refusals
 
@@ -90,6 +99,7 @@ slows its writers; nothing is lost.
 | Line | Meaning |
 |---|---|
 | `addBundle: REFUSED to install <jar>: ...` | the jar does not verify against `plugin_signing_truststore` ([Signed plugins](../security/signed-plugins.md)) |
+| `addConfig REFUSED: plugin id <id> is already configured on this agent` | a second `pluginadd` with an `inode_id` the agent already holds (a retry after a timeout, a pipeline resubmitted); the add fails at once | remove the plugin first, or add under another id |
 | `wsapi NOT started: ...` | wsapi's own `security_profile` conflicts with the node's, or production requirements are missing (`wsapi_client_ca` ...) |
 | `filerepo <name>: no scan and no sync: ...` | a filerepo over a directory another filerepo of the agent already serves, or whose catalog did not open: that plugin serves nothing (one ERROR at start) |
 | `STRIPPED a forged caller '...' on a message to '...'` | a sender set a caller stamp it may not declare; the stamp was removed and counted |

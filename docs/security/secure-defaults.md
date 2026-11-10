@@ -29,7 +29,8 @@ At run time:
 - a message whose caller stamp a node may not declare is stripped and counted (`STRIPPED a forged caller ...`);
 - an unsigned message (other than one its broker attests first hand on a direct link), a bad signature or MAC, a
   message that does not name this node as its recipient, a signer whose key, name or certificate is revoked, a signature
-  older or newer than `msg_signature_max_age_ms` (5 min) or a replay is refused (`MESSAGE SIGNATURE: REFUSED ...`; an RPC
+  older than `msg_signature_max_age_ms` (5 min), one signed more than `msg_signature_max_future_ms` (60 s) ahead of
+  the receiver's clock, or a replay is refused (`MESSAGE SIGNATURE: REFUSED ...`; an RPC
   request is answered `401 unauthenticated`; see [Message authentication](message-auth.md));
 - a plugin jar that does not verify is not installed (`REFUSED to install`);
 - a dataplane subscription that names another identity's recipient-bound stream, or a process's stdin, is refused.

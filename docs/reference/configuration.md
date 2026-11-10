@@ -98,7 +98,8 @@ Every message a node originates is authenticated end to end and checked by its r
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `msg_signature_max_age_ms` | long | `300000` | The signing time's tolerance either way, clock skew included (at least 10 s). |
+| `msg_signature_max_age_ms` | long | `300000` | How old a signature may be (at least 10 s). |
+| `msg_signature_max_future_ms` | long | `60000` | How far ahead of the receiver's clock a signing time may be: the allowance for clock differences (1 s to the max age). |
 | `msg_signing_attestation_hours` | long | `24` | An agent attestation's lifetime. |
 | `msg_signing_bundle_grace_ms` | long | `900000` | How long a controller dropped from the global's trust bundle is still trusted. |
 | `msg_signing_direct` | boolean | `true` | Messages between a node and its parent or children travel unsigned, attested first hand by the receiving broker. |
@@ -108,7 +109,8 @@ Every message a node originates is authenticated end to end and checked by its r
 | `msg_signing_session_seconds` | long | `3600` | A session key's lifetime, renewed ahead of its end (at least 120). |
 | `msg_signing_sessions_max` | long | `200000` | Peers a node holds sessions with; past it a new peer stays signed. |
 | `msg_signing_credentials_max` | long | `100000` | Credentials held verified (an LRU). |
-| `msg_replay_memory_max` | long | `4000000` | Signatures and MACs the replay memory holds (at least 4096); past it the oldest signing times are refused as too old. |
+| `msg_signing_hold_ms` | long | `5000` | How long an inbox holds a signed message it cannot judge yet (trust data still arriving) before it is accepted or refused as it stands (at most 60 s; `0`: refused at once). |
+| `msg_replay_memory_max` | long | `4000000` | Signatures and MACs the replay memory holds in all (at least 4096); one signer holds an eighth at most, and past it that signer's oldest signing times are refused as too old. |
 
 ### Fabric crypto policy (global controller only)
 
