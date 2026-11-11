@@ -67,7 +67,13 @@ READ unless it says so, so a tenant still cannot consume another tenant's inbox.
 
 **Guaranteed** (with mutual TLS + `broker_security_enabled` + `tenant_namespacing`): a tenant client cannot
 subscribe to or publish into another tenant's subtree at **any** broker in the mesh; identity is
-non-spoofable.
+non-spoofable. The same holds for a tenant's region controller and its bridges: a bridge carries its peer's own
+tenant's subtree, what is addressed to an inbox of the peer's own region, and answers to a superuser tenant's nodes --
+nothing else leaves over it and nothing else is taken from it (counted and logged as `WITHHELD from a bridge` /
+`DISCARDED a message a bridge brought in`). Only the bridge to a region's own global, and a controller of a superuser
+tenant, carry every tenant's traffic. (Before 2026-11-11 every verified bridge was exempt from tenant policy.) Under
+`security_profile=production` a bridge peer is a controller of the PKI that completed discovery with this node, and a
+region's names belong to one tenant: a certificate of another tenant that names that region is not that region's node.
 
 **Not guaranteed by this layer** (documented, with tiered mitigations): a *compromised broker* is trusted
 infrastructure and can see all tenants (mitigation: dedicated per-tenant bridges + payload encryption);

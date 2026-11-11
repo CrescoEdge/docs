@@ -106,6 +106,15 @@ node sends unsigned only to a parent or child that offered them within the last 
 build is always sent signatures. The bulk of the control plane (keepalives, registrations, pings, the replies of regions
 and the global) is direct and costs no cryptography beyond TLS.
 
+A direct link ends with the link, not a minute later. A parent stops sending a child unsigned messages the moment the
+last consumer of that child's inbox leaves its broker (the child stopped, moved to another controller, or its connection
+broke), and a ping the child sent before that does not re-open the link. A child signs what it sends its parent while its
+link is down, for the first message after each join, and after any ping that went unanswered (the parent may have
+restarted and not bound the link yet). In each case the next ping and pong offer the link again. (Builds before
+2026-11-11 kept the offer for the full minute: a node that had moved to another region and still answered at its former
+address refused its former parent's messages as `an unsigned message (..., not delivered first hand)` for up to 60 s, and
+a restarted global refused the first ping of each region.)
+
 ## Batch signatures
 
 Messages a node signs at the same moment share one private-key operation: each message is a leaf
@@ -169,10 +178,18 @@ Every table is bounded and O(1) per message, so nothing grows with the size of t
   have every other signer refused for minutes.)
 - **Credentials**: an LRU of `msg_signing_credentials_max` verified credentials; past it the least recently used goes.
 - **Held messages**: a signed message a node cannot judge YET -- in its first moments with a parent, before that parent's
-  first pong brought its trust data (15 s at most), or later when the signer's controller is not in the trust bundle it
+  pongs brought its trust data (15 s at most), or later when the signer's controller is not in the trust bundle it
   holds -- is held, not refused: at most `msg_signing_hold_ms` (5 s), 2048 messages and 32 MiB of text. It is verified
   again when the trust data changes and once more when its time is over; then it is accepted or refused as it stands.
   A message that does not fit is refused at once.
+- **Trust data arrives at once, and on demand**: a node pings its parent the moment it joins (not one ping interval
+  later), so the trust bundle, an agent's attestation and the parent's revocations are in within one round trip. A node
+  counts as ready only when it holds the parent's WHOLE revocation list: a list longer than one pong carries
+  (`revocation_sync_max_entries`, 4096) is whole with its last part, and until then the node holds what it cannot judge
+  (a parent of an earlier build does not say how long its list is; a node below it judges with what it has, as before).
+  A node that holds a message asks for what it lacks: it pings its parent again at once, at most once a second and for
+  5 s after the last such message, and a region asked so by one of its agents asks the global in turn. Nothing waits for
+  the next regular ping.
 - **Sessions**: one entry per peer node, at most `msg_signing_sessions_max`; a full table gives a new peer no session (its
   messages stay signed) and never evicts one in use.
 

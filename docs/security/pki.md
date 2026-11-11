@@ -56,7 +56,14 @@ Start a node with
   revocation lists controllers exchange; a revoked key is refused at TLS, at the broker and in discovery, and live
   connections holding it are closed. Message authentication applies `revocation_file` itself, **on every message**: the
   signer's certificate and the certificates above it are checked against the operator's keys, certificates and CRL
-  serials ([Message authentication](message-auth.md)). Revoking a name reserves it; a rebind token
+  serials ([Message authentication](message-auth.md)). The lists controllers exchange run both ways with a different
+  reach: a parent's list (a global's, to its regions; a region's, to its agents) is taken whole, while a region's list
+  reaches its parent for that region's own names only -- an entry is accepted for a key the parent verified under that
+  region (or, where the parent verifies the region's names by certificate, for an identity of that region the entry
+  names), applies to that region's names alone, and a region holds at most 10,000 entries there. A region cannot have
+  another region's nodes refused. (Before 2026-11-11 an entry of a region's list was applied to every name.) Under
+  per-node trust a region's revocation of one of its own agents therefore stays in that region unless the global had
+  bound that agent's key; revoke at the global what the whole fabric must refuse. Revoking a name reserves it; a rebind token
   (`<region>/<agent>=<new key fingerprint>`) lifts that once the PKI issued a new certificate, and only for a chain the
   PKI accepts in full (a refused chain never spends the token).
 - **CRL freshness.** A CRL must carry a `nextUpdate` and a CRL number (the tool's do). Past its `nextUpdate` (plus

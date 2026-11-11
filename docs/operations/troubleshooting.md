@@ -28,7 +28,7 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 
 | `<why>` | Meaning | What to check |
 |---|---|---|
-| `an unsigned message (from ..., not delivered first hand)` | an unsigned message that did not come straight from the receiver's parent or child | a node of an earlier build outside the upgrade window (`from agent:...`), or a sender with `msg_signing_required=false` |
+| `an unsigned message (from ..., not delivered first hand)` | an unsigned message that did not come straight from the receiver's parent or child | a node of an earlier build outside the upgrade window (`from agent:...`), or a sender with `msg_signing_required=false`. From a parent of a build before 2026-11-11, for up to 60 s after this node moved to another controller, or `[EXEC ping]` once at a restarted global: a Cresco defect (a direct link was kept a minute after the link was gone); upgrade the sender |
 | `a message signed for <r>/<a>, not for this node (...)` / `a message signed for plugin ..., delivered to ...` | the message reached a node other than the one it is for, and was not run there | on a fabric of two or more regions, `[EXEC ping]` about every 45 s at the global and at each regional controller came from a Cresco defect (fixed 2026-11-10: controller 21b432c, agent daeb294): each regional controller's path probe "via the global" was sent with source routing off, the global did not relay it, and its 401 reply was signed for the wrong node. Upgrade the regional controllers and the global. Any other message: the sender or a relay routed it to the wrong node; report it with the type and action from the bracket |
 | `a message that names no recipient (cresco_sig_to)` | a sender of a build before recipient binding | upgrade the sender |
 | `a message for the global above ..., which is not a region controller of this global` | an agent's global function arrived at a global that is not its region's | the region's federation |
@@ -46,12 +46,38 @@ On the sending side: `cannot sign a message this node sends (...): it goes unsig
 key or provider failed.
 
 A node's first moments: its trust bundle, an agent's attestation and its parent's revocations arrive on its parent's
-first pong. Until then (15 s at most) it holds every signed message but its parent's own, and verifies them when the pong
-is in; nothing is refused for arriving early, and nothing is dispatched unverified.
+first pong, which it asks for the moment it joins. Until it holds them -- the whole revocation list included, when that
+is longer than one pong carries -- it holds every signed message but its parent's own (15 s at most), and verifies them
+when the data is in; nothing is refused for arriving early, and nothing is dispatched unverified. A node that later
+meets a signer it cannot judge (a region that joined a moment ago) asks its parent for the trust bundle at once instead
+of waiting for the next ping.
 
 `route: dropped a message routed more than 10 times or with a ttl outside 0..10 (ttl=...)`: a routing loop, or a sender
 that wrote a `ttl` no router writes. The message ends at that router; an API client's `ttl` and `is_rpc` are removed by
 wsapi.
+
+## A global or a region controller is down
+
+**The global is down.** Each region goes to `REGION_GLOBAL_FAILED` and keeps serving its own agents: its broker, its
+discovery listener, the aging of its agents (STALE and LOST on schedule), its bridges to configured peer regions and the
+dataplane all stay up. Pings and watchdogs are answered, state exports are applied, and a new or restarted agent can
+discover the region and register. A request for the global is answered `no global controller joined`. The region retries
+the join every few seconds; when the global is back it is `REGION_GLOBAL` again and sends its full state at once. Agents
+do nothing: no reconnect, no new registration. (Builds before 2026-11-11 stopped the region's discovery and its agent
+watcher for the whole outage: no agent could join or rejoin, and none was aged.)
+
+With `global_optional=true` a region gives up after `global_connect_attempts`, runs as `REGION` (active), and keeps trying
+in the background (5 s apart at first, backing off to 60 s) while a global is configured (`global_controller_host`) or one
+found by discovery was joined before.
+
+**A region controller is down.** Its agents keep their state and reconnect when it is back; agents of other regions and
+the global are not affected.
+
+| Line | Meaning |
+|---|---|
+| `timer task <name> failed (it keeps its schedule): ...` | one run of a periodic task (a watchdog, the agent aging, a ping) threw; the task goes on at its next interval. Before 2026-11-11 the first such failure ended that timer silently, and with it every watchdog on it |
+| `REFUSED the file group ...` | an incoming file transfer was not registered: the receiver already holds 256 groups (64 for one caller), or the group id is held by another caller |
+| `EXPIRED the file group ...` | a file transfer received no part for 30 min: its parts were deleted and its group forgotten |
 
 ## Discovery refusals
 
@@ -59,6 +85,7 @@ wsapi.
 |---|---|
 | `Discovery: REFUSED ... from ...: under security_profile=production discovery is authenticated by the operator's PKI only ...; is that node production?` | a standard-profile (secret-keyed) or legacy peer met a production node; they never join each other |
 | `Discovery: REFUSED a node of an earlier build at ...` | an earlier build tried the legacy exchange outside the upgrade window |
+| `Discovery REFUSED controller <r>/<a>: it claims the superuser tenant ..., and a controller of a superuser tenant is never bound first come: list its key ... in controller_trust_anchors on this node` | a region or global controller whose certificate names a superuser tenant (`broker_superuser_tenants`) met a node that does not list it. Its tenant is its own certificate's word, and a superuser tenant's controller is SUPERUSER at every broker that binds it: add the key the line names to `controller_trust_anchors` on this node (and see [upgrade](../security/upgrade.md), item 5) |
 | `discovery v2: ... failed authentication: it does not hold the ...` | the peer's discovery secret differs from this node's |
 | `discovery v2: ... claims <r>/<a> but its certificate does not name it` | the peer's certificate does not match the identity it claims |
 | `discovery v2: the result from ... failed authentication (altered or replayed)` | the exchange was tampered with on the way |
@@ -103,3 +130,4 @@ slows its writers; nothing is lost.
 | `wsapi NOT started: ...` | wsapi's own `security_profile` conflicts with the node's, or production requirements are missing (`wsapi_client_ca` ...) |
 | `filerepo <name>: no scan and no sync: ...` | a filerepo over a directory another filerepo of the agent already serves, or whose catalog did not open: that plugin serves nothing (one ERROR at start) |
 | `STRIPPED a forged caller '...' on a message to '...'` | a sender set a caller stamp it may not declare; the stamp was removed and counted |
+| `WITHHELD from a bridge a message on '...': the bridge of ... carries its own tenant's and region's traffic only (...)` / `DISCARDED a message a bridge brought in for '...': ...` | a bridge to another controller demanded, or brought in, a message that is not its peer's own: another tenant's destination. The message stays on (or never enters) this broker; the bridge itself stays up. A region below a global and a peer region carry their own tenant's subtree, what is addressed to an inbox of their own region, and answers to a superuser tenant's nodes; a region's global and a superuser tenant's controller carry everything. Expected when tenants share a broker mesh; from a single-tenant fabric, report it |
