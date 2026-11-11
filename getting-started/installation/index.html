@@ -629,6 +629,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#get-a-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get a release
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-from-source" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2923,6 +2934,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#get-a-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get a release
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-from-source" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3002,13 +3024,29 @@ the build, and the resulting artifacts.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="get-a-release">Get a release<a class="headerlink" href="#get-a-release" title="Permanent link">&para;</a></h2>
+<p>Every commit of the agent's <code>main</code> branch is a release with a name of its own, <code>1.3.&lt;n&gt;</code> (n: the number of commits up
+to it), published at <a href="https://github.com/CrescoEdge/agent/releases">github.com/CrescoEdge/agent/releases</a> and never
+replaced. Each one holds the agent jar (<code>agent-1.3.&lt;n&gt;.jar</code>), its SHA-256, <code>bundles.lock</code> (every embedded Cresco
+bundle with its SHA-256 and the published snapshot it is) and the SBOM. The release <code>1.3-SNAPSHOT</code> carries the latest
+jar under the old name <code>agent-1.3-SNAPSHOT.jar</code> and is replaced each time: take it to try the latest 1.3, and name a
+<code>1.3.&lt;n&gt;</code> release for anything you deploy, so that every node runs the same known build.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>-c<span class="w"> </span>agent-1.3.374.jar.sha256<span class="w">   </span><span class="c1"># the download is the published file</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>java<span class="w"> </span>-jar<span class="w"> </span>agent-1.3.374.jar<span class="w"> </span>--version<span class="w">       </span><span class="c1"># the release, the build, every embedded bundle (no node is started)</span>
+</code></pre></div>
+<p><code>--version</code> answers "what does this node run" from the jar alone. To check a jar against the source it names: in a
+checkout of the tag, <code>scripts/rebuild-check.sh agent-1.3.374.jar</code> verifies the embedded bundles against <code>bundles.lock</code>,
+and with <code>--rebuild</code> compares every entry with a build of that checkout (identical with the same JDK build, but for
+the four entries that record the build itself; another 21.x patch release of the JDK changed one debug table in one
+class in our test). A release signed by an operator's key is verified with <code>scripts/verify-release.sh</code> (agent
+repository, README).</p>
 <h2 id="build-from-source">Build from source<a class="headerlink" href="#build-from-source" title="Permanent link">&para;</a></h2>
 <p>Cresco is a set of OSGi bundles — one module (and one git repository) per directory under <code>code/</code>. The
 <code>build.sh</code> driver builds each in dependency order and stages the runnable jar into <code>run/</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./build.sh<span class="w">            </span><span class="c1"># build everything: components + clients + agent uber-jar</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>./build.sh<span class="w"> </span>components<span class="w"> </span><span class="c1"># just the OSGi bundles (logger, library, core, repo, sysinfo, wsapi, stunnel, controller)</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>./build.sh<span class="w"> </span>agent<span class="w">      </span><span class="c1"># stage bundles + assemble the agent uber-jar into run/</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>./build.sh<span class="w"> </span>clients<span class="w">    </span><span class="c1"># build the Java clientlib + set up the Python venv</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./build.sh<span class="w">            </span><span class="c1"># build everything: components + clients + agent uber-jar</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./build.sh<span class="w"> </span>components<span class="w"> </span><span class="c1"># just the OSGi bundles (logger, library, core, repo, sysinfo, wsapi, stunnel, controller)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>./build.sh<span class="w"> </span>agent<span class="w">      </span><span class="c1"># stage bundles + assemble the agent uber-jar into run/</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>./build.sh<span class="w"> </span>clients<span class="w">    </span><span class="c1"># build the Java clientlib + set up the Python venv</span>
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">The <code>bundle:bundle</code> gotcha</p>
@@ -3036,8 +3074,8 @@ Felix cannot start. Always build through <code>build.sh</code> (or run <code>mvn
 </tr>
 <tr>
 <td>Per-module bundles</td>
-<td><code>~/.m2/...</code></td>
-<td>Installed to the local Maven repo; also staged version-less into <code>agent/src/main/resources/</code>.</td>
+<td><code>agent/src/main/resources/</code></td>
+<td>Committed there under version-less names and pinned by <code>agent/bundles.lock</code>: the agent build embeds exactly the bundles the lock names, or fails naming the jar. <code>prebuild.sh --update &lt;name&gt;</code> takes a bundle's latest published snapshot (checked against Maven Central's checksum, never from <code>~/.m2</code>); <code>prebuild.sh --lock &lt;name&gt;</code> records one you built and copied in yourself.</td>
 </tr>
 <tr>
 <td><code>clientlib</code> jar</td>
@@ -3061,7 +3099,7 @@ the launch scripts give each node its own <code>run/nodes/&lt;region&gt;-&lt;age
 <p class="admonition-title">Wipe state between builds/runs</p>
 <p>Stale Derby/broker state from a previous run can cause spurious plugin/state errors. Between runs (and
 especially after a rebuild) remove <code>run/cresco-data</code> and <code>run/nodes</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rm<span class="w"> </span>-rf<span class="w"> </span>run/cresco-data<span class="w"> </span>run/nodes
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>rm<span class="w"> </span>-rf<span class="w"> </span>run/cresco-data<span class="w"> </span>run/nodes
 </code></pre></div></p>
 </div>
 <p>Next: <strong><a href="../quickstart/">Quickstart</a></strong> to launch a mesh and connect a client.</p>
