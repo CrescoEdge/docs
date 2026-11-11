@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1175,6 +1175,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../security/pki/" class="md-nav__link">
         
   
@@ -2276,6 +2304,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-management-call-is-logged-as-authority-would-refuse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A management call is logged as "AUTHORITY: WOULD REFUSE"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#discovery-refusals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3000,6 +3039,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-management-call-is-logged-as-authority-would-refuse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A management call is logged as "AUTHORITY: WOULD REFUSE"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#discovery-refusals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3323,6 +3373,15 @@ the global are not affected.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="a-management-call-is-logged-as-authority-would-refuse">A management call is logged as "AUTHORITY: WOULD REFUSE"<a class="headerlink" href="#a-management-call-is-logged-as-authority-would-refuse" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>AUTHORITY: WOULD REFUSE CONFIG pluginadd from api:acme/alice[admin], the word of acme/rgA/a1 (ELSEWHERE): it is honoured
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>only from the node itself or a controller above it; allowed (authority_direction=log); ...
+</code></pre></div>
+<p>The call was allowed. It came through a node that is neither the target nor a controller above it, which
+<code>authority_direction=enforce</code> will refuse. "The word of" names the node that spoke for the caller: for an API user, the
+gateway the user is connected to. Move the client to the target's own gateway, its region controller's, or the global's.
+Each line is written once per action and position; every occurrence is counted in <code>authz.direction.would_refuse</code> (and
+<code>.would_refuse.&lt;action&gt;</code>). See <a href="../../security/authority/">Authority follows the tree</a>.</p>
 <h2 id="discovery-refusals">Discovery refusals<a class="headerlink" href="#discovery-refusals" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3452,6 +3511,18 @@ slows its writers; nothing is lost.</p>
 <td>the caller's role may not run that action</td>
 </tr>
 <tr>
+<td>RPC reply <code>403 ... is honoured only from the node itself or a controller above it</code></td>
+<td>the action is a management action and the node you are connected to is neither its target nor above it (<code>authority_direction=enforce</code>): connect to the target's own gateway, its region controller's or the global's (<a href="../../security/authority/">authority follows the tree</a>)</td>
+</tr>
+<tr>
+<td>a reply with <code>gateway_status</code></td>
+<td>the gateway you are connected to gave this answer itself (400 unreadable or malformed request, 403 refused here, 429 or 503 busy, 504 no reply in time, 500 the send failed); without it, the status is the answer of the node you asked</td>
+</tr>
+<tr>
+<td>RPC reply <code>400 unreadable request</code></td>
+<td>the frame was not a JSON object of <code>message_info</code> and <code>message_payload</code>; the gateway closes a connection at its third</td>
+</tr>
+<tr>
 <td>RPC reply <code>429 busy: ...</code></td>
 <td>the caller has <code>wsapi_rpc_max_inflight_user</code> (8) / <code>_admin</code> (32) RPCs in flight</td>
 </tr>
@@ -3555,10 +3626,10 @@ slows its writers; nothing is lost.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
