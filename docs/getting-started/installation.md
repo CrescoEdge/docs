@@ -22,12 +22,12 @@ jar under the old name `agent-1.3-SNAPSHOT.jar` and is replaced each time: take 
 `1.3.<n>` release for anything you deploy, so that every node runs the same known build.
 
 ```bash
-shasum -a 256 -c agent-1.3.374.jar.sha256   # the download is the published file
-java -jar agent-1.3.374.jar --version       # the release, the build, every embedded bundle (no node is started)
+shasum -a 256 -c agent-1.3.376.jar.sha256   # the download is the published file
+java -jar agent-1.3.376.jar --version       # the release, the build, every embedded bundle (no node is started)
 ```
 
 `--version` answers "what does this node run" from the jar alone. To check a jar against the source it names: in a
-checkout of the tag, `scripts/rebuild-check.sh agent-1.3.374.jar` verifies the embedded bundles against `bundles.lock`,
+checkout of the tag, `scripts/rebuild-check.sh agent-1.3.376.jar` verifies the embedded bundles against `bundles.lock`,
 and with `--rebuild` compares every entry with a build of that checkout (identical with the same JDK build, but for
 the four entries that record the build itself; another 21.x patch release of the JDK changed one debug table in one
 class in our test). A release signed by an operator's key is verified with `scripts/verify-release.sh` (agent
