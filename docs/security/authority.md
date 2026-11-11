@@ -124,9 +124,12 @@ The counters are in the [metric inventory](../architecture/metrics.md), group `a
    gateway that is neither the target nor above it.
 4. Set `authority_direction=enforce` on the leaves first, then the region controllers, then the global.
 
-Known to be counted on a healthy fabric today, and being changed before `enforce` becomes the default: a file pulled
-directly between two agents (`getfileinfo` / `getfiledata` sent to the node that holds the file) gets a transfer ticket
-issued from above.
+Nothing a fabric of the shipped bundles does by itself is counted: plugins reach each other as equals (their own
+actions are not management unless they restrict them), an agent fetches a plugin's jar from a repository with `getjar`
+(open to any node of the tenant), and file synchronisation (filerepo) travels on the dataplane. Reading a file of
+another node by its path (`getfileinfo` / `getfiledata`) is management: it is honoured from the node itself or from
+above, inside `file_access_roots`, and never between two agents. No bundle is offered that call
+(`downloadRemoteFile` is refused to plugins).
 
 ## For plugin authors
 
