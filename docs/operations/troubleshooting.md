@@ -110,6 +110,27 @@ the global are not affected.
 | `REFUSED the file group ...` | an incoming file transfer was not registered: the receiver already holds 256 groups (64 for one caller), or the group id is held by another caller |
 | `EXPIRED the file group ...` | a file transfer received no part for 30 min: its parts were deleted and its group forgotten |
 
+## A node's parent refuses it ("PARENT REFUSES THIS NODE")
+
+```
+PARENT REFUSES THIS NODE: rgr_rc answered this node's ping with a refusal (...): 4 in a row, for 20 s. The link is up
+and is NOT torn down; nothing that came with the refusal is taken ...
+```
+
+The node reaches its parent's broker, but the parent does not accept what it signs: a refusal is not a pong. The node
+stays connected (it does not rejoin in a loop), its `link:parent` health reads WARN, and the line repeats at most once a
+minute. The parent's own log names the reason (`MESSAGE SIGNATURE: REFUSED ...`, see above). The usual ones:
+
+| Reason at the parent | Cure |
+|---|---|
+| the node's credential does not verify there (it is not attested, or its certificate is not the one the parent holds for its name) | restart the node so that it joins again, or authorise its key at the parent (a rebind in the standard profile; a certificate of the operator's PKI in production) |
+| the time of its signatures | set the node's clock |
+| its key is revoked | intended: the node is out |
+
+After its region controller came back with a **new key**, an agent of release 1.3.378 or later recovers by itself (it
+drops the attestation the former key made and is attested anew within a second). Agents of earlier releases under a
+re-keyed controller must be restarted.
+
 ## A management call is logged as "AUTHORITY: WOULD REFUSE"
 
 ```
