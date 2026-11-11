@@ -110,6 +110,19 @@ the global are not affected.
 | `REFUSED the file group ...` | an incoming file transfer was not registered: the receiver already holds 256 groups (64 for one caller), or the group id is held by another caller |
 | `EXPIRED the file group ...` | a file transfer received no part for 30 min: its parts were deleted and its group forgotten |
 
+## A management call is logged as "AUTHORITY: WOULD REFUSE"
+
+```
+AUTHORITY: WOULD REFUSE CONFIG pluginadd from api:acme/alice[admin], the word of acme/rgA/a1 (ELSEWHERE): it is honoured
+only from the node itself or a controller above it; allowed (authority_direction=log); ...
+```
+
+The call was allowed. It came through a node that is neither the target nor a controller above it, which
+`authority_direction=enforce` will refuse. "The word of" names the node that spoke for the caller: for an API user, the
+gateway the user is connected to. Move the client to the target's own gateway, its region controller's, or the global's.
+Each line is written once per action and position; every occurrence is counted in `authz.direction.would_refuse` (and
+`.would_refuse.<action>`). See [Authority follows the tree](../security/authority.md).
+
 ## Discovery refusals
 
 | Line | Meaning |
@@ -148,6 +161,9 @@ slows its writers; nothing is lost.
 |---|---|
 | RPC reply `401` | the request failed message authentication on the way (see above) |
 | RPC reply `403` | the caller's role may not run that action |
+| RPC reply `403 ... is honoured only from the node itself or a controller above it` | the action is a management action and the node you are connected to is neither its target nor above it (`authority_direction=enforce`): connect to the target's own gateway, its region controller's or the global's ([authority follows the tree](../security/authority.md)) |
+| a reply with `gateway_status` | the gateway you are connected to gave this answer itself (400 unreadable or malformed request, 403 refused here, 429 or 503 busy, 504 no reply in time, 500 the send failed); without it, the status is the answer of the node you asked |
+| RPC reply `400 unreadable request` | the frame was not a JSON object of `message_info` and `message_payload`; the gateway closes a connection at its third |
 | RPC reply `429 busy: ...` | the caller has `wsapi_rpc_max_inflight_user` (8) / `_admin` (32) RPCs in flight |
 | RPC reply `503 busy: wsapi has 640 ...` | wsapi's RPC pool is full |
 | HTTP `503` at login | the node runs production and this wsapi did not start in production ([profiles](../security/profiles.md)) |

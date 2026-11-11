@@ -61,6 +61,7 @@ pycrescolib:
 | Harness | Proves / measures |
 |---------|-------------------|
 | `peer_identity_live_test.sh` | peer identity binding (agent to broker, broker bridges) and dataplane recipient binding with mutual TLS and tenant authorization; `DEFAULTS=1` runs a fabric with no security setting at all |
+| `authority_live_test.sh` | [authority follows the tree](../security/authority.md) on four nodes: the same admin stands at each node's gateway and sends a management action to every node. Logging (the default): all are allowed and each target logs what `enforce` would refuse, naming the gateway's node and its position. Enforcing: only the calls from the node itself or a controller above it are honoured, the rest are answered 403 with the reason, open actions work everywhere and the fabric stays whole |
 | `provisioned_live_test.sh` | a production mesh on operator-issued identities (`tools/cresco-pki.sh`), PKI discovery, no shared secret |
 | `upgrade_window_live_test.sh` | the [upgrade guide](../security/upgrade.md): earlier-build agents keep their membership in the window, are upgraded one by one, and the window closes by its date |
 | `dataplane_backpressure_test.sh` | [backpressure](../architecture/dataplane.md#backpressure-nothing-lost-order-kept): fast and slow readers on one broker and across a bridge each way, every frame delivered whole, once and in order, the writer slowed to a slow reader, nothing discarded |

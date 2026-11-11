@@ -157,6 +157,19 @@ over them. What a broker loses between two nodes (a message that expired, a queu
 the sum then falls short by it: that is what the identity is for. An authorization denial (403) counts as delivered:
 the recipient answered.
 
+## Controller: management calls from the wrong place
+
+Group `authz`, COUNTERs, registered by `AuthorityMetrics` ([authority follows the tree](../security/authority.md)).
+
+| Metric | Counts |
+|---|---|
+| **`authz.direction.would_refuse`** | calls that `authority_direction=enforce` would refuse: a management action from a node that is neither the target nor a controller above it (or a child's report from a node that is not below). Counted in `log` mode, where the call is allowed |
+| **`authz.direction.would_refuse.<action>`** | the same per action: one meter for every action that has a direction and every privileged action of a plugin; `.watchdog` and `.kpi` for those message types; `.other` for an action a plugin gave a direction of its own |
+| **`authz.direction.refused`**, **`authz.direction.refused.<action>`** | calls refused for their direction (`enforce` mode), named the same way |
+
+Before `enforce` is turned on, `would_refuse` must read zero on every node for everything the fabric is meant to keep
+doing.
+
 ## Controller — JVM & system (Micrometer binders)
 
 The controller binds four standard Micrometer binders (`JvmMemoryMetrics`, `JvmThreadMetrics`,
@@ -328,7 +341,8 @@ handler — one wsapi plugin per JVM, so the counts are node-wide.
 
 | Metric | Type / unit | How measured | Meaning |
 |---|---|---|---|
-| **`wsapi.dataplane.connections`** | GAUGE_INT | `ACTIVE_CONNECTIONS` atomic, incremented on `channelActive` | Active dataplane WebSocket connections |
+| **`wsapi.dataplane.connections`** | GAUGE_INT | `ACTIVE_CONNECTIONS` atomic, counted when a connection's handler is installed | Active dataplane WebSocket connections (read 0 whatever was connected before agent release 1.3.377) |
+| **`wsapi.api.unreadable`** | GAUGE_LONG | incremented per frame that is not a readable request | API requests that could not be read (answered 400; the connection is closed at its third) |
 | **`wsapi.dataplane.bytes`** | GAUGE_LONG, bytes | `DATAPLANE_BYTES` atomic, added per text/binary frame | Total dataplane bytes ingested from clients |
 | **`wsapi.dataplane.messages`** | GAUGE_LONG | `DATAPLANE_MESSAGES` atomic, incremented per frame | Total dataplane messages ingested from clients |
 | **`wsapi.dataplane.egress.pending.bytes`** | GAUGE_LONG, bytes | bytes queued to all WS consumers | Dataplane bytes queued to WS consumers, not yet written |

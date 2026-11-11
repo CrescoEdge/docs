@@ -30,6 +30,10 @@ production profile), `controller/docs/pre-provisioned-identity.md` (operator PKI
   (`broker_require_client_auth`) and binds each connection to the identity its certificate names.
 - **Authorization.** The broker stamps the verified caller of every message (`cresco_caller`, kind `controller`,
   `agent`, `plugin` or `api`) and receivers check it against each action's roles (`@CrescoAction(roles=...)`).
+- **Authority follows the tree.** Roles say who may call an action; each action also has a direction. A management
+  action (plugins, stop and restart, logs, files, running processes) is honoured only from the node itself or a
+  controller above it, so a leaf that is taken over manages nothing but itself. Logged and counted in this release
+  (`authority_direction=log`), enforced by setting ([Authority follows the tree](authority.md)).
 - **Message authentication.** Every message a node originates is authenticated end to end and checked by its recipient
   before it is dispatched (`msg_signing_required`): unsigned between a node and its own parent or child (the receiving
   broker attests it first hand), otherwise signed with the node's identity key (RSA-3072/SHA-384, batched under load) or

@@ -73,6 +73,7 @@ nav:
       - Secure Defaults: security/secure-defaults.md
       - Security Profiles: security/profiles.md
       - Message Authentication: security/message-auth.md
+      - Authority Follows the Tree: security/authority.md
       - Operator PKI: security/pki.md
       - Upgrading to 1.3: security/upgrade.md
       - API Authentication: security/api-auth.md
