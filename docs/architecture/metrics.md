@@ -132,6 +132,31 @@ Registered by `PerfControllerMonitor` on the controller's `MeasurementEngine` at
 | **`dataplane.broker.slow.consumers`** | `dataplane`, COUNTER | the broker's slow-consumer advisories | Slow-subscriber episodes (more than prefetch pending); with backpressure these slow writers, they lose nothing |
 | **`dataplane.stream.gap`** | `dataplane`, COUNTER | `StreamSequence` checks each stream's `cresco_seq` at the subscriber's controller | Stream messages this node's subscribers did not get; the first message after a gap carries `cresco_gap` ([Data Plane](dataplane.md#stream-sequence-numbers-loss-is-never-silent)) |
 
+## Controller: what became of each message
+
+Group `msg` (and `broker`), all COUNTERs unless noted, registered by `MsgMetrics`. They account for every control
+message (MsgEvent) a node had in hand; the dataplane has its own (`dataplane.*`). The reason or cause is the last part
+of the name, because the inventory keys a meter by its name.
+
+| Metric | Meaning |
+|---|---|
+| **`msg.originated`** | messages this node originated (its controller's, a plugin's, or an API user's through its wsapi), replies included |
+| **`msg.relayed`** | messages taken off the wire and sent on toward another node |
+| **`msg.delivered`** | messages handed to their recipient on this node: its controller, a plugin, or the call waiting for a reply |
+| **`msg.held`**, **`msg.hold.full`** | messages the inbox held until it could judge them, and messages it could not hold for lack of room |
+| **`msg.refused`**, **`msg.refused.<reason>`** | messages that failed authentication, in all and by reason (`unsigned`, `not_for_this_node`, `no_recipient`, `too_old`, `ahead_of_clock`, `replay`, `replay_memory_full`, `credential`, `revoked`, `session_key`, `bad_signature`, `caller_mismatch`, `other`) |
+| **`msg.dropped`**, **`msg.dropped.<cause>`** | messages that ended on this node without reaching their recipient, in all and by cause ([the causes](../operations/troubleshooting.md#message-dropped)) |
+| **`msg.sign.failed`**, **`msg.trust.refused`**, **`msg.filepart.dropped`** | sends this node could not sign; trust data from a parent it refused; file parts it did not take (not counted as messages) |
+| **`broker.caller.stripped`** | caller stamps this node's broker stripped (forged, or carried by a bridge that may not carry them) |
+| **`broker.bridge.withheld`**, **`broker.bridge.discarded`** | messages a bridge demanded and was not given, or brought in for a destination its peer may not write |
+| **`broker.anonymous.discarded`**, **`broker.recipient.withheld`** | messages from connections without a client certificate; messages withheld from a consumer that is not their recipient |
+| **`broker.quarantine.connections`** (GAUGE) | connections without a verified identity held now |
+
+On a quiet fabric, `msg.originated` summed over the nodes equals `msg.delivered + msg.refused + msg.dropped` summed
+over them. What a broker loses between two nodes (a message that expired, a queue with no consumer) ends on no node, so
+the sum then falls short by it: that is what the identity is for. An authorization denial (403) counts as delivered:
+the recipient answered.
+
 ## Controller — JVM & system (Micrometer binders)
 
 The controller binds four standard Micrometer binders (`JvmMemoryMetrics`, `JvmThreadMetrics`,
