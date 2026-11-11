@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1000,6 +1000,17 @@
     <span class="md-ellipsis">
       
         Destination namespacing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#several-tenants-under-one-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Several tenants under one global
       
     </span>
   </a>
@@ -2990,6 +3001,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#several-tenants-under-one-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Several tenants under one global
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#role-based-authorization" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3099,12 +3121,62 @@ bridges and across globals.</p>
 <li><strong>Producers</strong> stamp the origin tenant onto the message (<code>cresco_tenant</code>, preserved across relays) and
   qualify the forward destination with the <em>message's</em> tenant, so every relay produces the identical queue
   name.</li>
-<li><strong>Leaf agents</strong> (network clients) consume only their own <code>T.&lt;tenant&gt;.</code> inbox.</li>
+<li><strong>Leaf agents</strong> (network clients) consume only their own <code>T.&lt;tenant&gt;.</code> inbox (a leaf of a superuser tenant: its
+  inbox in every tenant's namespace).</li>
 <li><strong>Infra controllers</strong> (on <code>vm://</code>, multi-tenant relays) consume the <code>T.*.</code> <strong>wildcard</strong> inbox, so they
   relay every tenant.</li>
 </ul>
 <p>A cross-tenant send therefore lands in a queue nobody consumes <em>and</em> is denied by the ACL — isolation is
 enforced twice over.</p>
+<h2 id="several-tenants-under-one-global">Several tenants under one global<a class="headerlink" href="#several-tenants-under-one-global" title="Permanent link">&para;</a></h2>
+<p>The shape: a <strong>global in a superuser tenant</strong> (<code>broker_superuser_tenants</code>, default <code>cresco-system</code>), and under it each
+tenant's own region controllers and agents. A region joins the global over its bridge exactly as in a single-tenant
+fabric. What makes it work, and what holds it together:</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a tenant's region registers with the global</td>
+<td>a region publishes its state in its own namespace (<code>T.&lt;tenant&gt;.agent.event</code>); a global of a superuser tenant listens for every tenant's (<code>T.*.agent.event</code>). A state export is taken only from the <strong>controller that joined</strong>, reporting <strong>its own region</strong>, and its rows carry the tenant that controller was verified in, never one it claims</td>
+</tr>
+<tr>
+<td>the global reaches a tenant's node</td>
+<td>the global's own message travels in the namespace of the <strong>destination region's tenant</strong>, which it knows from the controllers that completed discovery with it</td>
+</tr>
+<tr>
+<td>a tenant's node answers the global, or asks it</td>
+<td>a tenant's node always sends in <strong>its own</strong> namespace; the global's answer travels in the <strong>verified tenant of the caller it answers</strong>, whatever the request named</td>
+</tr>
+<tr>
+<td>a superuser tenant's own nodes (an operator's agent)</td>
+<td>consume their inbox in every tenant's namespace (<code>T.*.&lt;their inbox&gt;</code>), and judge each message by its verified caller like any other</td>
+</tr>
+<tr>
+<td>a request that arrives in another tenant's namespace than its caller's</td>
+<td>refused where it arrives, counted (<code>msg.dropped.cross_tenant</code>); a request from another tenant that names a sender other than the node that signed it: <code>msg.dropped.sender_unbound</code></td>
+</tr>
+</tbody>
+</table>
+<p>Rules an operator must know:</p>
+<ul>
+<li><strong>A region name belongs to one tenant.</strong> If controllers of two tenants are recorded for one region name, the global
+  sends its own messages for that region into neither namespace: <code>TENANT UNRESOLVED</code> in its log, counted in
+  <code>msg.tenant.unresolved</code>. Under an operator PKI the second claimant is refused when it joins.</li>
+<li><strong>Node names are unique across the fabric.</strong> The registry lists an agent (and a plugin) by its name, so a second node
+  of the same name in another tenant is not listed (<code>REGISTRY NAME COLLISION</code> at the global). It is still reachable by
+  its address; give nodes of different tenants different names.</li>
+<li><strong>A superuser node that did not see a region's controller join</strong> (a second global, an operator's agent) does not know
+  that region's tenant: its client names it (<code>cresco_tenant</code>), which the gateway vets.</li>
+<li>A region that just joined is addressed correctly within a second.</li>
+</ul>
+<p>Before agent release 1.3.378 this shape did not form: a tenant's region never registered with a global of another
+tenant, and answers between them were dropped. (The test of the time checked that the bridges came up, not that the
+regions were listed; the fabric matrix's <code>tenants</code> cell checks it now, see <a href="../../operations/testing/">Testing</a>.)</p>
 <h2 id="role-based-authorization">Role-based authorization<a class="headerlink" href="#role-based-authorization" title="Permanent link">&para;</a></h2>
 <p>Enforced at every broker by <code>TenantPolicy</code> via <code>CrescoAuthorizationBroker</code>:</p>
 <table>
@@ -3132,7 +3204,7 @@ peer's <code>region_agent</code> inbox; with tenant-scoped inboxes that is denie
 <code>broker_cross_tenant_sinks</code> (empty by default: the strict own-subtree rule). Each entry is
 <code>&lt;source tenant&gt;-&gt;&lt;destination&gt;[:write|read|any]</code> (globs: <code>*</code> any run of characters, <code>?</code> one character; <code>write</code> when
 no access is named), separated by <code>;</code> or <code>,</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>-Dbroker_cross_tenant_sinks='*-&gt;T.gfs-federation.*:write ; gfs-federation-&gt;T.*:write'
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>-Dbroker_cross_tenant_sinks=&#39;*-&gt;T.gfs-federation.*:write ; gfs-federation-&gt;T.*:write&#39;
 </code></pre></div>
 <p>A principal whose tenant matches the source may reach the matching destinations with that access. A rule never grants
 READ unless it says so, so a tenant still cannot consume another tenant's inbox.</p>
@@ -3215,10 +3287,10 @@ confined; SUPERUSER god view) with no regression across the security/isolation s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

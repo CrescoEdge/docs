@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -3199,6 +3199,10 @@ pycrescolib:</p>
 <td>peer identity binding (agent to broker, broker bridges) and dataplane recipient binding with mutual TLS and tenant authorization; <code>DEFAULTS=1</code> runs a fabric with no security setting at all</td>
 </tr>
 <tr>
+<td><code>fabric_matrix.py</code></td>
+<td>one cell of the matrix <strong>topology x security profile x lifecycle events</strong> on a live fabric (one JVM per node): <code>single</code>, <code>tree</code>, <code>mesh</code>, <code>tenants</code>, <code>alias</code> (and <code>regions&lt;N&gt;</code> for scale) under <code>standard</code>, <code>production</code> or <code>upgrade</code>, through start, restarts of an agent, a region and the global, a global outage, a region re-key, a moved agent, a cut bridge and a revocation. After each event it checks that the global lists exactly the nodes that should be up, that every node answers, and that <strong>nothing a node logged is outside a list of known items with measured bounds</strong>: any other refusal, drop, strip or ERROR fails the cell. About 11 minutes for <code>tree</code></td>
+</tr>
+<tr>
 <td><code>authority_live_test.sh</code></td>
 <td><a href="../../security/authority/">authority follows the tree</a> on four nodes: the same admin stands at each node's gateway and sends a management action to every node. Logging (the default): all are allowed and each target logs what <code>enforce</code> would refuse, naming the gateway's node and its position. Enforcing: only the calls from the node itself or a controller above it are honoured, the rest are answered 403 with the reason, open actions work everywhere and the fabric stays whole</td>
 </tr>
@@ -3293,10 +3297,10 @@ on.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
