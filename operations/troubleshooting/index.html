@@ -2254,6 +2254,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#message-dropped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message dropped
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-global-or-a-region-controller-is-down" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2967,6 +2978,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#message-dropped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message dropped
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-global-or-a-region-controller-is-down" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3100,10 +3122,16 @@ refusal names its reason in the log; the lines below are quoted as the code writ
 </tbody>
 </table>
 <h2 id="message-signature-refused">Message signature refused<a class="headerlink" href="#message-signature-refused" title="Permanent link">&para;</a></h2>
-<p><strong><code>MESSAGE SIGNATURE: REFUSED &lt;why&gt; [&lt;type&gt; &lt;action&gt;] (&lt;n&gt; refused so far; logged at most every 10 s)</code></strong>: a message
-failed its end-to-end authentication and was not dispatched; an RPC request is answered <code>401 unauthenticated</code>. The
-bracket names the refused message (builds before 2026-11-10 leave it out). See
+<p><strong><code>MESSAGE SIGNATURE: REFUSED &lt;why&gt; [&lt;type&gt; &lt;action&gt;] (&lt;n&gt; refused so far; &lt;k&gt; of this kind, &lt;reason&gt;; each kind is
+logged at most every 10 s)</code></strong>: a message failed its end-to-end authentication and was not dispatched; an RPC request is
+answered <code>401 unauthenticated</code>. The bracket names the refused message. <code>&lt;n&gt;</code> is the node's total, <code>&lt;k&gt;</code> the count of
+this reason. Each reason is logged at its first occurrence and then at most every 10 s by itself, so a reason that
+happens all the time never hides one that happened once; every reason is also a counter in the node's metric inventory
+(<code>msg.refused.&lt;reason&gt;</code>, see <a href="../../architecture/metrics/#controller-what-became-of-each-message">Metrics</a>). (Builds
+before 2026-11-11 kept one count and one line per 10 s for all reasons together.) See
 <a href="../../security/message-auth/">Message authentication</a>.</p>
+<p>The reason names: <code>unsigned</code>, <code>not_for_this_node</code>, <code>no_recipient</code>, <code>too_old</code>, <code>ahead_of_clock</code>, <code>replay</code>,
+<code>replay_memory_full</code>, <code>credential</code>, <code>revoked</code>, <code>session_key</code>, <code>bad_signature</code>, <code>caller_mismatch</code>, <code>other</code>.</p>
 <table>
 <thead>
 <tr>
@@ -3191,6 +3219,75 @@ of waiting for the next ping.</p>
 <p><code>route: dropped a message routed more than 10 times or with a ttl outside 0..10 (ttl=...)</code>: a routing loop, or a sender
 that wrote a <code>ttl</code> no router writes. The message ends at that router; an API client's <code>ttl</code> and <code>is_rpc</code> are removed by
 wsapi.</p>
+<h2 id="message-dropped">Message dropped<a class="headerlink" href="#message-dropped" title="Permanent link">&para;</a></h2>
+<p><strong><code>MESSAGE DROPPED: &lt;cause in words&gt; [&lt;type&gt; &lt;action&gt;] &lt;src&gt; -&gt; &lt;dst&gt; (&lt;n&gt; dropped so far; &lt;k&gt; of this kind, &lt;cause&gt;;
+each kind is logged at most every 10 s)</code></strong>: a control message ended on this node without reaching its recipient. Every
+cause is logged at its first occurrence and then at most every 10 s, and is a counter (<code>msg.dropped.&lt;cause&gt;</code>). Before
+2026-11-11 most of these were not counted at all, and one of them logged an ERROR line per message.</p>
+<table>
+<thead>
+<tr>
+<th><code>&lt;cause&gt;</code></th>
+<th>Meaning</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ttl</code></td>
+<td>routed more than 10 times, or with a hop count no router writes</td>
+<td>a routing loop: report it with the type and action</td>
+</tr>
+<tr>
+<td><code>no_global</code></td>
+<td>for the global, at a region that has joined none</td>
+<td>the region's link to its global</td>
+</tr>
+<tr>
+<td><code>parent_unknown</code>, <code>parent_link_down</code>, <code>no_sender</code></td>
+<td>the node had no parent, no link to its broker, or no producer yet when it had to send</td>
+<td>expected for a moment around a restart of the node or its parent (<code>no_sender</code> in a node's first milliseconds); persistent: the link</td>
+</tr>
+<tr>
+<td><code>controller_not_ready</code>, <code>controller_stopping</code>, <code>node_stopping</code></td>
+<td>for this node's controller while it was being rebuilt or shut down</td>
+<td>expected at shutdown and during a re-join</td>
+</tr>
+<tr>
+<td><code>plugin_unknown</code>, <code>plugin_inactive</code>, <code>plugin_admin_unavailable</code></td>
+<td>for a plugin this node does not run, or that is not active yet</td>
+<td>a sender with a stale address; <code>plugin_inactive</code> while a plugin loads (a storage core loading its log) is expected</td>
+</tr>
+<tr>
+<td><code>source_route_not_relayed</code></td>
+<td>a source-routed message at a node with <code>net_source_routing</code> off</td>
+<td>the sender's routing settings</td>
+</tr>
+<tr>
+<td><code>tier_refused</code>, <code>misrouted</code>, <code>cross_tenant</code></td>
+<td>a controller function at the wrong tier, a message at a controller that is addressed elsewhere, a caller's message in another tenant's namespace</td>
+<td>the sender; report it</td>
+</tr>
+<tr>
+<td><code>send_failed</code>, <code>no_destination</code>, <code>route_error</code>, <code>inbox_error</code></td>
+<td>the broker did not take it after every attempt, it named no destination, or this node failed on it</td>
+<td>the broker's health and the ERROR line logged with it</td>
+</tr>
+<tr>
+<td><code>file_group_refused</code>, <code>file_group_expired</code></td>
+<td>a message with files whose group was not registered, or whose parts never all arrived</td>
+<td>the sender of the transfer; see the file group lines below</td>
+</tr>
+<tr>
+<td><code>hold_closed</code></td>
+<td>held by an inbox that closed</td>
+<td>expected when a node stops or re-joins in its first seconds</td>
+</tr>
+</tbody>
+</table>
+<p>A node also counts what it originated, relayed and delivered. On a quiet fabric the messages originated, summed over
+the nodes, equal those delivered, refused and dropped, summed over the nodes: a sum that falls short means messages
+were lost in a broker (expired, or their queue had no consumer).</p>
 <h2 id="a-global-or-a-region-controller-is-down">A global or a region controller is down<a class="headerlink" href="#a-global-or-a-region-controller-is-down" title="Permanent link">&para;</a></h2>
 <p><strong>The global is down.</strong> Each region goes to <code>REGION_GLOBAL_FAILED</code> and keeps serving its own agents: its broker, its
 discovery listener, the aging of its agents (STALE and LOST on schedule), its bridges to configured peer regions and the

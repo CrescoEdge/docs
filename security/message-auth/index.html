@@ -3269,8 +3269,9 @@ HMAC-SHA-384 under it instead of a signature, and the signer's credential no lon
 <a href="../upgrade/">upgrade window</a>), a bad signature, MAC or credential, a message that does not name it, a signature older
 than <code>msg_signature_max_age_ms</code> (5 min) or signed more than <code>msg_signature_max_future_ms</code> (60 s) ahead of this node's
 clock, and one seen before (a replay). Each
-refusal is logged as <code>MESSAGE SIGNATURE: REFUSED &lt;why&gt;</code> (at most every 10 s, with a running count); an RPC request is
-answered <code>401 unauthenticated</code>. The reasons are listed in <a href="../../operations/troubleshooting/#message-signature-refused">Troubleshooting</a>.</p>
+refusal is counted under its reason (<code>msg.refused.&lt;reason&gt;</code> in the metric inventory) and logged as
+<code>MESSAGE SIGNATURE: REFUSED &lt;why&gt;</code>: each reason at its first occurrence, then at most every 10 s, with the node's total
+and that reason's count; an RPC request is answered <code>401 unauthenticated</code>. The reasons are listed in <a href="../../operations/troubleshooting/#message-signature-refused">Troubleshooting</a>.</p>
 <h2 id="bounded-state">Bounded state<a class="headerlink" href="#bounded-state" title="Permanent link">&para;</a></h2>
 <p>Every table is bounded and O(1) per message, so nothing grows with the size of the fleet:</p>
 <ul>

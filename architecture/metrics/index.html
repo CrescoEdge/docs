@@ -3252,6 +3252,68 @@ how it is measured — what it means.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="controller-what-became-of-each-message">Controller: what became of each message<a class="headerlink" href="#controller-what-became-of-each-message" title="Permanent link">&para;</a></h2>
+<p>Group <code>msg</code> (and <code>broker</code>), all COUNTERs unless noted, registered by <code>MsgMetrics</code>. They account for every control
+message (MsgEvent) a node had in hand; the dataplane has its own (<code>dataplane.*</code>). The reason or cause is the last part
+of the name, because the inventory keys a meter by its name.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>msg.originated</code></strong></td>
+<td>messages this node originated (its controller's, a plugin's, or an API user's through its wsapi), replies included</td>
+</tr>
+<tr>
+<td><strong><code>msg.relayed</code></strong></td>
+<td>messages taken off the wire and sent on toward another node</td>
+</tr>
+<tr>
+<td><strong><code>msg.delivered</code></strong></td>
+<td>messages handed to their recipient on this node: its controller, a plugin, or the call waiting for a reply</td>
+</tr>
+<tr>
+<td><strong><code>msg.held</code></strong>, <strong><code>msg.hold.full</code></strong></td>
+<td>messages the inbox held until it could judge them, and messages it could not hold for lack of room</td>
+</tr>
+<tr>
+<td><strong><code>msg.refused</code></strong>, <strong><code>msg.refused.&lt;reason&gt;</code></strong></td>
+<td>messages that failed authentication, in all and by reason (<code>unsigned</code>, <code>not_for_this_node</code>, <code>no_recipient</code>, <code>too_old</code>, <code>ahead_of_clock</code>, <code>replay</code>, <code>replay_memory_full</code>, <code>credential</code>, <code>revoked</code>, <code>session_key</code>, <code>bad_signature</code>, <code>caller_mismatch</code>, <code>other</code>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.dropped</code></strong>, <strong><code>msg.dropped.&lt;cause&gt;</code></strong></td>
+<td>messages that ended on this node without reaching their recipient, in all and by cause (<a href="../../operations/troubleshooting/#message-dropped">the causes</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.sign.failed</code></strong>, <strong><code>msg.trust.refused</code></strong>, <strong><code>msg.filepart.dropped</code></strong></td>
+<td>sends this node could not sign; trust data from a parent it refused; file parts it did not take (not counted as messages)</td>
+</tr>
+<tr>
+<td><strong><code>broker.caller.stripped</code></strong></td>
+<td>caller stamps this node's broker stripped (forged, or carried by a bridge that may not carry them)</td>
+</tr>
+<tr>
+<td><strong><code>broker.bridge.withheld</code></strong>, <strong><code>broker.bridge.discarded</code></strong></td>
+<td>messages a bridge demanded and was not given, or brought in for a destination its peer may not write</td>
+</tr>
+<tr>
+<td><strong><code>broker.anonymous.discarded</code></strong>, <strong><code>broker.recipient.withheld</code></strong></td>
+<td>messages from connections without a client certificate; messages withheld from a consumer that is not their recipient</td>
+</tr>
+<tr>
+<td><strong><code>broker.quarantine.connections</code></strong> (GAUGE)</td>
+<td>connections without a verified identity held now</td>
+</tr>
+</tbody>
+</table>
+<p>On a quiet fabric, <code>msg.originated</code> summed over the nodes equals <code>msg.delivered + msg.refused + msg.dropped</code> summed
+over them. What a broker loses between two nodes (a message that expired, a queue with no consumer) ends on no node, so
+the sum then falls short by it: that is what the identity is for. An authorization denial (403) counts as delivered:
+the recipient answered.</p>
 <h2 id="controller-jvm-system-micrometer-binders">Controller — JVM &amp; system (Micrometer binders)<a class="headerlink" href="#controller-jvm-system-micrometer-binders" title="Permanent link">&para;</a></h2>
 <p>The controller binds four standard Micrometer binders (<code>JvmMemoryMetrics</code>, <code>JvmThreadMetrics</code>,
 <code>ClassLoaderMetrics</code>, <code>ProcessorMetrics</code>) to its registry and adopts the following into the <code>jvm</code>
