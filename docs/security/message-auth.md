@@ -72,14 +72,27 @@ node, whatever re-addressed it on the way. Nothing is dispatched unverified.
   its region controller (tenant, region, name, public key, and the certificates its key stands on, by reference), valid
   `msg_signing_attestation_hours` (24) and renewed on its pings when a third of its life is left; until it holds one, its
   certificate. An agent uses an attestation only while it is its own: for its present name and key, and from its present
-  region controller. A controller that comes back with another key attests its agents anew on their next ping (each ping
-  names the key that signed the attestation the agent holds), and an agent that joined another controller signs with
-  its certificate until that controller attests it.
+  region controller. For the controller that attested it, an agent always signs with its certificate: that controller
+  knows its agent by the certificate it attested, whatever became of the key it attested with. A controller that comes
+  back with another key attests its agents anew on their next ping, and an agent that sees its controller's present key
+  (a message or a trust bundle the controller signed) drops an attestation another key made and pings at once: its agents
+  recover by themselves within a second of the new key being accepted. (Before agent release 1.3.378 such a ping was
+  signed with the former key's attestation and refused, so the agents of a re-keyed controller stayed locked out until
+  they were restarted.) An agent that joined another controller signs with its certificate until that controller
+  attests it.
 - **The trust bundle.** The global lists the region and global controller keys it verified (each region presents its
   certificate on its pings), signs the list and sends it down on its pongs; each region re-signs what it verified for its
   agents. The bundle carries a version number bumped on each change, so a child's ping costs its parent the same at any
   fabric size, and it is signed and compressed once per change. A controller the global no longer lists is still trusted
   for `msg_signing_bundle_grace_ms` (15 min).
+- **A name has one key.** From the moment a node binds another key to a name (an operator's rebind, a controller it
+  follows that was re-keyed) or learns one for it (a trust bundle that lists the name with another key; at a global, the
+  certificate a region presents), everything verified there on the name's former key stops being served at once: its
+  cached credentials, the attestations the former key issued, the sessions agreed with them, and the trust-bundle entry.
+  (Before 1.3.378 a credential verified once was served from the cache for up to an hour.) Two limits: only the nodes
+  that learn of the new key do this, so a key that must be refused everywhere is **revoked**; and under an operator PKI
+  a re-issued certificate does not replace the one before, which verifies until it is revoked or expires
+  ([Operator PKI](pki.md)).
 - **Credentials are verified once and cached** (a bounded LRU), but **revocations are checked on every message**, for the
   signer and, for an attestation, its issuer: a key revoked on this node (any scope), a tombstoned name, a certificate out
   of its validity and, with an operator PKI, the operator's `revocation_file` (a listed key or certificate, a CRL serial, a

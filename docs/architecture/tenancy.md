@@ -30,12 +30,43 @@ Both controlled channels are qualified with the owning tenant:
 - **Producers** stamp the origin tenant onto the message (`cresco_tenant`, preserved across relays) and
   qualify the forward destination with the *message's* tenant, so every relay produces the identical queue
   name.
-- **Leaf agents** (network clients) consume only their own `T.<tenant>.` inbox.
+- **Leaf agents** (network clients) consume only their own `T.<tenant>.` inbox (a leaf of a superuser tenant: its
+  inbox in every tenant's namespace).
 - **Infra controllers** (on `vm://`, multi-tenant relays) consume the `T.*.` **wildcard** inbox, so they
   relay every tenant.
 
 A cross-tenant send therefore lands in a queue nobody consumes *and* is denied by the ACL — isolation is
 enforced twice over.
+
+## Several tenants under one global
+
+The shape: a **global in a superuser tenant** (`broker_superuser_tenants`, default `cresco-system`), and under it each
+tenant's own region controllers and agents. A region joins the global over its bridge exactly as in a single-tenant
+fabric. What makes it work, and what holds it together:
+
+| What | How |
+|---|---|
+| a tenant's region registers with the global | a region publishes its state in its own namespace (`T.<tenant>.agent.event`); a global of a superuser tenant listens for every tenant's (`T.*.agent.event`). A state export is taken only from the **controller that joined**, reporting **its own region**, and its rows carry the tenant that controller was verified in, never one it claims |
+| the global reaches a tenant's node | the global's own message travels in the namespace of the **destination region's tenant**, which it knows from the controllers that completed discovery with it |
+| a tenant's node answers the global, or asks it | a tenant's node always sends in **its own** namespace; the global's answer travels in the **verified tenant of the caller it answers**, whatever the request named |
+| a superuser tenant's own nodes (an operator's agent) | consume their inbox in every tenant's namespace (`T.*.<their inbox>`), and judge each message by its verified caller like any other |
+| a request that arrives in another tenant's namespace than its caller's | refused where it arrives, counted (`msg.dropped.cross_tenant`); a request from another tenant that names a sender other than the node that signed it: `msg.dropped.sender_unbound` |
+
+Rules an operator must know:
+
+- **A region name belongs to one tenant.** If controllers of two tenants are recorded for one region name, the global
+  sends its own messages for that region into neither namespace: `TENANT UNRESOLVED` in its log, counted in
+  `msg.tenant.unresolved`. Under an operator PKI the second claimant is refused when it joins.
+- **Node names are unique across the fabric.** The registry lists an agent (and a plugin) by its name, so a second node
+  of the same name in another tenant is not listed (`REGISTRY NAME COLLISION` at the global). It is still reachable by
+  its address; give nodes of different tenants different names.
+- **A superuser node that did not see a region's controller join** (a second global, an operator's agent) does not know
+  that region's tenant: its client names it (`cresco_tenant`), which the gateway vets.
+- A region that just joined is addressed correctly within a second.
+
+Before agent release 1.3.378 this shape did not form: a tenant's region never registered with a global of another
+tenant, and answers between them were dropped. (The test of the time checked that the bridges came up, not that the
+regions were listed; the fabric matrix's `tenants` cell checks it now, see [Testing](../operations/testing.md).)
 
 ## Role-based authorization
 
