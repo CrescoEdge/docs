@@ -3014,7 +3014,9 @@ wsapi jar (passwords are read without echo, never from the command line):</p>
 <li>the certificate is the caller, from its SANs: exactly one <code>cresco:api:&lt;tenant&gt;/&lt;user&gt;</code>, exactly one
   <code>cresco:role:admin</code> or <code>cresco:role:user</code>, any number of <code>cresco:grant:&lt;stream or prefix*&gt;</code>; <code>tools/cresco-pki.sh api</code>
   issues them;</li>
-<li>passwords and the service key are refused (401), API tokens too unless <code>wsapi_allow_tokens=true</code>;</li>
+<li>passwords and the service key are refused (401), API tokens too unless <code>wsapi_allow_tokens=true</code>; with tokens
+  allowed, the client certificate is still checked first (deny list, CRL, expiry) and stays part of the session's
+  credential: no token session opens over a revoked certificate, and revoking it closes the token sessions over it;</li>
 <li>revocation: <code>wsapi_client_deny_file</code> (SHA-256 fingerprints) and <code>wsapi_client_crl</code> are re-read when they change, and
   close the open connections of a revoked certificate within a second or two.</li>
 </ul>

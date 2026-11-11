@@ -3111,7 +3111,13 @@ READ unless it says so, so a tenant still cannot consume another tenant's inbox.
 <h2 id="what-is-and-isnt-guaranteed">What is and isn't guaranteed<a class="headerlink" href="#what-is-and-isnt-guaranteed" title="Permanent link">&para;</a></h2>
 <p><strong>Guaranteed</strong> (with mutual TLS + <code>broker_security_enabled</code> + <code>tenant_namespacing</code>): a tenant client cannot
 subscribe to or publish into another tenant's subtree at <strong>any</strong> broker in the mesh; identity is
-non-spoofable.</p>
+non-spoofable. The same holds for a tenant's region controller and its bridges: a bridge carries its peer's own
+tenant's subtree, what is addressed to an inbox of the peer's own region, and answers to a superuser tenant's nodes --
+nothing else leaves over it and nothing else is taken from it (counted and logged as <code>WITHHELD from a bridge</code> /
+<code>DISCARDED a message a bridge brought in</code>). Only the bridge to a region's own global, and a controller of a superuser
+tenant, carry every tenant's traffic. (Before 2026-11-11 every verified bridge was exempt from tenant policy.) Under
+<code>security_profile=production</code> a bridge peer is a controller of the PKI that completed discovery with this node, and a
+region's names belong to one tenant: a certificate of another tenant that names that region is not that region's node.</p>
 <p><strong>Not guaranteed by this layer</strong> (documented, with tiered mitigations): a <em>compromised broker</em> is trusted
 infrastructure and can see all tenants (mitigation: dedicated per-tenant bridges + payload encryption);
 payloads at rest inside a transit broker are readable by that broker (mitigation: payload encryption);

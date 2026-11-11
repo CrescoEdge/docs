@@ -2254,6 +2254,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-global-or-a-region-controller-is-down" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A global or a region controller is down
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#discovery-refusals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2956,6 +2967,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-global-or-a-region-controller-is-down" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A global or a region controller is down
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#discovery-refusals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3094,7 +3116,7 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 <tr>
 <td><code>an unsigned message (from ..., not delivered first hand)</code></td>
 <td>an unsigned message that did not come straight from the receiver's parent or child</td>
-<td>a node of an earlier build outside the upgrade window (<code>from agent:...</code>), or a sender with <code>msg_signing_required=false</code></td>
+<td>a node of an earlier build outside the upgrade window (<code>from agent:...</code>), or a sender with <code>msg_signing_required=false</code>. From a parent of a build before 2026-11-11, for up to 60 s after this node moved to another controller, or <code>[EXEC ping]</code> once at a restarted global: a Cresco defect (a direct link was kept a minute after the link was gone); upgrade the sender</td>
 </tr>
 <tr>
 <td><code>a message signed for &lt;r&gt;/&lt;a&gt;, not for this node (...)</code> / <code>a message signed for plugin ..., delivered to ...</code></td>
@@ -3112,9 +3134,14 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 <td>the region's federation</td>
 </tr>
 <tr>
-<td><code>a signature made &lt;n&gt; s from now (msg_signature_max_age_ms=...)</code></td>
-<td>the signing time is more than 5 min off this node's clock, either way</td>
-<td>clock synchronization (NTP) on both nodes</td>
+<td><code>a signature made &lt;n&gt; s ago (msg_signature_max_age_ms=...)</code></td>
+<td>the message is older than 5 min by this node's clock</td>
+<td>clock synchronization (NTP) on both nodes; a message delayed that long is refused by design</td>
+</tr>
+<tr>
+<td><code>a signature made &lt;n&gt; s ahead of this node's clock (msg_signature_max_future_ms=...)</code></td>
+<td>the sender's clock is more than 60 s ahead of this node's</td>
+<td>clock synchronization (NTP) on both nodes; raise <code>msg_signature_max_future_ms</code> only where clocks cannot be kept closer</td>
 </tr>
 <tr>
 <td><code>a signature seen before (a replay) from ...</code></td>
@@ -3122,13 +3149,13 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 <td>a replay; nothing to fix on the receiver</td>
 </tr>
 <tr>
-<td><code>a message signed &lt;n&gt; s ago while the replay memory is full</code> / <code>a message while the replay memory is full</code></td>
-<td>more traffic within one max-age than <code>msg_replay_memory_max</code> entries</td>
-<td>raise <code>msg_replay_memory_max</code></td>
+<td><code>a message signed &lt;n&gt; s ago while the replay memory for &lt;signer&gt; is full</code> / <code>a message while the replay memory for &lt;signer&gt; (or of this node) is full</code></td>
+<td>that one signer sent more within one max-age than its memory holds (an eighth of <code>msg_replay_memory_max</code>), or all signers together more than <code>msg_replay_memory_max</code> (about 10,000 signed or MAC'd messages a second at the default). The node then gives up its oldest signing times: messages signed longer ago than it still keeps are refused, fresh ones are accepted; the log line <code>the replay memory is full ... messages signed before ... are now refused as too old</code> says from when. Only that signer is refused in the first case</td>
+<td>if the traffic is expected, raise <code>msg_replay_memory_max</code> (size it at 8 x the busiest signer's messages per max-age, and at the node's whole signed traffic per max-age); otherwise look at that signer</td>
 </tr>
 <tr>
 <td><code>the signer's credential does not verify here (...)</code></td>
-<td>the signer's certificate or attestation does not chain to anything this node trusts</td>
+<td>the signer's certificate or attestation does not chain to anything this node trusts. A message whose signer is only not known here YET (its controller, or that controller's present key, is not in the trust bundle held) is first held up to <code>msg_signing_hold_ms</code> (5 s) and verified again when the trust data changes; this line then means it still did not verify</td>
 <td>the trust bundle (has the global listed that region?), anchors, pins</td>
 </tr>
 <tr>
@@ -3155,6 +3182,50 @@ bracket names the refused message (builds before 2026-11-10 leave it out). See
 </table>
 <p>On the sending side: <code>cannot sign a message this node sends (...): it goes unsigned and is refused</code> means the node's own
 key or provider failed.</p>
+<p>A node's first moments: its trust bundle, an agent's attestation and its parent's revocations arrive on its parent's
+first pong, which it asks for the moment it joins. Until it holds them -- the whole revocation list included, when that
+is longer than one pong carries -- it holds every signed message but its parent's own (15 s at most), and verifies them
+when the data is in; nothing is refused for arriving early, and nothing is dispatched unverified. A node that later
+meets a signer it cannot judge (a region that joined a moment ago) asks its parent for the trust bundle at once instead
+of waiting for the next ping.</p>
+<p><code>route: dropped a message routed more than 10 times or with a ttl outside 0..10 (ttl=...)</code>: a routing loop, or a sender
+that wrote a <code>ttl</code> no router writes. The message ends at that router; an API client's <code>ttl</code> and <code>is_rpc</code> are removed by
+wsapi.</p>
+<h2 id="a-global-or-a-region-controller-is-down">A global or a region controller is down<a class="headerlink" href="#a-global-or-a-region-controller-is-down" title="Permanent link">&para;</a></h2>
+<p><strong>The global is down.</strong> Each region goes to <code>REGION_GLOBAL_FAILED</code> and keeps serving its own agents: its broker, its
+discovery listener, the aging of its agents (STALE and LOST on schedule), its bridges to configured peer regions and the
+dataplane all stay up. Pings and watchdogs are answered, state exports are applied, and a new or restarted agent can
+discover the region and register. A request for the global is answered <code>no global controller joined</code>. The region retries
+the join every few seconds; when the global is back it is <code>REGION_GLOBAL</code> again and sends its full state at once. Agents
+do nothing: no reconnect, no new registration. (Builds before 2026-11-11 stopped the region's discovery and its agent
+watcher for the whole outage: no agent could join or rejoin, and none was aged.)</p>
+<p>With <code>global_optional=true</code> a region gives up after <code>global_connect_attempts</code>, runs as <code>REGION</code> (active), and keeps trying
+in the background (5 s apart at first, backing off to 60 s) while a global is configured (<code>global_controller_host</code>) or one
+found by discovery was joined before.</p>
+<p><strong>A region controller is down.</strong> Its agents keep their state and reconnect when it is back; agents of other regions and
+the global are not affected.</p>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timer task &lt;name&gt; failed (it keeps its schedule): ...</code></td>
+<td>one run of a periodic task (a watchdog, the agent aging, a ping) threw; the task goes on at its next interval. Before 2026-11-11 the first such failure ended that timer silently, and with it every watchdog on it</td>
+</tr>
+<tr>
+<td><code>REFUSED the file group ...</code></td>
+<td>an incoming file transfer was not registered: the receiver already holds 256 groups (64 for one caller), or the group id is held by another caller</td>
+</tr>
+<tr>
+<td><code>EXPIRED the file group ...</code></td>
+<td>a file transfer received no part for 30 min: its parts were deleted and its group forgotten</td>
+</tr>
+</tbody>
+</table>
 <h2 id="discovery-refusals">Discovery refusals<a class="headerlink" href="#discovery-refusals" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3171,6 +3242,10 @@ key or provider failed.</p>
 <tr>
 <td><code>Discovery: REFUSED a node of an earlier build at ...</code></td>
 <td>an earlier build tried the legacy exchange outside the upgrade window</td>
+</tr>
+<tr>
+<td><code>Discovery REFUSED controller &lt;r&gt;/&lt;a&gt;: it claims the superuser tenant ..., and a controller of a superuser tenant is never bound first come: list its key ... in controller_trust_anchors on this node</code></td>
+<td>a region or global controller whose certificate names a superuser tenant (<code>broker_superuser_tenants</code>) met a node that does not list it. Its tenant is its own certificate's word, and a superuser tenant's controller is SUPERUSER at every broker that binds it: add the key the line names to <code>controller_trust_anchors</code> on this node (and see <a href="../../security/upgrade/">upgrade</a>, item 5)</td>
 </tr>
 <tr>
 <td><code>discovery v2: ... failed authentication: it does not hold the ...</code></td>
@@ -3216,8 +3291,8 @@ slows its writers; nothing is lost.</p>
 <td>find the slow reader (<code>wsapi.dataplane.egress.paused</code>, <code>.pending.bytes</code>); a stopped reader is closed after 30 s</td>
 </tr>
 <tr>
-<td>a WebSocket client closed with <strong>1013</strong> <code>stalled: nothing read in 30000 ms</code></td>
-<td>the client read nothing for <code>wsapi_dataplane_stall_close_ms</code> while frames waited for it, holding its topic's writers</td>
+<td>a WebSocket client closed with <strong>1013</strong> <code>stalled: &lt;n&gt; B read in 30000 ms, less than &lt;m&gt;</code></td>
+<td>while frames waited for it the client read less than half its egress budget in <code>wsapi_dataplane_stall_close_ms</code> (nothing, or a trickle), holding its topic's writers</td>
 <td>read the stream continuously, or raise the setting; reconnect and resume (<code>cresco_seq</code> says where)</td>
 </tr>
 <tr>
@@ -3307,6 +3382,10 @@ slows its writers; nothing is lost.</p>
 <td>the jar does not verify against <code>plugin_signing_truststore</code> (<a href="../../security/signed-plugins/">Signed plugins</a>)</td>
 </tr>
 <tr>
+<td><code>addConfig REFUSED: plugin id &lt;id&gt; is already configured on this agent</code></td>
+<td>a second <code>pluginadd</code> with an <code>inode_id</code> the agent already holds (a retry after a timeout, a pipeline resubmitted); the add fails at once</td>
+</tr>
+<tr>
 <td><code>wsapi NOT started: ...</code></td>
 <td>wsapi's own <code>security_profile</code> conflicts with the node's, or production requirements are missing (<code>wsapi_client_ca</code> ...)</td>
 </tr>
@@ -3317,6 +3396,10 @@ slows its writers; nothing is lost.</p>
 <tr>
 <td><code>STRIPPED a forged caller '...' on a message to '...'</code></td>
 <td>a sender set a caller stamp it may not declare; the stamp was removed and counted</td>
+</tr>
+<tr>
+<td><code>WITHHELD from a bridge a message on '...': the bridge of ... carries its own tenant's and region's traffic only (...)</code> / <code>DISCARDED a message a bridge brought in for '...': ...</code></td>
+<td>a bridge to another controller demanded, or brought in, a message that is not its peer's own: another tenant's destination. The message stays on (or never enters) this broker; the bridge itself stays up. A region below a global and a peer region carry their own tenant's subtree, what is addressed to an inbox of their own region, and answers to a superuser tenant's nodes; a region's global and a superuser tenant's controller carry everything. Expected when tenants share a broker mesh; from a single-tenant fabric, report it</td>
 </tr>
 </tbody>
 </table>

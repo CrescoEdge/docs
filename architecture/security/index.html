@@ -3111,7 +3111,7 @@ consumer/producer/send against <code>TenantPolicy</code> using the connection's 
 <tbody>
 <tr>
 <td><code>SUPERUSER</code></td>
-<td>every destination in every tenant (god view). Granted to the local controller (<code>vm://</code>), broker bridges, and network clients whose tenant is in <code>broker_superuser_tenants</code> (default <code>cresco-system</code>).</td>
+<td>every destination in every tenant (god view). Granted to the local controller (<code>vm://</code>), the bridge to a region's own global, and network clients and controllers whose tenant is in <code>broker_superuser_tenants</code> (default <code>cresco-system</code>). Any other bridge (a region below a global, a peer region) carries its peer's own tenant's and region's traffic only.</td>
 </tr>
 <tr>
 <td><code>TENANT</code></td>

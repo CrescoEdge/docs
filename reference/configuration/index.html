@@ -3636,6 +3636,12 @@ insecure operation is only an explicit <code>broker_security_enabled=false</code
 <td>Migration only: exempt a client that claims to be a broker bridge without a client certificate from tenant authorization (a WARNING at boot). Refused in production.</td>
 </tr>
 <tr>
+<td><code>controller_trust_anchors</code></td>
+<td>String</td>
+<td><em>unset</em></td>
+<td>Comma-separated SHA-256 fingerprints (hex) of the certificates or keys of the controllers this node may join -- its own key as a controller prints it at start (<code>This node's identity key: ...</code>), or a CA above it. Unset: a controller is pinned on first authenticated contact. Set: a controller this node joins (its region, its global, a peer region it dials) must chain to a listed anchor, and a listed controller that re-keyed is followed without a rebind. Required for any controller whose certificate names a superuser tenant (<code>broker_superuser_tenants</code>): such a controller is never bound first come, by the nodes that join it or by the controller it joins.</td>
+</tr>
+<tr>
 <td><code>broker_shared_destinations</code></td>
 <td>String</td>
 <td><code>agent.event,region.event,global.event</code></td>
@@ -3710,7 +3716,13 @@ deployment these are effectively required, not optional.</p>
 <td><code>msg_signature_max_age_ms</code></td>
 <td>long</td>
 <td><code>300000</code></td>
-<td>The signing time's tolerance either way, clock skew included (at least 10 s).</td>
+<td>How old a signature may be (at least 10 s).</td>
+</tr>
+<tr>
+<td><code>msg_signature_max_future_ms</code></td>
+<td>long</td>
+<td><code>60000</code></td>
+<td>How far ahead of the receiver's clock a signing time may be: the allowance for clock differences (1 s to the max age).</td>
 </tr>
 <tr>
 <td><code>msg_signing_attestation_hours</code></td>
@@ -3767,10 +3779,16 @@ deployment these are effectively required, not optional.</p>
 <td>Credentials held verified (an LRU).</td>
 </tr>
 <tr>
+<td><code>msg_signing_hold_ms</code></td>
+<td>long</td>
+<td><code>5000</code></td>
+<td>How long an inbox holds a signed message it cannot judge yet (trust data still arriving) before it is accepted or refused as it stands (at most 60 s; <code>0</code>: refused at once).</td>
+</tr>
+<tr>
 <td><code>msg_replay_memory_max</code></td>
 <td>long</td>
 <td><code>4000000</code></td>
-<td>Signatures and MACs the replay memory holds (at least 4096); past it the oldest signing times are refused as too old.</td>
+<td>Signatures and MACs the replay memory holds in all (at least 4096); one signer holds an eighth at most, and past it that signer's oldest signing times are refused as too old.</td>
 </tr>
 </tbody>
 </table>
@@ -4376,6 +4394,18 @@ static host is set it overrides dynamic discovery for that link.</p>
 <td>Comma-separated list of peer regional-controller addresses to maintain mesh links with.</td>
 </tr>
 <tr>
+<td><code>net_infer_connections</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>A region bridges itself to other regions it learned of from the shared route state and can reach directly (inferred peers), and uses such a link when it is faster.</td>
+</tr>
+<tr>
+<td><code>net_infer_max_peers</code></td>
+<td>int</td>
+<td><code>3</code></td>
+<td>The most inferred peers a region holds (0: none). A region dials only while it has a free place, a few regions a round, in ring order from its own name. Configured <code>regional_peers</code> and the global take none of the places. Before 2026-11-11 there was no bound: R regions built R x (R-1) bridges. A fabric that wants more direct links lists them in <code>regional_peers</code> or raises this. Regions that are not peers reach each other through their global, or through neighbours within 5 hops: a fabric WITHOUT a global and with more than about 30 regions must raise this or configure <code>regional_peers</code>, or its far regions have no route to each other.</td>
+</tr>
+<tr>
 <td><code>localpluginrepo</code></td>
 <td>String</td>
 <td><em>unset</em></td>
@@ -4915,7 +4945,7 @@ default to the prior single-static-global behaviour; see the
 <td><code>global_connect_attempts</code></td>
 <td>int</td>
 <td><code>3</code></td>
-<td>With <code>global_optional</code>, how many times to try joining a global before settling into region-first <code>REGION</code> steady state.</td>
+<td>With <code>global_optional</code>, how many times to try joining a global before settling into region-first <code>REGION</code> steady state. A region with a configured global (<code>global_controller_host</code>), or one that had joined a discovered global before, then keeps trying in the background (5 s apart at first, backing off to 60 s) and stays active for its agents meanwhile.</td>
 </tr>
 <tr>
 <td><code>failure_phi_suspect</code></td>

@@ -3020,7 +3020,8 @@ an insecure debug node.</p>
 <li>a message whose caller stamp a node may not declare is stripped and counted (<code>STRIPPED a forged caller ...</code>);</li>
 <li>an unsigned message (other than one its broker attests first hand on a direct link), a bad signature or MAC, a
   message that does not name this node as its recipient, a signer whose key, name or certificate is revoked, a signature
-  older or newer than <code>msg_signature_max_age_ms</code> (5 min) or a replay is refused (<code>MESSAGE SIGNATURE: REFUSED ...</code>; an RPC
+  older than <code>msg_signature_max_age_ms</code> (5 min), one signed more than <code>msg_signature_max_future_ms</code> (60 s) ahead of
+  the receiver's clock, or a replay is refused (<code>MESSAGE SIGNATURE: REFUSED ...</code>; an RPC
   request is answered <code>401 unauthenticated</code>; see <a href="../message-auth/">Message authentication</a>);</li>
 <li>a plugin jar that does not verify is not installed (<code>REFUSED to install</code>);</li>
 <li>a dataplane subscription that names another identity's recipient-bound stream, or a process's stdin, is refused.</li>
