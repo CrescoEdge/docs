@@ -38,15 +38,15 @@ python -m build        # build sdist + wheel into dist/
 | Requirement | Value |
 |---|---|
 | Package name | `pycrescolib` |
-| Version | 1.4.1 |
-| Python | 3.8+ (tested through 3.12) |
+| Version | 1.5.0 |
+| Python | 3.9+ (tested through 3.12) |
 | License | Apache-2.0 |
 
 ### Dependencies
 
 | Dependency | Constraint | Used for |
 |---|---|---|
-| [`websockets`](https://pypi.org/project/websockets/) | `>=10.0` | The WebSocket transport for the control connection and stream sockets. |
+| [`websockets`](https://pypi.org/project/websockets/) | `>=14.0` | The WebSocket transport for the control connection and stream sockets. |
 | [`cryptography`](https://pypi.org/project/cryptography/) | `>=36.0.0` | Parsing the server X.509 certificate to extract the agent's region / agent / plugin identity. |
 | [`backoff`](https://pypi.org/project/backoff/) | `>=2.0.0` | Exponential-backoff retry on transient connection / timeout errors. |
 
@@ -287,6 +287,11 @@ contract.
 | `regional_plugin_msgevent(is_rpc, event_type, payload, dst_agent, dst_plugin, timeout=8.0)` | a plugin in the local region |
 | `plugin_msgevent(is_rpc, event_type, payload, dst_plugin, timeout=8.0)` | a local plugin |
 
+Every method raises what went wrong: `ConnectionError` when the socket is gone, `TimeoutError` when no answer came in
+time. An empty `dict` is an answer, never an error. (Before 1.5.0 `agent_msgevent`, `regional_agent_msgevent` and
+`regional_plugin_msgevent` returned `{}` for both.) A reply may be up to 64 MiB, wsapi's own limit for the API socket
+(`CRESCO_API_MAX_MESSAGE` changes the client's side); before 1.5.0 a reply over 1 MiB closed the connection.
+
 Example of a direct RPC through `messaging` (equivalent to the higher-level helpers):
 
 ```python
@@ -310,17 +315,38 @@ dp = client.get_dataplane(stream_name, callback=None, binary_callback=None)
 | Method | Signature | Description |
 |---|---|---|
 | `client.get_dataplane(stream_name, callback=None, binary_callback=None)` | `-> dataplane` | Create or fetch the dataplane for a stream query. `callback(msg)` handles text frames, `binary_callback(bytes)` handles binary frames. |
-| `connect()` | `-> bool` | Open the stream and block (up to 5 s) for activation. |
+| `connect()` | `-> bool` | Open the stream and block (up to 5 s) for activation. `False` with the reason in `last_error` when the connection failed or wsapi refused the handshake; raises `DataplaneSubscriptionRefused` for a receiver whose subscription the broker refused. |
 | `connected()` / `is_active()` | `-> bool` | Whether the stream is active. |
-| `send(data)` | `-> None` | Send a text or bytes payload. |
-| `send_binary(data)` | `-> None` | Send a `bytes` payload (raises `TypeError` if not bytes). |
-| `send_binary_file(file_path)` | `-> None` | Read a file and send it as one binary message. |
-| `send_partial(data, complete)` | `-> None` | Append a binary fragment; when `complete` is `True`, flush the accumulated fragments as one fragmented message. |
-| `update_config(dst_region, dst_agent)` | `-> None` | Reconfigure the stream to target an agent. |
+| `send(data, timeout=None)` | `-> SendResult` | Send a text or bytes payload. |
+| `send_binary(data, timeout=None)` | `-> SendResult` | Send a `bytes` payload (raises `TypeError` if not bytes). |
+| `send_binary_file(file_path, timeout=None)` | `-> SendResult` | Read a file and send it as one binary message. |
+| `send_partial(data, complete, timeout=None)` | `-> SendResult` | Append a binary fragment (`PENDING`); when `complete` is `True`, flush the accumulated fragments as one fragmented message (`SENT`). |
+| `update_config(dst_region, dst_agent)` | `-> SendResult` | Reconfigure the stream to target an agent. |
 | `get_metrics()` | `-> dict` | Client-side counters: messages/bytes sent and received, and `active`. |
 | `close()` | `-> None` | Close the stream. |
 | `client.close_dataplane(stream_name)` | `-> bool` | Close and deregister a named dataplane on the client. |
 | `client.get_active_dataplanes()` | `-> list[str]` | Names of currently registered dataplanes. |
+
+**What a send returns (1.5.0).** A `SendResult`: `SENT` (handed to the socket; not an acknowledgement from a
+receiver), `PENDING` (a fragment waiting for the final one), `DROPPED` (the stream was not active: nothing was written)
+or `FAILED` (the write raised or did not finish in time: the stream reconnects). It is true in a condition unless the
+data was lost, and `dp.last_send_error` says why:
+
+```python
+if not dp.send_binary(chunk):
+    raise RuntimeError(f"chunk not sent: {dp.last_send_error}")
+```
+
+- A send may take as long as the stream's `send_timeout` (seconds; `CRESCO_DATAPLANE_SEND_TIMEOUT`, default 30) or
+  `timeout=` on the call. wsapi slows a sender down when the fabric cannot keep up
+  ([back-pressure](../architecture/dataplane.md)), so a slow send is not a broken one. Before 1.5.0 the limit was a
+  fixed 5 s, after which the stream was torn down.
+- A fragmented message goes out whole or not at all: when one fragment is not taken, the rest of that message is
+  `DROPPED` up to and including its final fragment.
+- When wsapi refuses the handshake (the caller's role or tenant, a stream it does not open to this caller),
+  `connect()` returns `False` at once, `dp.handshake_refused` holds wsapi's reason, the `refused_callback` is called
+  with it, and the stream tries again after 5, 10, 20, 40 and then every 60 s. Before 1.5.0 the refusal looked like a
+  timeout and the stream reconnected every 5 s for ever.
 
 See [Data Plane](../architecture/dataplane.md) for the fabric-side model.
 
