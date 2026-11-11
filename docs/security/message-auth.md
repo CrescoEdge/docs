@@ -109,8 +109,10 @@ and the global) is direct and costs no cryptography beyond TLS.
 A direct link ends with the link, not a minute later. A parent stops sending a child unsigned messages the moment the
 last consumer of that child's inbox leaves its broker (the child stopped, moved to another controller, or its connection
 broke), and a ping the child sent before that does not re-open the link. A child signs what it sends its parent while its
-link is down, for the first message after each join, and after any ping that went unanswered (the parent may have
-restarted and not bound the link yet). In each case the next ping and pong offer the link again. (Builds before
+link is down and for the first message after each join; that first ping carries no offer, which withdraws the link at
+the parent too, so the first pong of a join is signed whatever path it takes, and the next ping and pong offer the link
+again. After a ping that went unanswered both sides sign for a minute before the direct link is tried again: the ping
+or its pong may have been lost because it travelled unsigned by another controller's bridge, where it is not first hand. (Builds before
 2026-11-11 kept the offer for the full minute: a node that had moved to another region and still answered at its former
 address refused its former parent's messages as `an unsigned message (..., not delivered first hand)` for up to 60 s, and
 a restarted global refused the first ping of each region.)
@@ -173,15 +175,21 @@ Every table is bounded and O(1) per message, so nothing grows with the size of t
   64 bits of its SHA-256, in primitive tables). Each signer has its own memory, whose check-and-record is one step under
   one lock: at most an eighth of `msg_replay_memory_max` entries each, and `msg_replay_memory_max` in all. A signer past
   its bound has its own oldest bucket dropped, and from then on what IT signed in or before that bucket is refused as
-  too old; no other signer is affected, and a replay is never accepted. A signer's memory goes once nothing it holds
-  could still be accepted. (One shared memory let a single node fill it with messages signed ahead of the clock and so
-  have every other signer refused for minutes.)
+  too old; no other signer is affected, and a replay is never accepted. A bucket goes once its signing times are past
+  the max age, and a signer's memory once it is empty and idle, so the memory holds about one max-age of traffic: at
+  the default bound, some 10,000 signed or MAC'd messages a second in all. When all signers together reach the bound,
+  the oldest signing times are given up in every signer's memory at once: a message signed before them is then refused
+  as too old (the age a message may have shrinks), and fresh messages are accepted. Only a flood that fills the bound
+  within one bucket's time (an eighth of the max age) is refused outright. (One shared memory let a single node fill it
+  with messages signed ahead of the clock and so have every other signer refused for minutes.)
 - **Credentials**: an LRU of `msg_signing_credentials_max` verified credentials; past it the least recently used goes.
 - **Held messages**: a signed message a node cannot judge YET -- in its first moments with a parent, before that parent's
   pongs brought its trust data (15 s at most), or later when the signer's controller is not in the trust bundle it
-  holds -- is held, not refused: at most `msg_signing_hold_ms` (5 s), 2048 messages and 32 MiB of text. It is verified
-  again when the trust data changes and once more when its time is over; then it is accepted or refused as it stands.
-  A message that does not fit is refused at once.
+  holds -- is held, not refused: at most `msg_signing_hold_ms` (5 s), 2048 messages and 32 MiB of text, and an eighth
+  of the messages from one sender (what is held is not verified yet, so one sender cannot take the room of the others).
+  It is verified again when the trust data changes and once more when its time is over; then it is accepted or refused
+  as it stands. A message that does not fit is refused at once. The wait for a parent's trust data belongs to every
+  join -- a region that joins or rejoins its global, an agent that moved -- not to a node's first seconds alone.
 - **Trust data arrives at once, and on demand**: a node pings its parent the moment it joins (not one ping interval
   later), so the trust bundle, an agent's attestation and the parent's revocations are in within one round trip. A node
   counts as ready only when it holds the parent's WHOLE revocation list: a list longer than one pong carries
@@ -232,7 +240,7 @@ The multi-host release gate, the release against the previous build in both prof
 | `msg_signing_sessions_max` | `200000` | peers a node holds sessions with; past it, a new peer stays signed |
 | `msg_signing_credentials_max` | `100000` | credentials held verified (an LRU) |
 | `msg_signing_hold_ms` | `5000` | how long an inbox holds a signed message it cannot judge yet before it is accepted or refused as it stands (at most 60 s; `0`: refused at once) |
-| `msg_replay_memory_max` | `4000000` | signatures and MACs the replay memory holds in all (at least 4096), an eighth of it at most for one signer; a signer past its bound has its own oldest signing times refused as too old |
+| `msg_replay_memory_max` | `4000000` | signatures and MACs the replay memory holds in all (at least 4096), an eighth of it at most for one signer; a signer past its bound has its own oldest signing times refused as too old, and so have all signers when together they reach the whole bound. Size it at the node's signed and MAC'd messages per max-age (5 min): the default serves about 10,000 a second |
 
 ## Checking a node
 
