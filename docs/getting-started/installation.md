@@ -12,6 +12,27 @@ the build, and the resulting artifacts.
 | **Python** | 3.8+ (only for the [Python client](../clients/python.md)) |
 | **OS** | Linux / macOS (developed on both) |
 
+## Get a release
+
+Every commit of the agent's `main` branch is a release with a name of its own, `1.3.<n>` (n: the number of commits up
+to it), published at [github.com/CrescoEdge/agent/releases](https://github.com/CrescoEdge/agent/releases) and never
+replaced. Each one holds the agent jar (`agent-1.3.<n>.jar`), its SHA-256, `bundles.lock` (every embedded Cresco
+bundle with its SHA-256 and the published snapshot it is) and the SBOM. The release `1.3-SNAPSHOT` carries the latest
+jar under the old name `agent-1.3-SNAPSHOT.jar` and is replaced each time: take it to try the latest 1.3, and name a
+`1.3.<n>` release for anything you deploy, so that every node runs the same known build.
+
+```bash
+shasum -a 256 -c agent-1.3.374.jar.sha256   # the download is the published file
+java -jar agent-1.3.374.jar --version       # the release, the build, every embedded bundle (no node is started)
+```
+
+`--version` answers "what does this node run" from the jar alone. To check a jar against the source it names: in a
+checkout of the tag, `scripts/rebuild-check.sh agent-1.3.374.jar` verifies the embedded bundles against `bundles.lock`,
+and with `--rebuild` compares every entry with a build of that checkout (identical with the same JDK build, but for
+the four entries that record the build itself; another 21.x patch release of the JDK changed one debug table in one
+class in our test). A release signed by an operator's key is verified with `scripts/verify-release.sh` (agent
+repository, README).
+
 ## Build from source
 
 Cresco is a set of OSGi bundles â€” one module (and one git repository) per directory under `code/`. The
@@ -38,7 +59,7 @@ Build order (from `build.sh`): base layer `logger`, `library` (no Cresco deps) â
 | Artifact | Location | What it is |
 |----------|----------|-----------|
 | `agent-1.3-SNAPSHOT.jar` | `run/` | The runnable Cresco node (Felix host + all bundles). This is what you launch. |
-| Per-module bundles | `~/.m2/...` | Installed to the local Maven repo; also staged version-less into `agent/src/main/resources/`. |
+| Per-module bundles | `agent/src/main/resources/` | Committed there under version-less names and pinned by `agent/bundles.lock`: the agent build embeds exactly the bundles the lock names, or fails naming the jar. `prebuild.sh --update <name>` takes a bundle's latest published snapshot (checked against Maven Central's checksum, never from `~/.m2`); `prebuild.sh --lock <name>` records one you built and copied in yourself. |
 | `clientlib` jar | `code/clientlib/target/` | The external [Java SDK](../clients/java.md) (shaded). |
 | `pycrescolib` | `run/venv/` | The [Python SDK](../clients/python.md), installed editable into a venv. |
 
