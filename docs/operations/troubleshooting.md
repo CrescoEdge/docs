@@ -21,10 +21,17 @@ refusal names its reason in the log; the lines below are quoted as the code writ
 
 ## Message signature refused
 
-**`MESSAGE SIGNATURE: REFUSED <why> [<type> <action>] (<n> refused so far; logged at most every 10 s)`**: a message
-failed its end-to-end authentication and was not dispatched; an RPC request is answered `401 unauthenticated`. The
-bracket names the refused message (builds before 2026-11-10 leave it out). See
+**`MESSAGE SIGNATURE: REFUSED <why> [<type> <action>] (<n> refused so far; <k> of this kind, <reason>; each kind is
+logged at most every 10 s)`**: a message failed its end-to-end authentication and was not dispatched; an RPC request is
+answered `401 unauthenticated`. The bracket names the refused message. `<n>` is the node's total, `<k>` the count of
+this reason. Each reason is logged at its first occurrence and then at most every 10 s by itself, so a reason that
+happens all the time never hides one that happened once; every reason is also a counter in the node's metric inventory
+(`msg.refused.<reason>`, see [Metrics](../architecture/metrics.md#controller-what-became-of-each-message)). (Builds
+before 2026-11-11 kept one count and one line per 10 s for all reasons together.) See
 [Message authentication](../security/message-auth.md).
+
+The reason names: `unsigned`, `not_for_this_node`, `no_recipient`, `too_old`, `ahead_of_clock`, `replay`,
+`replay_memory_full`, `credential`, `revoked`, `session_key`, `bad_signature`, `caller_mismatch`, `other`.
 
 | `<why>` | Meaning | What to check |
 |---|---|---|
@@ -55,6 +62,30 @@ of waiting for the next ping.
 `route: dropped a message routed more than 10 times or with a ttl outside 0..10 (ttl=...)`: a routing loop, or a sender
 that wrote a `ttl` no router writes. The message ends at that router; an API client's `ttl` and `is_rpc` are removed by
 wsapi.
+
+## Message dropped
+
+**`MESSAGE DROPPED: <cause in words> [<type> <action>] <src> -> <dst> (<n> dropped so far; <k> of this kind, <cause>;
+each kind is logged at most every 10 s)`**: a control message ended on this node without reaching its recipient. Every
+cause is logged at its first occurrence and then at most every 10 s, and is a counter (`msg.dropped.<cause>`). Before
+2026-11-11 most of these were not counted at all, and one of them logged an ERROR line per message.
+
+| `<cause>` | Meaning | What to check |
+|---|---|---|
+| `ttl` | routed more than 10 times, or with a hop count no router writes | a routing loop: report it with the type and action |
+| `no_global` | for the global, at a region that has joined none | the region's link to its global |
+| `parent_unknown`, `parent_link_down`, `no_sender` | the node had no parent, no link to its broker, or no producer yet when it had to send | expected for a moment around a restart of the node or its parent (`no_sender` in a node's first milliseconds); persistent: the link |
+| `controller_not_ready`, `controller_stopping`, `node_stopping` | for this node's controller while it was being rebuilt or shut down | expected at shutdown and during a re-join |
+| `plugin_unknown`, `plugin_inactive`, `plugin_admin_unavailable` | for a plugin this node does not run, or that is not active yet | a sender with a stale address; `plugin_inactive` while a plugin loads (a storage core loading its log) is expected |
+| `source_route_not_relayed` | a source-routed message at a node with `net_source_routing` off | the sender's routing settings |
+| `tier_refused`, `misrouted`, `cross_tenant` | a controller function at the wrong tier, a message at a controller that is addressed elsewhere, a caller's message in another tenant's namespace | the sender; report it |
+| `send_failed`, `no_destination`, `route_error`, `inbox_error` | the broker did not take it after every attempt, it named no destination, or this node failed on it | the broker's health and the ERROR line logged with it |
+| `file_group_refused`, `file_group_expired` | a message with files whose group was not registered, or whose parts never all arrived | the sender of the transfer; see the file group lines below |
+| `hold_closed` | held by an inbox that closed | expected when a node stops or re-joins in its first seconds |
+
+A node also counts what it originated, relayed and delivered. On a quiet fabric the messages originated, summed over
+the nodes, equal those delivered, refused and dropped, summed over the nodes: a sum that falls short means messages
+were lost in a broker (expired, or their queue had no consumer).
 
 ## A global or a region controller is down
 

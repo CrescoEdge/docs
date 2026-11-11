@@ -164,8 +164,9 @@ An unsigned message (unless delivered first hand on a direct link, or from an ea
 [upgrade window](upgrade.md)), a bad signature, MAC or credential, a message that does not name it, a signature older
 than `msg_signature_max_age_ms` (5 min) or signed more than `msg_signature_max_future_ms` (60 s) ahead of this node's
 clock, and one seen before (a replay). Each
-refusal is logged as `MESSAGE SIGNATURE: REFUSED <why>` (at most every 10 s, with a running count); an RPC request is
-answered `401 unauthenticated`. The reasons are listed in [Troubleshooting](../operations/troubleshooting.md#message-signature-refused).
+refusal is counted under its reason (`msg.refused.<reason>` in the metric inventory) and logged as
+`MESSAGE SIGNATURE: REFUSED <why>`: each reason at its first occurrence, then at most every 10 s, with the node's total
+and that reason's count; an RPC request is answered `401 unauthenticated`. The reasons are listed in [Troubleshooting](../operations/troubleshooting.md#message-signature-refused).
 
 ## Bounded state
 
