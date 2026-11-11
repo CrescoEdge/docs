@@ -60,7 +60,7 @@ consumer/producer/send against `TenantPolicy` using the connection's verified id
 
 | Role | Access |
 |------|--------|
-| `SUPERUSER` | every destination in every tenant (god view). Granted to the local controller (`vm://`), broker bridges, and network clients whose tenant is in `broker_superuser_tenants` (default `cresco-system`). |
+| `SUPERUSER` | every destination in every tenant (god view). Granted to the local controller (`vm://`), the bridge to a region's own global, and network clients and controllers whose tenant is in `broker_superuser_tenants` (default `cresco-system`). Any other bridge (a region below a global, a peer region) carries its peer's own tenant's and region's traffic only. |
 | `TENANT` | confined to its own tenant's destinations. |
 
 This is the enforcement point for [multi-tenancy](tenancy.md).

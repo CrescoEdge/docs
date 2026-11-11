@@ -15,7 +15,12 @@ follow [Security profiles](profiles.md) and [Operator PKI](pki.md) instead.
 4. **Callers that are not controllers.** API users authenticate to wsapi ([API authentication](api-auth.md)); a plugin
    acts only as itself. Tools that sent MsgEvents with a forged `cresco_caller` are refused.
 5. **Multi-tenant regions.** A region or global managing agents of several tenants must be in a superuser tenant
-   (`broker_superuser_tenants`, default `cresco-system`).
+   (`broker_superuser_tenants`, default `cresco-system`). From the build of 2026-11-11 a controller of a superuser tenant
+   is no longer bound first come: every node that joins it, and every controller it joins, lists its key in
+   `controller_trust_anchors` (the SHA-256 the controller prints at start as `This node's identity key: ...`). Without
+   that the join is refused with `Discovery REFUSED controller ...: it claims the superuser tenant ...`, which names the
+   key to list. Once `controller_trust_anchors` is set on a node, it is the list of every controller that node may join
+   (its global, and the peer regions it dials): list them all. A fabric of one tenant needs nothing.
 6. **API clients.** wsapi's TLS certificate is verified by both clients by default (pycrescolib 1.4.0+, clientlib 1.3):
    give every client the fingerprint from `ws.fingerprint` or a copy of `ws.crt.pem`.
 
