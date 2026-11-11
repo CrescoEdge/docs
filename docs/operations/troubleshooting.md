@@ -74,7 +74,7 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 |---|---|---|
 | `ttl` | routed more than 10 times, or with a hop count no router writes | a routing loop: report it with the type and action |
 | `no_global` | for the global, at a region that has joined none | the region's link to its global |
-| `parent_unknown`, `parent_link_down`, `no_sender` | the node had no parent, no link to its broker, or no producer yet when it had to send | expected for a moment around a restart of the node or its parent (`no_sender` in a node's first milliseconds); persistent: the link |
+| `parent_unknown`, `parent_link_down`, `no_sender` | the node had no parent, no link to its broker, or no producer yet when it had to send | expected for a moment around a restart of the node or its parent (`no_sender` in a node's first milliseconds; `parent_link_down` after a message was held up to `msgin_fault_wait_ms`, 20 s, for the link, or, from agent release 1.3.377, until its sender stopped waiting); persistent: the link |
 | `controller_not_ready`, `controller_stopping`, `node_stopping` | for this node's controller while it was being rebuilt or shut down | expected at shutdown and during a re-join |
 | `plugin_unknown`, `plugin_inactive`, `plugin_admin_unavailable` | for a plugin this node does not run, or that is not active yet | a sender with a stale address; `plugin_inactive` while a plugin loads (a storage core loading its log) is expected |
 | `source_route_not_relayed` | a source-routed message at a node with `net_source_routing` off | the sender's routing settings |
