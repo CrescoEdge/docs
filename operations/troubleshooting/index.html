@@ -3296,7 +3296,7 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 <tr>
 <td><code>parent_unknown</code>, <code>parent_link_down</code>, <code>no_sender</code></td>
 <td>the node had no parent, no link to its broker, or no producer yet when it had to send</td>
-<td>expected for a moment around a restart of the node or its parent (<code>no_sender</code> in a node's first milliseconds); persistent: the link</td>
+<td>expected for a moment around a restart of the node or its parent (<code>no_sender</code> in a node's first milliseconds; <code>parent_link_down</code> after a message was held up to <code>msgin_fault_wait_ms</code>, 20 s, for the link, or, from agent release 1.3.377, until its sender stopped waiting); persistent: the link</td>
 </tr>
 <tr>
 <td><code>controller_not_ready</code>, <code>controller_stopping</code>, <code>node_stopping</code></td>
