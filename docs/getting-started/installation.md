@@ -9,7 +9,7 @@ the build, and the resulting artifacts.
 |-------------|----------------|
 | **JDK** | 21 (every module targets `<jdk>21</jdk>`) |
 | **Maven** | 3.8+ |
-| **Python** | 3.8+ (only for the [Python client](../clients/python.md)) |
+| **Python** | 3.9+ (only for the [Python client](../clients/python.md)) |
 | **OS** | Linux / macOS (developed on both) |
 
 ## Get a release
