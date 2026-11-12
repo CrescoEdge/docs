@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -1333,6 +1333,17 @@
     <span class="md-ellipsis">
       
         Checking and rolling back
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#between-13-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Between 1.3 releases
       
     </span>
   </a>
@@ -2995,6 +3006,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#between-13-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Between 1.3 releases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#keystores-in-fips-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3104,6 +3126,24 @@ UPGRADED: ...</code>; the old key stays refused). A binding made by the authenti
 <li>Rolling a node back is possible while the window is open around it. Rolling the whole fabric back to insecure operation
   needs <code>broker_security_enabled=false</code> on every node: never on a network you do not control.</li>
 </ul>
+<h2 id="between-13-releases">Between 1.3 releases<a class="headerlink" href="#between-13-releases" title="Permanent link">&para;</a></h2>
+<p>A 1.3 release rolls onto another node by node, in any order. What changes for an operator in agent release 1.3.379:</p>
+<ul>
+<li><strong>A node reads its own inbox only</strong> (<a href="../../architecture/tenancy/#what-is-and-isnt-guaranteed">tenancy</a>). Agent names
+  must be unique within a tenant.</li>
+<li><strong>In a fabric with a global, region brokers no longer relay for each other</strong>
+  (<a href="../../architecture/dynamic-routing/#which-broker-relays-between-bridges">which broker relays</a>). While some region
+  controllers are still on the earlier release, the others keep logging <code>STRIPPED a forged caller</code> for what comes
+  over those controllers' bridges; the lines stop with the last update.</li>
+<li><strong>A call for a node that cannot be reached is answered <code>route unavailable</code> at once</strong> instead of waiting for its
+  caller's timeout, and a request lives in a broker only as long as its caller waits (plus a minute for clocks).
+  Keep every node's clock within a minute of the others.</li>
+<li><strong>Expired messages are discarded and counted</strong> (<code>msg.expired</code>), no longer kept in <code>ActiveMQ.DLQ</code>.</li>
+<li><strong>After a restart a node recovers its sessions in one round trip</strong>, and refuses a signed message it may have
+  accepted before it stopped (a new file, <code>security/replay-floor.bin</code>, in the node's data directory: keep it with the
+  node's identity).</li>
+<li>A node on the earlier release does not know the new lost-session notice and ignores it; it recovers as before.</li>
+</ul>
 <h2 id="keystores-in-fips-mode">Keystores in FIPS mode<a class="headerlink" href="#keystores-in-fips-mode" title="Permanent link">&para;</a></h2>
 <p>A node moved to the production profile runs FIPS approved-only, which reads no PKCS#12 keystore: convert its identity
 keystore once (<code>java -jar agent.jar --crypto convert-keystore ...</code>, see <a href="../fips/">FIPS</a>). wsapi's own managed keystore
@@ -3164,10 +3204,10 @@ one (clients then pin the new fingerprint).</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

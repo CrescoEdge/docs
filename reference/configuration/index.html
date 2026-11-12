@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -3813,6 +3813,36 @@ deployment these are effectively required, not optional.</p>
 <td>Credentials held verified (an LRU).</td>
 </tr>
 <tr>
+<td><code>msg_signing_lost_notices_per_second</code></td>
+<td>int</td>
+<td><code>100</code></td>
+<td>Lost-session notices a node sends in a second, to all peers (one a second per peer at most); <code>0</code>: none. See <a href="../../security/message-auth/#session-keys">message authentication</a>.</td>
+</tr>
+<tr>
+<td><code>msg_signing_lost_retry</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>An RPC request refused for a session its receiver lost is sent again once, signed, when it cannot have run.</td>
+</tr>
+<tr>
+<td><code>msg_signing_unanswered_calls</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>A call that times out, or is answered <code>route unavailable</code>, ends the use of the session with that peer until it confirms it again.</td>
+</tr>
+<tr>
+<td><code>msg_signing_session_confirm_ms</code></td>
+<td>long</td>
+<td><code>30000</code></td>
+<td>For how long after its peer's last word a node sends under their session (1000 to 30000); what it sends a peer silent for longer is signed.</td>
+</tr>
+<tr>
+<td><code>msg_replay_floor</code></td>
+<td>boolean</td>
+<td><code>true</code></td>
+<td>Keep each signer's latest accepted signing time on disk (<code>security/replay-floor.bin</code>); after a restart, what that signer signed at or before it is refused.</td>
+</tr>
+<tr>
 <td><code>msg_signing_hold_ms</code></td>
 <td>long</td>
 <td><code>5000</code></td>
@@ -4141,6 +4171,36 @@ subsystems on or off.</p>
 <td>long</td>
 <td><code>4 GB</code></td>
 <td>Maximum disk for broker temporary (spooled) data.</td>
+</tr>
+<tr>
+<td><code>broker_bridge_transit</code></td>
+<td>String</td>
+<td><code>auto</code></td>
+<td>Which broker relays between bridges: <code>auto</code> (the global; a region only while its fabric has no global), <code>true</code>, <code>false</code>. See <a href="../../architecture/dynamic-routing/#which-broker-relays-between-bridges">dynamic routing</a>.</td>
+</tr>
+<tr>
+<td><code>broker_dlq_expiry_ms</code></td>
+<td>long</td>
+<td><code>3600000</code></td>
+<td>How long a dead letter (a persistent message a consumer refused) stays in <code>ActiveMQ.DLQ</code>; at least a minute. Expired messages are never put there.</td>
+</tr>
+<tr>
+<td><code>route_rebuild_grace_ms</code></td>
+<td>long</td>
+<td><code>1500</code></td>
+<td>How long after a node's inbox lost its last consumer at this node's broker an RPC request for it is held for the route to come back before it is answered <code>route unavailable</code>.</td>
+</tr>
+<tr>
+<td><code>route_hold_max</code>, <code>route_hold_max_per_node</code></td>
+<td>int</td>
+<td><code>1024</code>, <code>64</code></td>
+<td>The most RPC requests a controller holds for routes being rebuilt, in all and for one node; one more is answered at once.</td>
+</tr>
+<tr>
+<td><code>rpc_expiry_margin_ms</code></td>
+<td>long</td>
+<td><code>msg_signature_max_future_ms</code> (60000)</td>
+<td>Added to the timeout an RPC request states (<code>rpc_timeout_ms</code>) to give its time to live in a broker: the difference allowed between two nodes' clocks.</td>
 </tr>
 <tr>
 <td><code>broker_message_ttl</code></td>
@@ -5629,10 +5689,10 @@ plugin that reads its own key files keeps its own rules for them.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

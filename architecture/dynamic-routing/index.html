@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -899,6 +899,17 @@
     <span class="md-ellipsis">
       
         Relaying: a region acts as a router
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-broker-relays-between-bridges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which broker relays between bridges
       
     </span>
   </a>
@@ -3144,6 +3155,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#which-broker-relays-between-bridges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which broker relays between bridges
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3366,6 +3388,42 @@ bridge (trusted fabric traffic). It is forwarded only toward the destination nam
 the TTL drops it past a hop bound so a loop cannot amplify. Which bridge a transit hop takes is the path
 lookup itself (gated by <code>net_source_routing</code> / the cost selector).</p>
 </div>
+<h3 id="which-broker-relays-between-bridges">Which broker relays between bridges<a class="headerlink" href="#which-broker-relays-between-bridges" title="Permanent link">&para;</a></h3>
+<p>The relaying above is done by controllers, hop by hop. Left to itself the broker underneath also forwards on demand
+along every path of up to five brokers, so in a fabric whose regions are bridged to each other every status message
+arrived once per path, and a message could take the way over another region whenever its own bridge was away. A
+broker does not vouch for a caller of another region, so those second-hand copies lost their caller stamp (one
+<code>STRIPPED a forged caller</code> line per controller every ten seconds at rest, and unsigned messages refused after a
+restart of the global). From agent release 1.3.379 it is decided who relays (<code>broker_bridge_transit</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Who relays between bridges</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auto</code> (default)</td>
+<td>The global's broker. A region's broker only while its fabric has no global: it is configured with none (<code>global_optional=true</code> and no <code>global_controller_host</code>) and has not joined, or begun to join, one since it started. Once a region has had a global it does not relay again until it restarts, also while that global is down.</td>
+</tr>
+<tr>
+<td><code>true</code>, <code>false</code></td>
+<td>This broker relays, or does not, whatever it is.</td>
+</tr>
+</tbody>
+</table>
+<p>A broker that does not relay hands a bridge no topic message that reached it over another bridge and does not pass one
+bridge's demand on to another. What waits in a region's queue still goes to whatever consumes that queue (a node that
+moved to another region gets what waited for it).</p>
+<div class="admonition warning">
+<p class="admonition-title">What a fabric with a global gives up</p>
+<p>A region whose own link to the global is down is no longer reached through a neighbouring region: its direct
+peers still reach it over their own bridges, the global does not until the link is back (a request for one of its
+nodes is answered <code>route unavailable</code>). Two globals joined only through bridges between their regions carry nothing
+between them unless those regions set <code>broker_bridge_transit=true</code>. A fabric without a global is unchanged: its
+regions relay for each other and learn of each other through the relayed advertisements.</p>
+</div>
 <h2 id="self-organizing-link-inference">Self-organizing link inference<a class="headerlink" href="#self-organizing-link-inference" title="Permanent link">&para;</a></h2>
 <p>A computational mesh is not wired fully; it must <strong>learn who can connect</strong>. Because every advertisement
 carries the sender's dialable addresses, a node can discover that a region it was never configured to peer
@@ -3515,10 +3573,10 @@ is data-plane pub/sub, the same state can be <strong>streamed</strong> to a brow
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

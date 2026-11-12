@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -3133,9 +3133,9 @@ per-runner streams use <code>APP</code>.</p>
 </ul>
 <h2 id="the-single-plugin-contract">The single plugin contract<a class="headerlink" href="#the-single-plugin-contract" title="Permanent link">&para;</a></h2>
 <p>Every metric-bearing bundle answers the same EXEC action:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">"getmetrics"</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"metrics"</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"status"</span><span class="p">,</span><span class="w"> </span><span class="s">"10"</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">&quot;getmetrics&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">&quot;metrics&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">&quot;status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p">);</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">incoming</span><span class="p">;</span>
 </code></pre></div>
 <p><code>getAllMetrics()</code> returns <code>Map&lt;group, List&lt;row&gt;&gt;</code>. Each <strong>row</strong> is a flat <code>Map&lt;String,String&gt;</code> whose
@@ -3317,12 +3317,36 @@ of the name, because the inventory keys a meter by its name.</p>
 <td>messages that ended on this node without reaching their recipient, in all and by cause (<a href="../../operations/troubleshooting/#message-dropped">the causes</a>)</td>
 </tr>
 <tr>
+<td><strong><code>msg.expired</code></strong>, <strong><code>msg.expired.on_arrival</code></strong>, <strong><code>msg.expired.by_consumer</code></strong></td>
+<td>messages this node's broker let expire unconsumed; of them, those that had already expired when they reached it (the sender's clock is behind, or the message waited that long on its way), and those a consumer's client library discarded by its own clock (<a href="../../operations/troubleshooting/#a-message-expired-in-a-broker">MESSAGE EXPIRED</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.route.held</code></strong>, <strong><code>msg.route.mismatch</code></strong>, <strong><code>msg.route.unread.patterns</code></strong> (GAUGE)</td>
+<td>RPC requests a controller held while the route to their node was coming back; requests it would have answered <code>route unavailable</code> but the broker did have a consumer; consumers that read queues by a pattern, so that the queues it can match are not judged (<a href="../../operations/troubleshooting/#a-call-is-answered-route-unavailable">route unavailable</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.send.held</code></strong></td>
+<td>messages held because the node could not send yet (no producer, or an agent's first answers before its attestation), then sent in order</td>
+</tr>
+<tr>
+<td><strong><code>msg.session.lost.told</code></strong>, <strong><code>.heard</code></strong>, <strong><code>.retried</code></strong>, <strong><code>msg.session.unanswered</code></strong></td>
+<td>lost-session notices this node sent and acted on, RPC requests it sent again signed, and sessions set aside after a call got no answer (<a href="../../security/message-auth/#session-keys">message authentication</a>)</td>
+</tr>
+<tr>
 <td><strong><code>msg.sign.failed</code></strong>, <strong><code>msg.trust.refused</code></strong>, <strong><code>msg.filepart.dropped</code></strong></td>
 <td>sends this node could not sign; trust data from a parent it refused; file parts it did not take (not counted as messages)</td>
 </tr>
 <tr>
 <td><strong><code>broker.caller.stripped</code></strong></td>
 <td>caller stamps this node's broker stripped (forged, or carried by a bridge that may not carry them)</td>
+</tr>
+<tr>
+<td><strong><code>broker.bridge.transit.withheld</code></strong></td>
+<td>topic messages that reached a region's broker over one bridge and were not passed on over another (in a fabric with a global the global is the relay: <a href="../dynamic-routing/#which-broker-relays-between-bridges">dynamic routing</a>)</td>
+</tr>
+<tr>
+<td><strong><code>broker.dlq.depth</code></strong> (GAUGE)</td>
+<td>messages in the broker's dead-letter queue now (expired messages are never put there)</td>
 </tr>
 <tr>
 <td><strong><code>broker.bridge.withheld</code></strong>, <strong><code>broker.bridge.discarded</code></strong></td>
@@ -3339,8 +3363,8 @@ of the name, because the inventory keys a meter by its name.</p>
 </tbody>
 </table>
 <p>On a quiet fabric, <code>msg.originated</code> summed over the nodes equals <code>msg.delivered + msg.refused + msg.dropped</code> summed
-over them. What a broker loses between two nodes (a message that expired, a queue with no consumer) ends on no node, so
-the sum then falls short by it: that is what the identity is for. An authorization denial (403) counts as delivered:
+over them. What a broker lets expire between two nodes ends on no node: it is counted where it expired (<code>msg.expired</code>),
+and the sum falls short by it. An authorization denial (403) counts as delivered:
 the recipient answered.</p>
 <h2 id="controller-management-calls-from-the-wrong-place">Controller: management calls from the wrong place<a class="headerlink" href="#controller-management-calls-from-the-wrong-place" title="Permanent link">&para;</a></h2>
 <p>Group <code>authz</code>, COUNTERs, registered by <code>AuthorityMetrics</code> (<a href="../../security/authority/">authority follows the tree</a>).</p>
@@ -4079,10 +4103,10 @@ via <a href="../../reference/design-docs/">Design Docs</a>.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

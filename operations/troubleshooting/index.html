@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -2293,6 +2293,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-call-is-answered-route-unavailable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A call is answered "route unavailable"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-message-expired-in-a-broker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A message expired in a broker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-global-or-a-region-controller-is-down" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2319,6 +2341,28 @@
     <span class="md-ellipsis">
       
         A management call is logged as "AUTHORITY: WOULD REFUSE"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-node-is-refused-a-queue-deny-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A node is refused a queue ("DENY READ")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stripped-a-forged-caller-in-a-fabric-of-several-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "STRIPPED a forged caller" in a fabric of several regions
       
     </span>
   </a>
@@ -3039,6 +3083,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-call-is-answered-route-unavailable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A call is answered "route unavailable"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-message-expired-in-a-broker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A message expired in a broker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-global-or-a-region-controller-is-down" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3065,6 +3131,28 @@
     <span class="md-ellipsis">
       
         A management call is logged as "AUTHORITY: WOULD REFUSE"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-node-is-refused-a-queue-deny-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A node is refused a queue ("DENY READ")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stripped-a-forged-caller-in-a-fabric-of-several-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "STRIPPED a forged caller" in a fabric of several regions
       
     </span>
   </a>
@@ -3318,7 +3406,7 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 <tr>
 <td><code>parent_unknown</code>, <code>parent_link_down</code>, <code>no_sender</code></td>
 <td>the node had no parent, no link to its broker, or no producer yet when it had to send</td>
-<td>expected for a moment around a restart of the node or its parent (<code>no_sender</code> in a node's first milliseconds; <code>parent_link_down</code> after a message was held up to <code>msgin_fault_wait_ms</code>, 20 s, for the link, or, from agent release 1.3.377, until its sender stopped waiting); persistent: the link</td>
+<td>expected for a moment around a restart of the node or its parent. From 1.3.379 replies and one-way messages are held until the node can send (<code>msg.send.held</code>) and <code>no_sender</code> counts only what the hold could not keep; an RPC request with no producer fails at once</td>
 </tr>
 <tr>
 <td><code>controller_not_ready</code>, <code>controller_stopping</code>, <code>node_stopping</code></td>
@@ -3329,6 +3417,16 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 <td><code>plugin_unknown</code>, <code>plugin_inactive</code>, <code>plugin_admin_unavailable</code></td>
 <td>for a plugin this node does not run, or that is not active yet</td>
 <td>a sender with a stale address; <code>plugin_inactive</code> while a plugin loads (a storage core loading its log) is expected</td>
+</tr>
+<tr>
+<td><code>no_route</code></td>
+<td>an RPC request for a node this node's broker has no way to (nothing consumes its inbox there): the caller was answered <code>route unavailable</code></td>
+<td>the node, its region controller and the bridge to it: see <a href="#a-call-is-answered-route-unavailable">route unavailable</a></td>
+</tr>
+<tr>
+<td><code>hold_full</code>, <code>parent_changed</code></td>
+<td>the hold for messages that cannot be sent yet was full; a message held for a controller the node has since left</td>
+<td>a node sending a great deal before it has a producer; expected after a move to another controller</td>
 </tr>
 <tr>
 <td><code>source_route_not_relayed</code></td>
@@ -3359,7 +3457,35 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 </table>
 <p>A node also counts what it originated, relayed and delivered. On a quiet fabric the messages originated, summed over
 the nodes, equal those delivered, refused and dropped, summed over the nodes: a sum that falls short means messages
-were lost in a broker (expired, or their queue had no consumer).</p>
+expired in a broker: those are counted there, see below.</p>
+<h2 id="a-call-is-answered-route-unavailable">A call is answered "route unavailable"<a class="headerlink" href="#a-call-is-answered-route-unavailable" title="Permanent link">&para;</a></h2>
+<p><strong><code>route unavailable at &lt;node&gt;: &lt;hop&gt;: no route to &lt;region&gt;_&lt;agent&gt; ...</code></strong> (status <code>503</code>; from a client through wsapi,
+with <code>gateway_status</code> saying whether the gateway or the target answered): a controller had to send an RPC request on
+to a node its broker has no way to. Nothing consumes that node's inbox there: the node is down, its region controller
+is down, or the bridge to its region is gone. Before agent release 1.3.379 such a request waited in a queue until its
+caller's timeout.</p>
+<ul>
+<li>The answer comes at once when the node has been gone for more than <code>route_rebuild_grace_ms</code> (1.5 s). While a route
+  may be coming back (a bridge being rebuilt after a restart) the request is held on the controller for at most that
+  long, and goes on the moment the route is there.</li>
+<li>Check the node and its region controller (<code>listagents</code>, the region's <code>link:parent</code> health), then the bridge
+  (<code>A global or a region controller is down</code>, below).</li>
+<li>A caller of one tenant asking for a node that is not known to be of its tenant gets the same answer after the same
+  wait whatever the state of that node.</li>
+<li>A request that an agent itself originates is not judged this way: it waits at its region's broker for its own time
+  to live.</li>
+<li><code>WARN route gate: ...</code> and the gauge <code>msg.route.unread.patterns</code>: a consumer reads queues by a pattern, so requests
+  for the queues it can match are sent as before (not judged).</li>
+</ul>
+<h2 id="a-message-expired-in-a-broker">A message expired in a broker<a class="headerlink" href="#a-message-expired-in-a-broker" title="Permanent link">&para;</a></h2>
+<p><strong><code>MESSAGE EXPIRED: a message for '&lt;queue&gt;' was not consumed within its life of N ms (it waited M ms at this node's
+broker)</code></strong>, at most every 10 s, counted in <code>msg.expired</code>: nothing consumed the queue in time. An RPC request lives as
+long as its caller waits plus <code>rpc_expiry_margin_ms</code> (60 s), every other message five minutes. Expired messages are
+discarded; before 1.3.379 the persistent ones collected in <code>ActiveMQ.DLQ</code>, which nothing reads.</p>
+<p><strong><code>MESSAGE EXPIRED on arrival: ... had expired N ms before it reached this node's broker ...: the sender's clock is
+behind this node's by about S s, or the message waited that long on its way</code></strong> (<code>msg.expired.on_arrival</code>): fix the
+sender's clock. A node whose clock is more than a request's timeout plus 60 s behind loses every timed request this
+way (and one more than 60 s ahead of its parent cannot join at all): keep clocks within a minute.</p>
 <h2 id="a-global-or-a-region-controller-is-down">A global or a region controller is down<a class="headerlink" href="#a-global-or-a-region-controller-is-down" title="Permanent link">&para;</a></h2>
 <p><strong>The global is down.</strong> Each region goes to <code>REGION_GLOBAL_FAILED</code> and keeps serving its own agents: its broker, its
 discovery listener, the aging of its agents (STALE and LOST on schedule), its bridges to configured peer regions and the
@@ -3396,7 +3522,7 @@ the global are not affected.</p>
 </tbody>
 </table>
 <h2 id="a-nodes-parent-refuses-it-parent-refuses-this-node">A node's parent refuses it ("PARENT REFUSES THIS NODE")<a class="headerlink" href="#a-nodes-parent-refuses-it-parent-refuses-this-node" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>PARENT REFUSES THIS NODE: rgr_rc answered this node's ping with a refusal (...): 4 in a row, for 20 s. The link is up
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>PARENT REFUSES THIS NODE: rgr_rc answered this node&#39;s ping with a refusal (...): 4 in a row, for 20 s. The link is up
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>and is NOT torn down; nothing that came with the refusal is taken ...
 </code></pre></div>
 <p>The node reaches its parent's broker, but the parent does not accept what it signs: a refusal is not a pong. The node
@@ -3436,6 +3562,21 @@ re-keyed controller must be restarted.</p>
 gateway the user is connected to. Move the client to the target's own gateway, its region controller's, or the global's.
 Each line is written once per action and position; every occurrence is counted in <code>authz.direction.would_refuse</code> (and
 <code>.would_refuse.&lt;action&gt;</code>). See <a href="../../security/authority/">Authority follows the tree</a>.</p>
+<h2 id="a-node-is-refused-a-queue-deny-read">A node is refused a queue ("DENY READ")<a class="headerlink" href="#a-node-is-refused-a-queue-deny-read" title="Permanent link">&para;</a></h2>
+<p><strong><code>DENY READ '&lt;queue&gt;' for &lt;identity&gt; : a node reads no queue of its tenant's namespace but its own inbox</code></strong> (the
+client gets a <code>JMSSecurityException</code>): a node asked its broker for another node's inbox, a pattern over inboxes, or a
+queue browser. From 1.3.379 a node reads its own inbox only (and, moved to another region with <code>region_alias</code>, the
+inbox of its former address). No Cresco bundle asks for anything else; code that used <code>T.&lt;tenant&gt;.&lt;anything&gt;</code> as a
+scratch queue must use the dataplane instead. <code>DENY READ ... : the inbox of a controller this broker knows is no node's
+former address</code>: a <code>region_alias</code> that names a controller's own address.</p>
+<h2 id="stripped-a-forged-caller-in-a-fabric-of-several-regions">"STRIPPED a forged caller" in a fabric of several regions<a class="headerlink" href="#stripped-a-forged-caller-in-a-fabric-of-several-regions" title="Permanent link">&para;</a></h2>
+<p>Before 1.3.379 every region's broker passed on what reached it over another bridge, so in a fabric whose regions are
+bridged to each other each controller logged one such line every ten seconds or so for a duplicate of another
+controller's status message (the original always arrived). From 1.3.379 a region's broker in a fabric with a global
+does not relay (<a href="../../architecture/dynamic-routing/#which-broker-relays-between-bridges">which broker relays</a>). During
+a rolling update the lines continue for what still comes over the bridge of a region controller on the earlier build,
+and stop when the last one is updated. After that, a <code>STRIPPED</code> line means what it says: a node vouched for a caller
+it may not vouch for.</p>
 <h2 id="discovery-refusals">Discovery refusals<a class="headerlink" href="#discovery-refusals" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3680,10 +3821,10 @@ slows its writers; nothing is lost.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

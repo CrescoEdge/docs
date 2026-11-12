@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -3298,6 +3298,22 @@ HMAC-SHA-384 under it instead of a signature, and the signer's credential no lon
   last 30 s that it holds it; a message from the peer that names another session, or a new incarnation, makes it return
   to signatures and agree anew. A message sent to a restarted node under the session it lost is refused like any
   unauthenticated message (an RPC is answered <code>401</code>).</li>
+<li><strong>A lost session is recovered in one round trip</strong> (from 1.3.379). The node that refuses says so at once, on a signed
+  message that names the session and the signer it refused (riding the <code>401</code> of an RPC, else a notice of its own, one a
+  second per peer at most). The sender acts only on its peer's own signature, only when the notice names the session it
+  sends under now and its own name: it drops that session and signs. A node that holds a session never says it does
+  not, whatever name is written over a message.</li>
+<li><strong>A refused request is sent again only when it cannot have run.</strong> The <code>401</code> states for how long the peer has not held
+  the session (a duration, by its own clock). The caller's node sends the request again, once and signed, only if the
+  request is younger than that: it was sent after the peer lost the session, so no copy of it ran. Otherwise the caller
+  sees the <code>401</code>.</li>
+<li><strong>A node stops using a session when it has reason to doubt it</strong>: its own link toward that peer is down (its
+  connection to its controller, the bridge to its global, the peer's inbox gone from its broker), or a call to that
+  peer got no answer or was answered <code>route unavailable</code>. It signs until the peer speaks under the session again.
+  What a broker stores for a node that is down is then signed, and verifies when the node is back.</li>
+<li>A node that returns within 30 s under <strong>another name and key</strong> (moved to a region of its own) cannot name the old
+  session, and one-way traffic to its former address is refused for what is left of the 30 s. Where nodes move like
+  that, set <code>msg_signing_session_confirm_ms</code> lower (5000 leaves about one refused message).</li>
 <li><strong>Checks.</strong> The receiver checks the signing time, the replay memory, the signed caller, the broker's stamp, and the
   signer's credential and revocations on every MAC'd message exactly as for a signature; a revoked key's session is
   dropped. A MAC convinces its one receiver only, which is all a MsgEvent needs.</li>
@@ -3309,7 +3325,9 @@ HMAC-SHA-384 under it instead of a signature, and the signer's credential no lon
 <p>An unsigned message (unless delivered first hand on a direct link, or from an earlier-build agent inside the
 <a href="../upgrade/">upgrade window</a>), a bad signature, MAC or credential, a message that does not name it, a signature older
 than <code>msg_signature_max_age_ms</code> (5 min) or signed more than <code>msg_signature_max_future_ms</code> (60 s) ahead of this node's
-clock, and one seen before (a replay). Each
+clock, and one seen before (a replay). The latest signing time accepted from each signer is kept on disk
+(<code>security/replay-floor.bin</code>, <code>msg_replay_floor</code>): after a restart a node refuses what that signer signed at or before
+it, so a message it accepted before it stopped cannot be played to it again. Each
 refusal is counted under its reason (<code>msg.refused.&lt;reason&gt;</code> in the metric inventory) and logged as
 <code>MESSAGE SIGNATURE: REFUSED &lt;why&gt;</code>: each reason at its first occurrence, then at most every 10 s, with the node's total
 and that reason's count; an RPC request is answered <code>401 unauthenticated</code>. The reasons are listed in <a href="../../operations/troubleshooting/#message-signature-refused">Troubleshooting</a>.</p>
@@ -3465,7 +3483,32 @@ an agent of another region, across its region's bridge, 8 concurrent callers.</p
 <tr>
 <td><code>msg_signing_hold_ms</code></td>
 <td><code>5000</code></td>
-<td>how long an inbox holds a signed message it cannot judge yet before it is accepted or refused as it stands (at most 60 s; <code>0</code>: refused at once)</td>
+<td>how long an inbox holds a signed message it cannot judge yet before it is accepted or refused as it stands (at most 60 s; <code>0</code>: refused at once); also how long an agent's first answers wait for its attestation</td>
+</tr>
+<tr>
+<td><code>msg_signing_lost_notices_per_second</code></td>
+<td><code>100</code></td>
+<td>lost-session notices a node sends in a second, to all peers (one a second per peer at most); <code>0</code>: none, peers recover within 30 s as before</td>
+</tr>
+<tr>
+<td><code>msg_signing_lost_retry</code></td>
+<td><code>true</code></td>
+<td>an RPC request refused for a session its receiver lost is sent again once, signed, when it cannot have run</td>
+</tr>
+<tr>
+<td><code>msg_signing_unanswered_calls</code></td>
+<td><code>true</code></td>
+<td>a call that times out, or is answered <code>route unavailable</code>, ends the use of the session with that peer until it confirms it again</td>
+</tr>
+<tr>
+<td><code>msg_signing_session_confirm_ms</code></td>
+<td><code>30000</code></td>
+<td>for how long after its peer's last word a node sends under their session (1000 to 30000); what it sends a peer silent for longer is signed</td>
+</tr>
+<tr>
+<td><code>msg_replay_floor</code></td>
+<td><code>true</code></td>
+<td>keep each signer's latest accepted signing time on disk and refuse, after a restart, what was signed at or before it</td>
 </tr>
 <tr>
 <td><code>msg_replay_memory_max</code></td>
@@ -3533,10 +3576,10 @@ an agent of another region, across its region's bridge, 8 concurrent callers.</p
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

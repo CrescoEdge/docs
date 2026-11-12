@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -3228,10 +3228,19 @@ pycrescolib:</p>
 </tr>
 <tr>
 <td><code>dgx/gate.sh</code> + <code>dgx/report.py</code></td>
-<td>the multi-host release gate: control plane, dataplane across hosts and scale, an earlier build against a candidate in both profiles (<a href="../performance/">results</a>)</td>
+<td>the multi-host release gate: control plane, dataplane across hosts and scale, an earlier build against a candidate, each judged against the earlier build in its own profile (<code>old</code> and <code>std</code> standard, <code>oldprod</code> and <code>prod</code> production) (<a href="../performance/">results</a>)</td>
+</tr>
+<tr>
+<td><code>dgx/nightly.sh</code> + <code>dgx/nightly.sbatch</code></td>
+<td>every cell of the matrix every night on a cluster, on what <code>main</code> is that night: it clones and builds the library, the controller, wsapi and an agent jar there, keeps each cell's JSON result and one line a night in <code>history.txt</code></td>
 </tr>
 </tbody>
 </table>
+<p><code>fabric_matrix.py</code> also has the events <code>quiet</code> (a fabric at rest logs no stripped caller stamp) and <code>region-outage</code> (a
+call for a node behind a stopped region controller is answered <code>route unavailable</code> within two seconds), <code>--old-nodes</code>
+with <code>--old-jar</code> (a rolling update half done: the named nodes run the earlier release) and <code>--flag</code> (a JVM flag for
+every node, for example a whole cell with <code>-Dauthority_direction=enforce</code>). On Linux the test ports must lie below the
+range the kernel gives outgoing connections (<code>ip_local_port_range</code>, 32768 up): the matrix refuses a block inside it.</p>
 <p>The dataplane client they drive is the agent repository's <code>scripts/bench/dataplane_perf.py</code>: it streams frames through
 wsapi (optionally across a broker bridge to another agent's wsapi), checks every frame (whole, once, in order), can read
 slowly to exercise backpressure, and <code>--rate-mib-s</code> offers a fixed load to measure the pipeline's latency rather than the
@@ -3297,10 +3306,10 @@ on.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
