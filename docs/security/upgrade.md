@@ -88,6 +88,25 @@ A node not upgraded before the window ends is cut off when it ends.
 - Rolling a node back is possible while the window is open around it. Rolling the whole fabric back to insecure operation
   needs `broker_security_enabled=false` on every node: never on a network you do not control.
 
+## Between 1.3 releases
+
+A 1.3 release rolls onto another node by node, in any order. What changes for an operator in agent release 1.3.379:
+
+- **A node reads its own inbox only** ([tenancy](../architecture/tenancy.md#what-is-and-isnt-guaranteed)). Agent names
+  must be unique within a tenant.
+- **In a fabric with a global, region brokers no longer relay for each other**
+  ([which broker relays](../architecture/dynamic-routing.md#which-broker-relays-between-bridges)). While some region
+  controllers are still on the earlier release, the others keep logging `STRIPPED a forged caller` for what comes
+  over those controllers' bridges; the lines stop with the last update.
+- **A call for a node that cannot be reached is answered `route unavailable` at once** instead of waiting for its
+  caller's timeout, and a request lives in a broker only as long as its caller waits (plus a minute for clocks).
+  Keep every node's clock within a minute of the others.
+- **Expired messages are discarded and counted** (`msg.expired`), no longer kept in `ActiveMQ.DLQ`.
+- **After a restart a node recovers its sessions in one round trip**, and refuses a signed message it may have
+  accepted before it stopped (a new file, `security/replay-floor.bin`, in the node's data directory: keep it with the
+  node's identity).
+- A node on the earlier release does not know the new lost-session notice and ignores it; it recovers as before.
+
 ## Keystores in FIPS mode
 
 A node moved to the production profile runs FIPS approved-only, which reads no PKCS#12 keystore: convert its identity

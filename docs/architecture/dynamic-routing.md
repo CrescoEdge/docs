@@ -119,6 +119,31 @@ flows.
     the TTL drops it past a hop bound so a loop cannot amplify. Which bridge a transit hop takes is the path
     lookup itself (gated by `net_source_routing` / the cost selector).
 
+### Which broker relays between bridges
+
+The relaying above is done by controllers, hop by hop. Left to itself the broker underneath also forwards on demand
+along every path of up to five brokers, so in a fabric whose regions are bridged to each other every status message
+arrived once per path, and a message could take the way over another region whenever its own bridge was away. A
+broker does not vouch for a caller of another region, so those second-hand copies lost their caller stamp (one
+`STRIPPED a forged caller` line per controller every ten seconds at rest, and unsigned messages refused after a
+restart of the global). From agent release 1.3.379 it is decided who relays (`broker_bridge_transit`):
+
+| Value | Who relays between bridges |
+|---|---|
+| `auto` (default) | The global's broker. A region's broker only while its fabric has no global: it is configured with none (`global_optional=true` and no `global_controller_host`) and has not joined, or begun to join, one since it started. Once a region has had a global it does not relay again until it restarts, also while that global is down. |
+| `true`, `false` | This broker relays, or does not, whatever it is. |
+
+A broker that does not relay hands a bridge no topic message that reached it over another bridge and does not pass one
+bridge's demand on to another. What waits in a region's queue still goes to whatever consumes that queue (a node that
+moved to another region gets what waited for it).
+
+!!! warning "What a fabric with a global gives up"
+    A region whose own link to the global is down is no longer reached through a neighbouring region: its direct
+    peers still reach it over their own bridges, the global does not until the link is back (a request for one of its
+    nodes is answered `route unavailable`). Two globals joined only through bridges between their regions carry nothing
+    between them unless those regions set `broker_bridge_transit=true`. A fabric without a global is unchanged: its
+    regions relay for each other and learn of each other through the relayed advertisements.
+
 ## Self-organizing link inference
 
 A computational mesh is not wired fully; it must **learn who can connect**. Because every advertisement

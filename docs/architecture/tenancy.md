@@ -106,7 +106,17 @@ tenant, carry every tenant's traffic. (Before 2026-11-11 every verified bridge w
 `security_profile=production` a bridge peer is a controller of the PKI that completed discovery with this node, and a
 region's names belong to one tenant: a certificate of another tenant that names that region is not that region's node.
 
-**Not guaranteed by this layer** (documented, with tiered mitigations): a *compromised broker* is trusted
+**Within a tenant, a node reads its own inbox only** (from agent release 1.3.379). A node's broker gives it no other
+queue of the tenant's namespace: not its region controller's inbox, not a sibling's, no pattern over them, no queue
+browser, and no broker notice that carries a copy of another node's message; it cannot remove another node's queue.
+Before, any node of a tenant could read, and take away, the control messages of every other node of its tenant at its
+broker. A node moved to another region (`region_alias`) also reads the inbox of its former address, which is bound to
+it by the agent name in its certificate: **agent names must be unique within a tenant**, because a second node given
+the agent name of another, in a different region, can read that node's inbox through this form.
+
+**Not guaranteed by this layer** (documented, with tiered mitigations): within a tenant every node can still read the
+tenant's dataplane topics (streams bound to a recipient excepted) and can write to any inbox of its tenant (what it
+writes is judged by its signature and by [where it stands](../security/authority.md)); a *compromised broker* is trusted
 infrastructure and can see all tenants (mitigation: dedicated per-tenant bridges + payload encryption);
 payloads at rest inside a transit broker are readable by that broker (mitigation: payload encryption);
 advisory topics can leak destination *names* (not contents). See the design doc's threat-model section.

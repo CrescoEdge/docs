@@ -146,15 +146,21 @@ of the name, because the inventory keys a meter by its name.
 | **`msg.held`**, **`msg.hold.full`** | messages the inbox held until it could judge them, and messages it could not hold for lack of room |
 | **`msg.refused`**, **`msg.refused.<reason>`** | messages that failed authentication, in all and by reason (`unsigned`, `not_for_this_node`, `no_recipient`, `too_old`, `ahead_of_clock`, `replay`, `replay_memory_full`, `credential`, `revoked`, `session_key`, `bad_signature`, `caller_mismatch`, `other`) |
 | **`msg.dropped`**, **`msg.dropped.<cause>`** | messages that ended on this node without reaching their recipient, in all and by cause ([the causes](../operations/troubleshooting.md#message-dropped)) |
+| **`msg.expired`**, **`msg.expired.on_arrival`**, **`msg.expired.by_consumer`** | messages this node's broker let expire unconsumed; of them, those that had already expired when they reached it (the sender's clock is behind, or the message waited that long on its way), and those a consumer's client library discarded by its own clock ([MESSAGE EXPIRED](../operations/troubleshooting.md#a-message-expired-in-a-broker)) |
+| **`msg.route.held`**, **`msg.route.mismatch`**, **`msg.route.unread.patterns`** (GAUGE) | RPC requests a controller held while the route to their node was coming back; requests it would have answered `route unavailable` but the broker did have a consumer; consumers that read queues by a pattern, so that the queues it can match are not judged ([route unavailable](../operations/troubleshooting.md#a-call-is-answered-route-unavailable)) |
+| **`msg.send.held`** | messages held because the node could not send yet (no producer, or an agent's first answers before its attestation), then sent in order |
+| **`msg.session.lost.told`**, **`.heard`**, **`.retried`**, **`msg.session.unanswered`** | lost-session notices this node sent and acted on, RPC requests it sent again signed, and sessions set aside after a call got no answer ([message authentication](../security/message-auth.md#session-keys)) |
 | **`msg.sign.failed`**, **`msg.trust.refused`**, **`msg.filepart.dropped`** | sends this node could not sign; trust data from a parent it refused; file parts it did not take (not counted as messages) |
 | **`broker.caller.stripped`** | caller stamps this node's broker stripped (forged, or carried by a bridge that may not carry them) |
+| **`broker.bridge.transit.withheld`** | topic messages that reached a region's broker over one bridge and were not passed on over another (in a fabric with a global the global is the relay: [dynamic routing](dynamic-routing.md#which-broker-relays-between-bridges)) |
+| **`broker.dlq.depth`** (GAUGE) | messages in the broker's dead-letter queue now (expired messages are never put there) |
 | **`broker.bridge.withheld`**, **`broker.bridge.discarded`** | messages a bridge demanded and was not given, or brought in for a destination its peer may not write |
 | **`broker.anonymous.discarded`**, **`broker.recipient.withheld`** | messages from connections without a client certificate; messages withheld from a consumer that is not their recipient |
 | **`broker.quarantine.connections`** (GAUGE) | connections without a verified identity held now |
 
 On a quiet fabric, `msg.originated` summed over the nodes equals `msg.delivered + msg.refused + msg.dropped` summed
-over them. What a broker loses between two nodes (a message that expired, a queue with no consumer) ends on no node, so
-the sum then falls short by it: that is what the identity is for. An authorization denial (403) counts as delivered:
+over them. What a broker lets expire between two nodes ends on no node: it is counted where it expired (`msg.expired`),
+and the sum falls short by it. An authorization denial (403) counts as delivered:
 the recipient answered.
 
 ## Controller: management calls from the wrong place

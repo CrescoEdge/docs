@@ -68,7 +68,14 @@ pycrescolib:
 | `dataplane_backpressure_test.sh` | [backpressure](../architecture/dataplane.md#backpressure-nothing-lost-order-kept): fast and slow readers on one broker and across a bridge each way, every frame delivered whole, once and in order, the writer slowed to a slow reader, nothing discarded |
 | `control_plane_bench.sh` | MsgEvent round-trip latency (p50/p90/p99) and concurrent rate, direct and across a bridge, per build and mode (`MODE=standard`, `nosign`, `nodirect`, `insecure`, `production`) |
 | `many_agents_bench.sh` | membership at scale: N light agents started together, time until the global lists them all, controller CPU, refusals |
-| `dgx/gate.sh` + `dgx/report.py` | the multi-host release gate: control plane, dataplane across hosts and scale, an earlier build against a candidate in both profiles ([results](performance.md)) |
+| `dgx/gate.sh` + `dgx/report.py` | the multi-host release gate: control plane, dataplane across hosts and scale, an earlier build against a candidate, each judged against the earlier build in its own profile (`old` and `std` standard, `oldprod` and `prod` production) ([results](performance.md)) |
+| `dgx/nightly.sh` + `dgx/nightly.sbatch` | every cell of the matrix every night on a cluster, on what `main` is that night: it clones and builds the library, the controller, wsapi and an agent jar there, keeps each cell's JSON result and one line a night in `history.txt` |
+
+`fabric_matrix.py` also has the events `quiet` (a fabric at rest logs no stripped caller stamp) and `region-outage` (a
+call for a node behind a stopped region controller is answered `route unavailable` within two seconds), `--old-nodes`
+with `--old-jar` (a rolling update half done: the named nodes run the earlier release) and `--flag` (a JVM flag for
+every node, for example a whole cell with `-Dauthority_direction=enforce`). On Linux the test ports must lie below the
+range the kernel gives outgoing connections (`ip_local_port_range`, 32768 up): the matrix refuses a block inside it.
 
 The dataplane client they drive is the agent repository's `scripts/bench/dataplane_perf.py`: it streams frames through
 wsapi (optionally across a broker bridge to another agent's wsapi), checks every frame (whole, once, in order), can read

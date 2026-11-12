@@ -74,9 +74,11 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 |---|---|---|
 | `ttl` | routed more than 10 times, or with a hop count no router writes | a routing loop: report it with the type and action |
 | `no_global` | for the global, at a region that has joined none | the region's link to its global |
-| `parent_unknown`, `parent_link_down`, `no_sender` | the node had no parent, no link to its broker, or no producer yet when it had to send | expected for a moment around a restart of the node or its parent (`no_sender` in a node's first milliseconds; `parent_link_down` after a message was held up to `msgin_fault_wait_ms`, 20 s, for the link, or, from agent release 1.3.377, until its sender stopped waiting); persistent: the link |
+| `parent_unknown`, `parent_link_down`, `no_sender` | the node had no parent, no link to its broker, or no producer yet when it had to send | expected for a moment around a restart of the node or its parent. From 1.3.379 replies and one-way messages are held until the node can send (`msg.send.held`) and `no_sender` counts only what the hold could not keep; an RPC request with no producer fails at once |
 | `controller_not_ready`, `controller_stopping`, `node_stopping` | for this node's controller while it was being rebuilt or shut down | expected at shutdown and during a re-join |
 | `plugin_unknown`, `plugin_inactive`, `plugin_admin_unavailable` | for a plugin this node does not run, or that is not active yet | a sender with a stale address; `plugin_inactive` while a plugin loads (a storage core loading its log) is expected |
+| `no_route` | an RPC request for a node this node's broker has no way to (nothing consumes its inbox there): the caller was answered `route unavailable` | the node, its region controller and the bridge to it: see [route unavailable](#a-call-is-answered-route-unavailable) |
+| `hold_full`, `parent_changed` | the hold for messages that cannot be sent yet was full; a message held for a controller the node has since left | a node sending a great deal before it has a producer; expected after a move to another controller |
 | `source_route_not_relayed` | a source-routed message at a node with `net_source_routing` off | the sender's routing settings |
 | `tier_refused`, `misrouted`, `cross_tenant` | a controller function at the wrong tier, a message at a controller that is addressed elsewhere, a caller's message in another tenant's namespace | the sender; report it |
 | `send_failed`, `no_destination`, `route_error`, `inbox_error` | the broker did not take it after every attempt, it named no destination, or this node failed on it | the broker's health and the ERROR line logged with it |
@@ -85,7 +87,39 @@ cause is logged at its first occurrence and then at most every 10 s, and is a co
 
 A node also counts what it originated, relayed and delivered. On a quiet fabric the messages originated, summed over
 the nodes, equal those delivered, refused and dropped, summed over the nodes: a sum that falls short means messages
-were lost in a broker (expired, or their queue had no consumer).
+expired in a broker: those are counted there, see below.
+
+## A call is answered "route unavailable"
+
+**`route unavailable at <node>: <hop>: no route to <region>_<agent> ...`** (status `503`; from a client through wsapi,
+with `gateway_status` saying whether the gateway or the target answered): a controller had to send an RPC request on
+to a node its broker has no way to. Nothing consumes that node's inbox there: the node is down, its region controller
+is down, or the bridge to its region is gone. Before agent release 1.3.379 such a request waited in a queue until its
+caller's timeout.
+
+- The answer comes at once when the node has been gone for more than `route_rebuild_grace_ms` (1.5 s). While a route
+  may be coming back (a bridge being rebuilt after a restart) the request is held on the controller for at most that
+  long, and goes on the moment the route is there.
+- Check the node and its region controller (`listagents`, the region's `link:parent` health), then the bridge
+  (`A global or a region controller is down`, below).
+- A caller of one tenant asking for a node that is not known to be of its tenant gets the same answer after the same
+  wait whatever the state of that node.
+- A request that an agent itself originates is not judged this way: it waits at its region's broker for its own time
+  to live.
+- `WARN route gate: ...` and the gauge `msg.route.unread.patterns`: a consumer reads queues by a pattern, so requests
+  for the queues it can match are sent as before (not judged).
+
+## A message expired in a broker
+
+**`MESSAGE EXPIRED: a message for '<queue>' was not consumed within its life of N ms (it waited M ms at this node's
+broker)`**, at most every 10 s, counted in `msg.expired`: nothing consumed the queue in time. An RPC request lives as
+long as its caller waits plus `rpc_expiry_margin_ms` (60 s), every other message five minutes. Expired messages are
+discarded; before 1.3.379 the persistent ones collected in `ActiveMQ.DLQ`, which nothing reads.
+
+**`MESSAGE EXPIRED on arrival: ... had expired N ms before it reached this node's broker ...: the sender's clock is
+behind this node's by about S s, or the message waited that long on its way`** (`msg.expired.on_arrival`): fix the
+sender's clock. A node whose clock is more than a request's timeout plus 60 s behind loses every timed request this
+way (and one more than 60 s ahead of its parent cannot join at all): keep clocks within a minute.
 
 ## A global or a region controller is down
 
@@ -143,6 +177,25 @@ The call was allowed. It came through a node that is neither the target nor a co
 gateway the user is connected to. Move the client to the target's own gateway, its region controller's, or the global's.
 Each line is written once per action and position; every occurrence is counted in `authz.direction.would_refuse` (and
 `.would_refuse.<action>`). See [Authority follows the tree](../security/authority.md).
+
+## A node is refused a queue ("DENY READ")
+
+**`DENY READ '<queue>' for <identity> : a node reads no queue of its tenant's namespace but its own inbox`** (the
+client gets a `JMSSecurityException`): a node asked its broker for another node's inbox, a pattern over inboxes, or a
+queue browser. From 1.3.379 a node reads its own inbox only (and, moved to another region with `region_alias`, the
+inbox of its former address). No Cresco bundle asks for anything else; code that used `T.<tenant>.<anything>` as a
+scratch queue must use the dataplane instead. `DENY READ ... : the inbox of a controller this broker knows is no node's
+former address`: a `region_alias` that names a controller's own address.
+
+## "STRIPPED a forged caller" in a fabric of several regions
+
+Before 1.3.379 every region's broker passed on what reached it over another bridge, so in a fabric whose regions are
+bridged to each other each controller logged one such line every ten seconds or so for a duplicate of another
+controller's status message (the original always arrived). From 1.3.379 a region's broker in a fabric with a global
+does not relay ([which broker relays](../architecture/dynamic-routing.md#which-broker-relays-between-bridges)). During
+a rolling update the lines continue for what still comes over the bridge of a region controller on the earlier build,
+and stop when the last one is updated. After that, a `STRIPPED` line means what it says: a node vouched for a caller
+it may not vouch for.
 
 ## Discovery refusals
 
