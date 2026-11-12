@@ -111,6 +111,11 @@ Every message a node originates is authenticated end to end and checked by its r
 | `msg_signing_session_seconds` | long | `3600` | A session key's lifetime, renewed ahead of its end (at least 120). |
 | `msg_signing_sessions_max` | long | `200000` | Peers a node holds sessions with; past it a new peer stays signed. |
 | `msg_signing_credentials_max` | long | `100000` | Credentials held verified (an LRU). |
+| `msg_signing_lost_notices_per_second` | int | `100` | Lost-session notices a node sends in a second, to all peers (one a second per peer at most); `0`: none. See [message authentication](../security/message-auth.md#session-keys). |
+| `msg_signing_lost_retry` | boolean | `true` | An RPC request refused for a session its receiver lost is sent again once, signed, when it cannot have run. |
+| `msg_signing_unanswered_calls` | boolean | `true` | A call that times out, or is answered `route unavailable`, ends the use of the session with that peer until it confirms it again. |
+| `msg_signing_session_confirm_ms` | long | `30000` | For how long after its peer's last word a node sends under their session (1000 to 30000); what it sends a peer silent for longer is signed. |
+| `msg_replay_floor` | boolean | `true` | Keep each signer's latest accepted signing time on disk (`security/replay-floor.bin`); after a restart, what that signer signed at or before it is refused. |
 | `msg_signing_hold_ms` | long | `5000` | How long an inbox holds a signed message it cannot judge yet (trust data still arriving) before it is accepted or refused as it stands (at most 60 s; `0`: refused at once). |
 | `msg_replay_memory_max` | long | `4000000` | Signatures and MACs the replay memory holds in all (at least 4096); one signer holds an eighth at most, and past it that signer's oldest signing times are refused as too old. |
 
@@ -202,6 +207,11 @@ Core embedded ActiveMQ broker settings — listener, transport, persistence, and
 | `broker_memory_limit` | long | **computed** | Broker-wide message memory ceiling. Computed default = `max(512 MB, maxHeap/2)`. |
 | `broker_store_limit` | long | `8 GB` | Maximum disk for the KahaDB persistent store. |
 | `broker_temp_limit` | long | `4 GB` | Maximum disk for broker temporary (spooled) data. |
+| `broker_bridge_transit` | String | `auto` | Which broker relays between bridges: `auto` (the global; a region only while its fabric has no global), `true`, `false`. See [dynamic routing](../architecture/dynamic-routing.md#which-broker-relays-between-bridges). |
+| `broker_dlq_expiry_ms` | long | `3600000` | How long a dead letter (a persistent message a consumer refused) stays in `ActiveMQ.DLQ`; at least a minute. Expired messages are never put there. |
+| `route_rebuild_grace_ms` | long | `1500` | How long after a node's inbox lost its last consumer at this node's broker an RPC request for it is held for the route to come back before it is answered `route unavailable`. |
+| `route_hold_max`, `route_hold_max_per_node` | int | `1024`, `64` | The most RPC requests a controller holds for routes being rebuilt, in all and for one node; one more is answered at once. |
+| `rpc_expiry_margin_ms` | long | `msg_signature_max_future_ms` (60000) | Added to the timeout an RPC request states (`rpc_timeout_ms`) to give its time to live in a broker: the difference allowed between two nodes' clocks. |
 | `broker_message_ttl` | int | `5` | Default message time-to-live, **in minutes**; expired messages are discarded. |
 | `broker_bridge_connections` | int | `1` | Number of parallel network-bridge connectors per remote peer broker (spreads load across sockets). |
 | `broker_bridge_prefetch` | int | `100` | Prefetch limit on the **control** inter-broker bridge connector. |

@@ -164,6 +164,22 @@ HMAC-SHA-384 under it instead of a signature, and the signer's credential no lon
   last 30 s that it holds it; a message from the peer that names another session, or a new incarnation, makes it return
   to signatures and agree anew. A message sent to a restarted node under the session it lost is refused like any
   unauthenticated message (an RPC is answered `401`).
+- **A lost session is recovered in one round trip** (from 1.3.379). The node that refuses says so at once, on a signed
+  message that names the session and the signer it refused (riding the `401` of an RPC, else a notice of its own, one a
+  second per peer at most). The sender acts only on its peer's own signature, only when the notice names the session it
+  sends under now and its own name: it drops that session and signs. A node that holds a session never says it does
+  not, whatever name is written over a message.
+- **A refused request is sent again only when it cannot have run.** The `401` states for how long the peer has not held
+  the session (a duration, by its own clock). The caller's node sends the request again, once and signed, only if the
+  request is younger than that: it was sent after the peer lost the session, so no copy of it ran. Otherwise the caller
+  sees the `401`.
+- **A node stops using a session when it has reason to doubt it**: its own link toward that peer is down (its
+  connection to its controller, the bridge to its global, the peer's inbox gone from its broker), or a call to that
+  peer got no answer or was answered `route unavailable`. It signs until the peer speaks under the session again.
+  What a broker stores for a node that is down is then signed, and verifies when the node is back.
+- A node that returns within 30 s under **another name and key** (moved to a region of its own) cannot name the old
+  session, and one-way traffic to its former address is refused for what is left of the 30 s. Where nodes move like
+  that, set `msg_signing_session_confirm_ms` lower (5000 leaves about one refused message).
 - **Checks.** The receiver checks the signing time, the replay memory, the signed caller, the broker's stamp, and the
   signer's credential and revocations on every MAC'd message exactly as for a signature; a revoked key's session is
   dropped. A MAC convinces its one receiver only, which is all a MsgEvent needs.
@@ -176,7 +192,9 @@ HMAC-SHA-384 under it instead of a signature, and the signer's credential no lon
 An unsigned message (unless delivered first hand on a direct link, or from an earlier-build agent inside the
 [upgrade window](upgrade.md)), a bad signature, MAC or credential, a message that does not name it, a signature older
 than `msg_signature_max_age_ms` (5 min) or signed more than `msg_signature_max_future_ms` (60 s) ahead of this node's
-clock, and one seen before (a replay). Each
+clock, and one seen before (a replay). The latest signing time accepted from each signer is kept on disk
+(`security/replay-floor.bin`, `msg_replay_floor`): after a restart a node refuses what that signer signed at or before
+it, so a message it accepted before it stopped cannot be played to it again. Each
 refusal is counted under its reason (`msg.refused.<reason>` in the metric inventory) and logged as
 `MESSAGE SIGNATURE: REFUSED <why>`: each reason at its first occurrence, then at most every 10 s, with the node's total
 and that reason's count; an RPC request is answered `401 unauthenticated`. The reasons are listed in [Troubleshooting](../operations/troubleshooting.md#message-signature-refused).
@@ -253,7 +271,12 @@ The multi-host release gate, the release against the previous build in both prof
 | `msg_signing_session_seconds` | `3600` | a session key's lifetime, renewed ahead of its end (at least 120) |
 | `msg_signing_sessions_max` | `200000` | peers a node holds sessions with; past it, a new peer stays signed |
 | `msg_signing_credentials_max` | `100000` | credentials held verified (an LRU) |
-| `msg_signing_hold_ms` | `5000` | how long an inbox holds a signed message it cannot judge yet before it is accepted or refused as it stands (at most 60 s; `0`: refused at once) |
+| `msg_signing_hold_ms` | `5000` | how long an inbox holds a signed message it cannot judge yet before it is accepted or refused as it stands (at most 60 s; `0`: refused at once); also how long an agent's first answers wait for its attestation |
+| `msg_signing_lost_notices_per_second` | `100` | lost-session notices a node sends in a second, to all peers (one a second per peer at most); `0`: none, peers recover within 30 s as before |
+| `msg_signing_lost_retry` | `true` | an RPC request refused for a session its receiver lost is sent again once, signed, when it cannot have run |
+| `msg_signing_unanswered_calls` | `true` | a call that times out, or is answered `route unavailable`, ends the use of the session with that peer until it confirms it again |
+| `msg_signing_session_confirm_ms` | `30000` | for how long after its peer's last word a node sends under their session (1000 to 30000); what it sends a peer silent for longer is signed |
+| `msg_replay_floor` | `true` | keep each signer's latest accepted signing time on disk and refuse, after a restart, what was signed at or before it |
 | `msg_replay_memory_max` | `4000000` | signatures and MACs the replay memory holds in all (at least 4096), an eighth of it at most for one signer; a signer past its bound has its own oldest signing times refused as too old, and so have all signers when together they reach the whole bound. Size it at the node's signed and MAC'd messages per max-age (5 min): the default serves about 10,000 a second |
 
 ## Checking a node
