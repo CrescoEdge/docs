@@ -273,6 +273,17 @@ See also the *Security & tenancy* table for the `discovery_secret_*` shared secr
 | `discovery_static_region_timeout` | int | `10000` | Timeout (ms) for static region discovery. |
 | `discovery_static_global_timeout` | int | `10000` | Timeout (ms) for static global-controller discovery. |
 | `peer_discovery_timeout` | int | `5000` | Timeout (ms) for discovering regional peer controllers. |
+| `discovery_max_connections` | int | `2048` | Discovery connections a controller holds open at once (before any authentication); one more is closed at once. |
+| `discovery_max_connections_per_address` | int | `256` | Of those, at most this many from one address. |
+| `discovery_idle_seconds` | int | `10` | A discovery connection that sends nothing for this long is closed. |
+| `discovery_max_connection_seconds` | int | `30` | A discovery connection open longer than this is closed, whatever it does. |
+| `discovery_workers` | int | a quarter of the CPUs, 2 to 16 | Threads that answer discovery requests (from 1.3.380 discovery work runs off the network threads, in a bounded queue served per address). |
+| `discovery_max_wait_ms` | int | `5000` | A request whose turn would come later than this is answered "busy", with a time to come back, instead of queued; the joiner waits that long (plus jitter) before it asks again. |
+| `discovery_max_queued_bytes` | long | `268435456` (256 MiB) | Bytes of requests waiting in all; never more than a sixteenth of the heap. |
+| `discovery_max_queued_bytes_per_address` | long | `33554432` (32 MiB) | Bytes of requests waiting from one address; never more than an eighth of the whole. |
+| `discovery_max_request_bytes` | int | `16384` | The largest discovery request read; a larger frame closes the connection. |
+| `discovery_retry_min_ms` | long | `1000` | A joiner whose controller is there but behind (it answered "busy", or nothing came back) waits this long before it tries again, doubled at each such failure in a row, each time a random 50-100 % of it. Any other failure (nothing listens, refused, the broker connection or registration failed) is retried after `retrywait` (3 s), spread over 75-125 % of it. |
+| `discovery_retry_max_ms` | long | `30000` | The longest of those waits. A success starts over. |
 
 ---
 
