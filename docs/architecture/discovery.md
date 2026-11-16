@@ -68,6 +68,33 @@ The authenticated exchange is the enrollment gate for both: nothing is issued or
 legacy single-message exchange of earlier builds is accepted only inside the [upgrade window](../security/upgrade.md),
 and never between controllers.
 
+## One controller per region
+
+The discovery secret proves membership, not a name: every region controller holds the global's secret, every agent its
+region's. So from agent release 1.3.380 the node that records a peer also asks for proof of its key and holds three
+rules (standard profile; under `security_profile=production` the operator's PKI already names every controller):
+
+- **Proof of possession.** Each side signs the exchange with the key of the certificate it presents, bound to both
+  nonces, both identities, the tenant and the whole chain, so a signature verifies for no other exchange. Anything new
+  -- a name, another key for a name, a replacement -- is recorded only on that proof. A name and key that proved itself
+  once is refused without proof afterwards (after `discovery_proof_grace_days`, default 7, the allowance for a node put
+  back on an earlier release).
+- **One controller per region.** The first identity recorded as a region's controller is that region's one controller
+  on this node; another one is refused, whatever tenant it states. The same key under another agent name of the region
+  is the same controller and replaces the former name. A key speaks for one region.
+- **One global per node.** A node takes the first global it joins; any other responder of a global exchange is refused.
+
+Only the operator replaces a recorded controller or moves a region to another global: the line
+`<region>/<agent>=<key fingerprint>` in `<data>/security/peer-trust.json.rebind` on each node that recorded it (the
+refusal prints it), a signed rebind statement (`controller_rebind_signers`), or a scoped
+`controller_trust_anchors` entry `<region>/<agent>=<fingerprint>`. The decision and the record are one step and one
+durable write, so of two joins at the same instant one is recorded. Cost: two signatures and two verifications per
+discovery exchange, nothing per message.
+
+An agent with no pin takes the first controller that answers its first discovery, holds the secret and proves its key.
+Fleets that cannot accept that ship `controller_trust_anchors` or `controller_rebind_signers` to their agents, or use
+the production profile.
+
 ## After discovery
 
 Once a parent is found and trust is established, the node opens its [messaging](messaging.md) channels

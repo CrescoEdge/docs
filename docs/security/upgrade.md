@@ -90,6 +90,48 @@ A node not upgraded before the window ends is cut off when it ends.
 
 ## Between 1.3 releases
 
+### Agent release 1.3.380
+
+1.3.380 rolls node by node like any 1.3 release, but **in this order: the global, then the region controllers, then
+the agents** -- the node that records a peer is the one that enforces the new rules. Before the first node:
+
+0. **Give every controller a fixed `agentname`** (and `regionname`) and restart it once on its current release, so it
+   is recorded under that name. A controller without one takes a new generated name at each start; to an upgraded node
+   that is a new name of a known key, which it records only on proof of the key, and a node of 1.3.379 or earlier sends
+   none.
+
+What changes:
+
+- **A node proves its key at discovery.** Each side of the discovery exchange also signs it with the key of the
+  certificate it presents. A node records something NEW -- a name, another key for a name, a replacement -- only on
+  that proof. A node of 1.3.379 or earlier sends no proof: it keeps working where its name and key are already
+  recorded (registries kept, fixed agent names: nothing to do), but a FIRST join or a re-key of such a node is refused
+  until it is upgraded, or the recording node opens the [upgrade window](#the-upgrade-window) for the time of the
+  upgrade.
+- **One controller per region, one global per node.** Where a controller is recorded for a region, another identity
+  that claims that region is refused at discovery, in every tenant; the refusal prints the operator's line that replaces
+  the recorded controller (`<region>/<agent>=<key fingerprint>` in `<data>/security/peer-trust.json.rebind` on each node
+  that recorded it). A node takes one global, the first it joined; moving a region to another global is the same line
+  on the region. See [discovery](../architecture/discovery.md#one-controller-per-region).
+- **`controller_trust_anchors` admits, it no longer re-keys.** A plain fingerprint admits a controller and replaces
+  nothing recorded. To have a re-installed controller followed on every node without a rebind line, list it SCOPED:
+  `<region>/<agent>=<fingerprint>` ([configuration](../reference/configuration.md)).
+- **Rolling a node back** to an earlier release after it proved its key: within `discovery_proof_grace_days` (default 7)
+  of its first proof it is taken as before, with a WARN; after that, open the upgrade window on the nodes that recorded
+  it, or upgrade it again.
+- **No TLS session between nodes is resumed.** Every connection a node makes or accepts is a full handshake checked by
+  its trust as it is at that moment, so a revoked key cannot come back on a session it had before. Cost: about a
+  millisecond of CPU per reconnect; a controller that restarts had nothing resumable anyway.
+- **Revoking an agent by name at the global** (`peer_identity_revoke` or `peer-trust.json.revoke`) now does something:
+  the global reserves the name at once and asks that region's controller to revoke the key it holds for it. The global
+  logs the key the region reports (`Name revocation of <name>: REPORTED by ...`) and does not revoke it on the region's
+  word; to have every region refuse that key, revoke the reported fingerprint at the global. The `identity` health
+  check is WARN until the region answers.
+- **A registry restored from a backup** says so at start (`PEER TRUST REGISTRY IS BEHIND ITS OWN RECORD ...`): it has
+  forgotten which peers proved their key and which controller is the global since the backup.
+
+### Agent release 1.3.379
+
 A 1.3 release rolls onto another node by node, in any order. What changes for an operator in agent release 1.3.379:
 
 - **A node reads its own inbox only** ([tenancy](../architecture/tenancy.md#what-is-and-isnt-guaranteed)). Agent names
