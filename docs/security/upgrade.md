@@ -90,6 +90,23 @@ A node not upgraded before the window ends is cut off when it ends.
 
 ## Between 1.3 releases
 
+### Agent release 1.3.381
+
+Upgrade **the global first, then the region controllers**, then the agents: a global or region controller of an earlier
+release does not answer the new question about a moved node, and that node's messages at its former address wait until
+it is upgraded. What changes:
+
+- **A moved node reads the inbox of its former address only when the fabric recorded its move** (a second node with
+  the same agent name in another region could read it before). Standard profile: the moved node must keep its data
+  directory (its identity key); a move between any two regions works through the global; a fabric without a global
+  records no move. Production profile: issue the moved node with `cresco-pki.sh node ... --former <old region>` from the
+  root and revoke its old certificate. See [tenancy](../architecture/tenancy.md).
+- **Broker connections:** one connect attempt per broker address at a time, shared by every caller, bounded
+  (`broker_connect_wait_ms`, 60 s) and timed out (`broker_connect_response_timeout_ms`, 30 s; before, a connect could
+  wait without end). An agent's recovery no longer waits for connects to a broker it has left, and a failure of one of
+  the dataplane's dedicated connections no longer closes the shared one. The rare `addMessageListener error ... The
+  Consumer is closed` after a re-join is gone.
+
 ### Agent release 1.3.380
 
 1.3.380 rolls node by node like any 1.3 release, but **in this order: the global, then the region controllers, then

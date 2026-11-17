@@ -233,6 +233,8 @@ Client-side failover transport behavior. Note these are read as **strings** and 
 | `failover_reconnect_delay` | String (ms) | `"5000"` | Initial delay before a failover reconnect attempt. |
 | `max_reconnect_attempts` | String (int) | `"5"` | Maximum failover reconnect attempts before giving up. |
 | `use_exponential_backOff` | String (bool) | `"false"` | Use exponential backoff between failover reconnect attempts. |
+| `broker_connect_wait_ms` | long | `60000` | From 1.3.381 one connect attempt per broker address is made at a time and every caller that finds it running shares its result, failure included; a caller waits at most this long for it (then it gives up, and the next caller starts a fresh attempt). |
+| `broker_connect_response_timeout_ms` | int | `30000` | A broker connection whose connect is not answered in this time fails (before 1.3.381 it could wait without end). |
 
 ---
 

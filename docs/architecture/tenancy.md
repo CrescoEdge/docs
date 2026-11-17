@@ -110,9 +110,17 @@ region's names belong to one tenant: a certificate of another tenant that names 
 queue of the tenant's namespace: not its region controller's inbox, not a sibling's, no pattern over them, no queue
 browser, and no broker notice that carries a copy of another node's message; it cannot remove another node's queue.
 Before, any node of a tenant could read, and take away, the control messages of every other node of its tenant at its
-broker. A node moved to another region (`region_alias`) also reads the inbox of its former address, which is bound to
-it by the agent name in its certificate: **agent names must be unique within a tenant**, because a second node given
-the agent name of another, in a different region, can read that node's inbox through this form.
+broker. A node moved to another region (`region_alias`) also reads the inbox of its former address, **but only when
+the fabric recorded the move** (from agent release 1.3.381): under the standard profile its key must be the key its
+former name was bound to -- the controller that recorded the name answers, through the global, which asks the former
+region's controller for any region but its own; under the production profile its certificate must state the move
+(`cresco-pki.sh node ... --former <old region>`, issued by the root, see [PKI](../security/pki.md)). Every message for
+the former address is judged against that record: while the answer is pending the node's messages wait, and a "no"
+(the name rebound, revoked or never recorded) closes its consumer. A second node given the same agent name in another
+region can no longer read that inbox. Requirements: a global (a fabric without one records no move, and the former
+address is refused), upgraded first; the moved node keeps its data directory (its identity key); without a record the
+operator rebinds the former name (`<region>/<agent>=<key>` in `security/peer-trust.json.rebind` at the controller that
+recorded it). Agent names stay unique within a tenant as the rule.
 
 **Not guaranteed by this layer** (documented, with tiered mitigations): within a tenant every node can still read the
 tenant's dataplane topics (streams bound to a recipient excepted) and can write to any inbox of its tenant (what it

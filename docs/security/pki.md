@@ -20,11 +20,17 @@ Requires OpenSSL 3; run it on an offline, owner-only machine (the PKI directory 
 ```
 tools/cresco-pki.sh init   <pki> [--name "Cresco Fabric Root"] [--days 3650] [--key rsa|ec]
 tools/cresco-pki.sh region <pki> <tenant> <region> [--days 1825]
-tools/cresco-pki.sh node   <pki> <tenant> <region> <agent> [--controller|--global] [--issuer root|region] [--days 365]
+tools/cresco-pki.sh node   <pki> <tenant> <region> <agent> [--controller|--global] [--issuer root|region] [--days 365] [--former <region>]
 tools/cresco-pki.sh api    <pki> <tenant> <user> <admin|user> [--days 365]
 tools/cresco-pki.sh revoke <pki> <certificate.pem>
 tools/cresco-pki.sh crl    <pki> [--days 30]
 ```
+
+A node that MOVED from another region and keeps answering at its former address (`region_alias=<former region>`) is
+issued with `--former <former region>` (from 1.3.381): its certificate also carries
+`cresco:former:<tenant>/<former region>/<agent>`, the operator's statement of the move. It is issued from the root (a
+region CA's scope is its own region; `--issuer region` is refused with `--former`). Revoke the node's former
+certificate. Without that statement a production node is refused the inbox of its former address.
 
 `node` writes `<pki>/nodes/<region>_<agent>/{node.p12, node.p12.pass, trust-anchors.pem, node.pem}` (the key exists only
 in the keystore); issuing the same node again is a renewal (a new key, the same password file). `crl` writes
