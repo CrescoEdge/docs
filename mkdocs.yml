@@ -101,7 +101,6 @@ nav:
       - Overview: clients/overview.md
       - Java (clientlib): clients/java.md
       - Python (pycrescolib): clients/python.md
-      - C++ / Arduino (cppcrescolib): clients/cpp.md
   - Operations:
       - Deployment: operations/deployment.md
       - Testing: operations/testing.md

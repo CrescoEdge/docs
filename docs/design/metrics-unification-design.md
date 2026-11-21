@@ -41,7 +41,7 @@ gauges are stubbed; `getmetricinventory` isn't mesh-aggregated; clients are blin
 **One measurement model, everywhere.** Every bundle (controller + every plugin) registers its metrics in
 its Micrometer `MeasurementEngine` and exposes them through the *single* `getmetrics` EXEC contract. The
 controller aggregates them — locally, region-wide, and global-wide — behind the *single*
-`getmetricinventory` surface. All three clients (Java/Python/C++) get a first-class API to pull that
+`getmetricinventory` surface. Both clients (Java/Python) get a first-class API to pull that
 inventory and to measure their own dataplane. The legacy `sysinfo`/KPI path is **kept for back-compat** but folded in: its data
 also appears as MeasurementEngine gauges, and the unified `resource_summary` derives from them.
 
@@ -128,7 +128,7 @@ Every metric row keeps its `group` under its source, so a caller can flatten by 
 | **1 Plugins** | `sysinfo`, `wsapi`, `repo` implement `getmetrics` via MeasurementEngine (OSHI→gauges; WS conns/throughput; repo size). `stunnel` already done — align group names. | `plugin_metrics_enabled` (default true) | no (additive EXEC + gauges) |
 | **2 Controller** | Un-stub `initRegionalMetrics` (`brokered.agent.count`) + `initGlobalMetrics` (resource/app queue depth). `getMetricInventory` gains `scope=node|region|global` fan-out; `resource_summary` derives from sysinfo metrics. Default `include_plugins=true`. | `enable_controllermon` (exists), `metric_inventory_scope` | no |
 | **3 Clients** | `clientlib` (Java) + `pycrescolib` (Python): `get_metric_inventory(...)` / `get_metrics(...)` helpers wrapping the EXEC; client-side dataplane throughput/latency counters (`dataplane.get_metrics()`). | — | no (new API only) |
-| **4 Test/docs** | Live-mesh test pulling unified metrics from all plugins + all three clients; exhaustive docs; push all repos. | — | no |
+| **4 Test/docs** | Live-mesh test pulling unified metrics from all plugins + both clients; exhaustive docs; push all repos. | — | no |
 
 **Legacy path disposition:** `getsysinfo` / `resourceinfo` / `inodekpi` KPI persistence are **retained
 unchanged** (public clients depend on `resourceinfo`; the KPI table is written by the perf tick). The
@@ -179,7 +179,7 @@ to 0 without dropping sysinfo from the inventory.
 - `run/tests/metrics_unification_test.sh` — bring up global+region+agent with all plugins; assert
   `getmetricinventory` returns metrics from **every** plugin group + controller groups + resource
   summary, at node/region/global scope.
-- All three clients (Java/Python/C++): a Java example + a Python example call `get_metric_inventory` and
+- Both clients (Java/Python): a Java example + a Python example call `get_metric_inventory` and
   print the unified view; assert non-empty per-plugin groups.
 - No regression: existing health/security/startup suites stay green.
 

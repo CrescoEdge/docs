@@ -1,6 +1,6 @@
 # wsapi — WebSocket API
 
-The `wsapi` plugin (bundle `io.cresco.wsapi`) is the fabric's external client entrypoint. It embeds a Netty HTTPS/WSS server that exposes three authenticated WebSocket endpoints — control, data plane, and log streaming — over `wss://…:8282`. This is the endpoint the [Java](../clients/java.md), [Python](../clients/python.md), and [C++ / Arduino](../clients/cpp.md) client libraries connect to.
+The `wsapi` plugin (bundle `io.cresco.wsapi`) is the fabric's external client entrypoint. It embeds a Netty HTTPS/WSS server that exposes three authenticated WebSocket endpoints — control, data plane, and log streaming — over `wss://…:8282`. This is the endpoint the [Java](../clients/java.md) and [Python](../clients/python.md) client libraries connect to.
 
 ## At a glance
 

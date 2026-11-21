@@ -1,13 +1,12 @@
 # Client Libraries
 
-Cresco ships three external client SDKs for driving a mesh from outside the OSGi
+Cresco ships two external client SDKs for driving a mesh from outside the OSGi
 runtime:
 
 - **[Java — `clientlib`](java.md)** — the Java SDK (`io.cresco:clientlib`).
 - **[Python — `pycrescolib`](python.md)** — the Python SDK.
-- **[C++ / Arduino — `cppcrescolib`](cpp.md)** — the embedded SDK for ESP32 (ESP32-S3) edge nodes.
 
-All three connect to a running Cresco agent that hosts the **`wsapi`** plugin over a
+Both connect to a running Cresco agent that hosts the **`wsapi`** plugin over a
 secure WebSocket (`wss://host:8282`) and drive the fabric — controlling agents,
 deploying plugins, submitting pipelines, streaming the data plane, and tailing
 logs.
@@ -59,9 +58,7 @@ answer ([wsapi › API RPCs](../plugins/wsapi.md#api-rpcs)).
     The Python and Java clients are kept **feature- and name-identical**: the same
     submodules (`api`, `admin`, `agents`, `globalcontroller`, `messaging`, `stunnel`,
     `executor`, `filerepo`), the same method names (snake_case in both), the same
-    behavior, TLS and credential options, and the same worked examples. The C++
-    client shares the first five submodules and their names, with the service key
-    only (see [TLS verification](#tls-verification)).
+    behavior, TLS and credential options, and the same worked examples.
 
 Parity is enforced by test: the clients ship a self-contained suite that
 asserts they emit **identical wire messages for identical API calls**, verified
@@ -70,11 +67,11 @@ byte-for-byte equivalent results.
 
 Beyond that, the differences are the ones each platform forces:
 
-| | Python (`pycrescolib`) | Java (`clientlib`) | C++ (`cppcrescolib`) |
-|---|---|---|---|
-| Concurrency | asyncio under a blocking surface | background reader threads | single cooperative `loop()` |
-| Structured returns | `dict` / `list` | `Map` / `List` / JSON | `ArduinoJson::JsonDocument` |
-| Target | server / desktop | server / desktop / JVM | ESP32-S3 edge node |
+| | Python (`pycrescolib`) | Java (`clientlib`) |
+|---|---|---|
+| Concurrency | asyncio under a blocking surface | background reader threads |
+| Structured returns | `dict` / `list` | `Map` / `List` / JSON |
+| Target | server / desktop | server / desktop / JVM |
 
 ## TLS verification
 
@@ -87,18 +84,11 @@ file (`ca_file=` / `caFile(...)`). `verify_ssl=False` (Java: `.insecure()`) turn
 verification off and logs a WARNING on every connection. See
 [API authentication](../security/api-auth.md).
 
-!!! warning "The C++ / Arduino client"
-    `cppcrescolib` still takes only the service key and defaults to
-    `verify_ssl=false`; it has none of the 1.3 credentials (users, tokens, client
-    certificates), so it cannot reach a wsapi running the `production` profile.
-    See [C++ / Arduino](cpp.md).
-
 ## Where to go next
 
 - **[Java (clientlib)](java.md)** — installation, connection, full interface
   reference, and worked examples.
 - **[Python (pycrescolib)](python.md)** — the equivalent Python SDK.
-- **[C++ / Arduino (cppcrescolib)](cpp.md)** — the embedded ESP32 SDK.
 - **[MsgEvent](../api/msgevent.md)** — the message envelope and routing model
   the `messaging` submodule builds on.
 - **[Plugin Actions](../api/plugin-actions.md)** — the action catalog exposed by

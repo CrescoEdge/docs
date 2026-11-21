@@ -6,10 +6,10 @@ authenticated, secure WebSocket control connection to an agent running the
 objects that let you inspect the mesh, deploy plugins, submit pipelines, and open
 separate stream sockets for the data plane and for live logs.
 
-The Python, Java, and C++ clients are kept **feature- and name-identical**: the same
-submodules, the same method names (snake_case in all three languages), the same wire messages,
+The Python and Java clients are kept **feature- and name-identical**: the same
+submodules, the same method names (snake_case in both languages), the same wire messages,
 and the same worked examples. Anything you can do in one you can do in the others with the same
-call — see the [Java Client](java.md) and [C++ / Arduino Client](cpp.md) for the equivalents.
+call — see the [Java Client](java.md) for the equivalents.
 
 !!! info "Async underneath, blocking on the surface"
     The client was migrated to `asyncio` + [`websockets`](https://websockets.readthedocs.io/):
@@ -593,8 +593,6 @@ emit **identical wire messages for identical API calls**, sharing one generated 
 
 - **Python:** `pip install -e .[test] && pytest`
 - **Java:** `mvn test` — see [Java Client (feature parity)](java.md).
-- **C++ / Arduino:** the [C++ client](cpp.md) mirrors the same submodules, method names, and
-  `example_*` set for ESP32-S3 edge nodes.
 
 ---
 
@@ -602,7 +600,6 @@ emit **identical wire messages for identical API calls**, sharing one generated 
 
 - [Client Libraries — Overview](overview.md)
 - [Java Client (feature parity)](java.md)
-- [C++ / Arduino Client (feature parity)](cpp.md)
 - [MsgEvent — the message wire contract](../api/msgevent.md)
 - [Plugin Actions (Capability Inventory)](../api/plugin-actions.md)
 - [Data Plane architecture](../architecture/dataplane.md)

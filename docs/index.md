@@ -7,7 +7,7 @@ and orchestrate software across many machines — from a single laptop to a glob
 a uniform messaging model, a streaming data plane, cryptographic identity, and per-tenant isolation.
 
 This site is the **canonical documentation** for Cresco. All information about the project — architecture,
-every module and plugin, every callable action, configuration, and all three client libraries — lives here.
+every module and plugin, every callable action, configuration, and both client libraries — lives here.
 
 !!! info "New here? Start with the [Architecture Overview](architecture/overview.md), then the [Quickstart](getting-started/quickstart.md)."
 
@@ -55,8 +55,8 @@ Nodes communicate two ways:
 - **End-to-end tunnel tracing** — [stunnel](plugins/stunnel.md) tunnels are traced hop-by-hop through the
   broker network and streamed live (throughput + path) on a subscribable channel. See
   [Tunnel Path Tracing](architecture/tunnel-tracing.md).
-- **Client SDKs** — drive the fabric from [Java](clients/java.md), [Python](clients/python.md), or
-  [C++ / Arduino (ESP32)](clients/cpp.md) over a secure WebSocket.
+- **Client SDKs** — drive the fabric from [Java](clients/java.md) or [Python](clients/python.md)
+  over a secure WebSocket.
 
 ## How this site is organized
 
@@ -69,7 +69,7 @@ Nodes communicate two ways:
   `core`, `logger`, `repo`, `filerepo`, `sysinfo`, `wsapi`, `stunnel`, `executor`).
 - **[API Reference](api/plugin-actions.md)** — all plugin actions, the Library API, the MsgEvent structure,
   and the full [configuration parameter](reference/configuration.md) reference.
-- **[Client Libraries](clients/overview.md)** — Java, Python, and C++ (Arduino/ESP32) SDK references.
+- **[Client Libraries](clients/overview.md)** — Java and Python SDK references.
 - **[Operations](operations/deployment.md)** — deployment, testing, troubleshooting and measured performance.
 - **[Reference](reference/glossary.md)** — glossary and the underlying design documents.
 
@@ -91,7 +91,6 @@ cresco/
 │   ├── executor/    # OS process / command executor plugin
 │   ├── clientlib/   # external Java SDK
 │   └── pycrescolib/ # external Python SDK
-├── cppcrescolib/    # external C++ / Arduino (ESP32) SDK
 └── run/             # staged agent jar + launch scripts + tests
 ```
 

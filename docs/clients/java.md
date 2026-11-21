@@ -7,9 +7,9 @@ legacy `cresco_service_key` or a client certificate) and drives the fabric: cont
 deploying plugins, submitting pipelines, streaming the data plane, and tailing
 logs.
 
-For the shared connect-then-use-submodules model and the Java/Python/C++ parity
-guarantee, see the [Client Libraries overview](overview.md). The equivalent SDKs
-are the [Python client](python.md) and the [C++ / Arduino client](cpp.md).
+For the shared connect-then-use-submodules model and the Java/Python parity
+guarantee, see the [Client Libraries overview](overview.md). The equivalent SDK
+is the [Python client](python.md).
 
 ## Installation
 
@@ -564,13 +564,13 @@ The repository README has the same usage guide in condensed form:
 
 The client ships a self-contained test suite (no live mesh required) that
 asserts it emits **identical wire messages for identical API calls** as the
-[Python](python.md) and [C++ / Arduino](cpp.md) clients, verified against a
+[Python](python.md) client, verified against a
 shared golden corpus:
 
 ```bash
 mvn test
 ```
 
-A green run across the Java, Python, and C++ suites proves the clients produce
+A green run across the Java and Python suites proves the clients produce
 the same results. See the [Client Libraries overview](overview.md#feature-parity)
 for the parity guarantee.

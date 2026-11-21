@@ -47,5 +47,5 @@ Core Cresco terms, in one place.
 | **Failure detector** | φ-accrual suspicion + SWIM indirect probing that decides when a peer is dead (`failure_phi_suspect`/`failure_phi_dead`, `failure_swim_k`). |
 | **Tunnel tracing** | End-to-end [stunnel](../plugins/stunnel.md) path tracing: brokers stamp `cresco_hops` on marked bytes, streamed live (throughput + path) on the subscribable `stunnel_trace` channel. See [Tunnel Path Tracing](../architecture/tunnel-tracing.md). |
 | **wsapi** | The [WebSocket API plugin](../plugins/wsapi.md) that bridges external [clients](../clients/overview.md) to the fabric (`wss://host:8282`). |
-| **clientlib / pycrescolib / cppcrescolib** | The external [Java](../clients/java.md), [Python](../clients/python.md), and [C++ / Arduino (ESP32)](../clients/cpp.md) client SDKs. |
+| **clientlib / pycrescolib** | The external [Java](../clients/java.md) and [Python](../clients/python.md) client SDKs. |
 | **CADL / pipeline** | A described application (a graph of plugins/edges) submitted to and orchestrated by the global controller. |
