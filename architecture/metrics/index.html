@@ -1,0 +1,4057 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/architecture/metrics/">
+      
+      
+        <link rel="prev" href="../health/">
+      
+      
+        <link rel="next" href="../../security/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Metrics & Measurements - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#metrics-measurements" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Metrics & Measurements
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/plugin-actions/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../clients/overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/distributed-identity-trust-design/" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#measure-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measure classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registration-update-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration &amp; update API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-single-plugin-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The single plugin contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mesh-wide-aggregation-getmetricinventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mesh-wide aggregation — getmetricinventory
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plugin-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/distributed-identity-trust-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tenant-isolation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/optimal-global-routing-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/health-check-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#measure-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measure classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registration-update-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration &amp; update API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-single-plugin-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The single plugin contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mesh-wide-aggregation-getmetricinventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mesh-wide aggregation — getmetricinventory
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="metrics-measurements">Metrics &amp; Measurements<a class="headerlink" href="#metrics-measurements" title="Permanent link">&para;</a></h1>
+<p>Cresco has a single, unified measurement model: <strong>every bundle</strong> — the controller and every plugin —
+registers its metrics in one Micrometer registry and exposes them through one contract, and the
+controller aggregates them locally, region-wide, and global-wide. This is distinct from
+<a href="../health/">health</a>, which consumes measurements to form pass/fail verdicts.</p>
+<p>This page is exhaustive: it documents the measurement machinery, then <strong>every metric the fabric
+emits</strong> — its name, group, type, unit, exactly how it is measured, and what it means.</p>
+<h2 id="the-model">The model<a class="headerlink" href="#the-model" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MeasurementEngine</code></td>
+<td>per-bundle façade over a Micrometer registry; register gauges/timers/counters/distribution-summaries and read them back with <code>getAllMetrics()</code></td>
+</tr>
+<tr>
+<td><code>CMetric</code></td>
+<td>metadata wrapper for one metric — its <code>name</code>, <code>group</code>, measure class, and scope (<code>NODE</code>/<code>APP</code>/<code>EDGE</code>)</td>
+</tr>
+<tr>
+<td><code>CrescoMeterRegistry</code></td>
+<td>a Micrometer <code>DropwizardMeterRegistry</code> (one per bundle), obtained via <code>plugin.getCrescoMeterRegistry()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics are organized into <strong>groups</strong> — the metric analogue of health tags. The controller populates
+<code>jvm</code>, <code>controller</code>, <code>cep</code>, <code>netlink</code>, <code>regional</code>, and <code>global</code>; each plugin contributes its own
+(<code>sysinfo</code> → <code>processor</code>/<code>memory</code>/<code>disk</code>/<code>network</code>/<code>sensors</code>/<code>power</code>/<code>system</code>/<code>gpu</code>/<code>devices</code>,
+<code>executor</code> → <code>executor</code>, <code>filerepo</code> → <code>filerepo</code>, <code>repo</code> → <code>repo</code>, <code>stunnel</code> → <code>stunnel</code>,
+<code>wsapi</code> → <code>wsapi</code>).</p>
+<h3 id="measure-classes">Measure classes<a class="headerlink" href="#measure-classes" title="Permanent link">&para;</a></h3>
+<p>Every metric carries a <code>CMetric.MeasureClass</code> that determines how it is stored and serialized:</p>
+<table>
+<thead>
+<tr>
+<th>Measure class</th>
+<th>Backing</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GAUGE_INT</code></td>
+<td><code>AtomicInteger</code></td>
+<td>integer point-in-time value</td>
+</tr>
+<tr>
+<td><code>GAUGE_LONG</code></td>
+<td><code>AtomicLong</code></td>
+<td>long point-in-time value (byte counts, timestamps)</td>
+</tr>
+<tr>
+<td><code>GAUGE_DOUBLE</code></td>
+<td>Guava <code>AtomicDouble</code></td>
+<td>fractional value (loads, rates, temperatures)</td>
+</tr>
+<tr>
+<td><code>GAUGE_AUTO</code></td>
+<td>Micrometer meter</td>
+<td>value read straight from a Micrometer <code>Gauge.builder</code>/binder meter adopted via <code>setExisting</code></td>
+</tr>
+<tr>
+<td><code>TIMER</code></td>
+<td>Micrometer <code>Timer</code></td>
+<td>mean/max/total/count of recorded durations</td>
+</tr>
+<tr>
+<td><code>DISTRIBUTION_SUMMARY</code></td>
+<td>Micrometer <code>DistributionSummary</code></td>
+<td>mean/max/total/count of recorded amounts</td>
+</tr>
+<tr>
+<td><code>COUNTER</code></td>
+<td>Micrometer <code>Counter</code></td>
+<td>monotonic count</td>
+</tr>
+</tbody>
+</table>
+<p><code>CMetric.Type</code> is the scope: <code>NODE</code> (default — a node-level metric), <code>APP</code> (needs an inode + resource
+id), <code>EDGE</code> (needs an edge id). All engine-registered metrics are <code>NODE</code>; the per-process and
+per-runner streams use <code>APP</code>.</p>
+<h3 id="registration-update-api">Registration &amp; update API<a class="headerlink" href="#registration-update-api" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>setGauge(name, description, group, measureClass)</code> — create a gauge (idempotent; a repeated name is
+  a no-op that returns <code>false</code>).</li>
+<li><code>updateIntGauge</code> / <code>updateLongGauge</code> / <code>updateDoubleGauge(name, value)</code> — set the current value.</li>
+<li><code>setTimer(name, description, group)</code> + <code>updateTimer(name, startNanos)</code> — records
+  <code>System.nanoTime() − startNanos</code>.</li>
+<li><code>setDistributionSummary(name, description, group)</code> + <code>updateDistributionSummary(name, value)</code>.</li>
+<li><code>setExisting(name, group)</code> — adopt a meter already on the shared registry (a Micrometer binder
+  meter, or a <code>Gauge.builder</code> gauge with a live supplier) so it surfaces in <code>getAllMetrics()</code>.</li>
+</ul>
+<h2 id="the-single-plugin-contract">The single plugin contract<a class="headerlink" href="#the-single-plugin-contract" title="Permanent link">&para;</a></h2>
+<p>Every metric-bearing bundle answers the same EXEC action:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">case</span><span class="w"> </span><span class="s">"getmetrics"</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"metrics"</span><span class="p">,</span><span class="w"> </span><span class="n">gson</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">measurementEngine</span><span class="p">.</span><span class="na">getAllMetrics</span><span class="p">()));</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">incoming</span><span class="p">.</span><span class="na">setParam</span><span class="p">(</span><span class="s">"status"</span><span class="p">,</span><span class="w"> </span><span class="s">"10"</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">incoming</span><span class="p">;</span>
+</code></pre></div>
+<p><code>getAllMetrics()</code> returns <code>Map&lt;group, List&lt;row&gt;&gt;</code>. Each <strong>row</strong> is a flat <code>Map&lt;String,String&gt;</code> whose
+keys depend on the measure class — read live on every call:</p>
+<table>
+<thead>
+<tr>
+<th>Measure class</th>
+<th>Row keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GAUGE_INT</code> / <code>GAUGE_LONG</code> / <code>GAUGE_DOUBLE</code> / <code>GAUGE_AUTO</code></td>
+<td><code>name</code>, <code>class</code> (meter type, e.g. <code>GAUGE</code>), <code>type</code> (<code>NODE</code>/…), <code>value</code>, <code>group</code></td>
+</tr>
+<tr>
+<td><code>TIMER</code></td>
+<td><code>name</code>, <code>class</code>, <code>type</code>, <code>mean</code>, <code>max</code>, <code>totaltime</code>, <code>count</code>, <code>group</code></td>
+</tr>
+<tr>
+<td><code>DISTRIBUTION_SUMMARY</code></td>
+<td><code>name</code>, <code>class</code>, <code>type</code>, <code>mean</code>, <code>max</code>, <code>totalAmount</code>, <code>count</code>, <code>group</code></td>
+</tr>
+<tr>
+<td><code>COUNTER</code></td>
+<td><code>name</code>, <code>class</code>, <code>type</code>, <code>count</code>, <code>group</code></td>
+</tr>
+</tbody>
+</table>
+<p>This is the wire schema for the whole fabric.</p>
+<h2 id="mesh-wide-aggregation-getmetricinventory">Mesh-wide aggregation — <code>getmetricinventory</code><a class="headerlink" href="#mesh-wide-aggregation-getmetricinventory" title="Permanent link">&para;</a></h2>
+<p><code>getmetricinventory</code> is the single aggregating surface (metrics' analogue of
+<a href="../health/#querying-health-gethealthinventory"><code>gethealthinventory</code></a>). It merges the controller's own
+metrics + every local plugin's <code>getmetrics</code> + an optional resource summary, and can <strong>fan out</strong> by
+scope:</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node</code> (default)</td>
+<td>this node only</td>
+</tr>
+<tr>
+<td><code>region</code></td>
+<td>this node + every child agent in its region</td>
+</tr>
+<tr>
+<td><code>global</code></td>
+<td>the whole mesh</td>
+</tr>
+</tbody>
+</table>
+<p>Parameters: <code>action_scope</code> = <code>node</code>|<code>region</code>|<code>global</code>; <code>action_include_plugins</code> (default <strong>true</strong> —
+set <code>false</code> to return only controller metrics); <code>action_include_resource</code> (default <strong>false</strong> — opt-in;
+adds a sysinfo CPU/memory/disk resource summary at the cost of an extra RPC).</p>
+<p><strong>How the node inventory is built.</strong> The controller assembles <code>metrics_by_source</code>:</p>
+<ol>
+<li>Its own <code>MeasurementEngine.getAllMetrics()</code> keyed <code>&lt;region&gt;_&lt;agent&gt;:io.cresco.agent.controller</code>
+   (the <code>jvm</code>, <code>controller</code>, <code>cep</code>, <code>regional</code>, <code>global</code>, <code>netlink</code> groups below).</li>
+<li>Each local plugin's metrics — the controller sends the <code>getmetrics</code> EXEC to every plugin id on the
+   node (timeout <code>metrics_rpc_timeout_ms</code>, default 2500 ms), keyed <code>&lt;region&gt;_&lt;agent&gt;:&lt;pluginId&gt;</code>.
+   Plugins that don't answer are silently skipped.</li>
+<li>If requested, a <code>resource_summary</code> (sysinfo CPU/memory/disk totals, timeout
+   <code>resource_rpc_timeout_ms</code>, default 3000 ms).</li>
+</ol>
+<p><strong>How the fan-out works.</strong> For <code>region</code>, the target set is every agent in this region; for <code>global</code>,
+every agent in every region. Each child is queried <strong>concurrently</strong> (one daemon thread per child)
+with a node-scoped <code>getmetricinventory</code>, timeout <code>metrics_fanout_timeout_ms</code> (default 12000 ms). The
+join deadline is that timeout + 1000 ms; unreachable/slow nodes are skipped. Whole-mesh latency is
+therefore bounded by the slowest single node, not the sum of all nodes.</p>
+<p>Final shape: <code>{ node, metrics_by_source:{…}, [resource_summary], scope, [children:{…}] }</code>. Both
+<a href="../../clients/overview/">client libraries</a> expose <code>get_metric_inventory(...)</code> to pull it.</p>
+<hr />
+<h1 id="the-full-metric-catalog">The full metric catalog<a class="headerlink" href="#the-full-metric-catalog" title="Permanent link">&para;</a></h1>
+<p>Every metric the fabric emits, grouped by source. Format: <strong><code>metric.name</code></strong> (group, type, unit) —
+how it is measured — what it means.</p>
+<h2 id="controller-native-metrics">Controller — native metrics<a class="headerlink" href="#controller-native-metrics" title="Permanent link">&para;</a></h2>
+<p>Registered by <code>PerfControllerMonitor</code> on the controller's <code>MeasurementEngine</code> at startup.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Group / type</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>message.transaction.time</code></strong></td>
+<td><code>controller</code>, TIMER</td>
+<td><code>updateTimer(...)</code> in <code>MsgRouter</code> records <code>nanoTime − messageTimestamp</code> for each routed message</td>
+<td>End-to-end message-routing latency through the controller (mean / max / total / count)</td>
+</tr>
+<tr>
+<td><strong><code>cep.queries.active</code></strong></td>
+<td><code>cep</code>, GAUGE</td>
+<td>supplier reads <code>DataPlaneServiceImpl.getActiveCEPCount()</code></td>
+<td>Number of active Complex-Event-Processing (Siddhi) queries in the embedded in-process CEP engine</td>
+</tr>
+<tr>
+<td><strong><code>brokered.agent.count</code></strong></td>
+<td><code>regional</code>, GAUGE</td>
+<td>supplier reads <code>controllerEngine.getBrokeredAgents().size()</code></td>
+<td>Agents currently brokered by this regional controller (reads 0 on a leaf agent)</td>
+</tr>
+<tr>
+<td><strong><code>reachable.agent.count</code></strong></td>
+<td><code>global</code>, GAUGE</td>
+<td>supplier reads <code>controllerEngine.reachableAgents().size()</code></td>
+<td>Agents reachable in this controller's view of the mesh</td>
+</tr>
+<tr>
+<td><strong><code>incoming.candidate.brokers</code></strong></td>
+<td><code>global</code>, GAUGE</td>
+<td>supplier reads <code>controllerEngine.getIncomingCanidateBrokers().size()</code></td>
+<td>Depth of the discovery candidate-broker queue awaiting processing</td>
+</tr>
+<tr>
+<td><strong><code>dataplane.broker.discarded</code></strong></td>
+<td><code>dataplane</code>, COUNTER</td>
+<td><code>CrescoDiscardAccountingBroker</code> counts the broker's slow-subscriber discards</td>
+<td>Dataplane messages this node's broker discarded for slow topic subscribers (only when backpressure is off: <code>dataplane_backpressure=false</code> or <code>activemq_topic_producer_flow_control=false</code>; logged too)</td>
+</tr>
+<tr>
+<td><strong><code>dataplane.broker.slow.consumers</code></strong></td>
+<td><code>dataplane</code>, COUNTER</td>
+<td>the broker's slow-consumer advisories</td>
+<td>Slow-subscriber episodes (more than prefetch pending); with backpressure these slow writers, they lose nothing</td>
+</tr>
+<tr>
+<td><strong><code>dataplane.stream.gap</code></strong></td>
+<td><code>dataplane</code>, COUNTER</td>
+<td><code>StreamSequence</code> checks each stream's <code>cresco_seq</code> at the subscriber's controller</td>
+<td>Stream messages this node's subscribers did not get; the first message after a gap carries <code>cresco_gap</code> (<a href="../dataplane/#stream-sequence-numbers-loss-is-never-silent">Data Plane</a>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="controller-what-became-of-each-message">Controller: what became of each message<a class="headerlink" href="#controller-what-became-of-each-message" title="Permanent link">&para;</a></h2>
+<p>Group <code>msg</code> (and <code>broker</code>), all COUNTERs unless noted, registered by <code>MsgMetrics</code>. They account for every control
+message (MsgEvent) a node had in hand; the dataplane has its own (<code>dataplane.*</code>). The reason or cause is the last part
+of the name, because the inventory keys a meter by its name.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>msg.originated</code></strong></td>
+<td>messages this node originated (its controller's, a plugin's, or an API user's through its wsapi), replies included</td>
+</tr>
+<tr>
+<td><strong><code>msg.relayed</code></strong></td>
+<td>messages taken off the wire and sent on toward another node</td>
+</tr>
+<tr>
+<td><strong><code>msg.delivered</code></strong></td>
+<td>messages handed to their recipient on this node: its controller, a plugin, or the call waiting for a reply</td>
+</tr>
+<tr>
+<td><strong><code>msg.held</code></strong>, <strong><code>msg.hold.full</code></strong></td>
+<td>messages the inbox held until it could judge them, and messages it could not hold for lack of room</td>
+</tr>
+<tr>
+<td><strong><code>msg.refused</code></strong>, <strong><code>msg.refused.&lt;reason&gt;</code></strong></td>
+<td>messages that failed authentication, in all and by reason (<code>unsigned</code>, <code>not_for_this_node</code>, <code>no_recipient</code>, <code>too_old</code>, <code>ahead_of_clock</code>, <code>replay</code>, <code>replay_memory_full</code>, <code>credential</code>, <code>revoked</code>, <code>session_key</code>, <code>bad_signature</code>, <code>caller_mismatch</code>, <code>other</code>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.dropped</code></strong>, <strong><code>msg.dropped.&lt;cause&gt;</code></strong></td>
+<td>messages that ended on this node without reaching their recipient, in all and by cause (<a href="../../operations/troubleshooting/#message-dropped">the causes</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.expired</code></strong>, <strong><code>msg.expired.on_arrival</code></strong>, <strong><code>msg.expired.by_consumer</code></strong></td>
+<td>messages this node's broker let expire unconsumed; of them, those that had already expired when they reached it (the sender's clock is behind, or the message waited that long on its way), and those a consumer's client library discarded by its own clock (<a href="../../operations/troubleshooting/#a-message-expired-in-a-broker">MESSAGE EXPIRED</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.route.held</code></strong>, <strong><code>msg.route.mismatch</code></strong>, <strong><code>msg.route.unread.patterns</code></strong> (GAUGE)</td>
+<td>RPC requests a controller held while the route to their node was coming back; requests it would have answered <code>route unavailable</code> but the broker did have a consumer; consumers that read queues by a pattern, so that the queues it can match are not judged (<a href="../../operations/troubleshooting/#a-call-is-answered-route-unavailable">route unavailable</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.send.held</code></strong></td>
+<td>messages held because the node could not send yet (no producer, or an agent's first answers before its attestation), then sent in order</td>
+</tr>
+<tr>
+<td><strong><code>msg.session.lost.told</code></strong>, <strong><code>.heard</code></strong>, <strong><code>.retried</code></strong>, <strong><code>msg.session.unanswered</code></strong></td>
+<td>lost-session notices this node sent and acted on, RPC requests it sent again signed, and sessions set aside after a call got no answer (<a href="../../security/message-auth/#session-keys">message authentication</a>)</td>
+</tr>
+<tr>
+<td><strong><code>msg.sign.failed</code></strong>, <strong><code>msg.trust.refused</code></strong>, <strong><code>msg.filepart.dropped</code></strong></td>
+<td>sends this node could not sign; trust data from a parent it refused; file parts it did not take (not counted as messages)</td>
+</tr>
+<tr>
+<td><strong><code>broker.caller.stripped</code></strong></td>
+<td>caller stamps this node's broker stripped (forged, or carried by a bridge that may not carry them)</td>
+</tr>
+<tr>
+<td><strong><code>broker.bridge.transit.withheld</code></strong></td>
+<td>topic messages that reached a region's broker over one bridge and were not passed on over another (in a fabric with a global the global is the relay: <a href="../dynamic-routing/#which-broker-relays-between-bridges">dynamic routing</a>)</td>
+</tr>
+<tr>
+<td><strong><code>broker.dlq.depth</code></strong> (GAUGE)</td>
+<td>messages in the broker's dead-letter queue now (expired messages are never put there)</td>
+</tr>
+<tr>
+<td><strong><code>broker.bridge.withheld</code></strong>, <strong><code>broker.bridge.discarded</code></strong></td>
+<td>messages a bridge demanded and was not given, or brought in for a destination its peer may not write</td>
+</tr>
+<tr>
+<td><strong><code>broker.anonymous.discarded</code></strong>, <strong><code>broker.recipient.withheld</code></strong></td>
+<td>messages from connections without a client certificate; messages withheld from a consumer that is not their recipient</td>
+</tr>
+<tr>
+<td><strong><code>broker.quarantine.connections</code></strong> (GAUGE)</td>
+<td>connections without a verified identity held now</td>
+</tr>
+</tbody>
+</table>
+<p>On a quiet fabric, <code>msg.originated</code> summed over the nodes equals <code>msg.delivered + msg.refused + msg.dropped</code> summed
+over them. What a broker lets expire between two nodes ends on no node: it is counted where it expired (<code>msg.expired</code>),
+and the sum falls short by it. An authorization denial (403) counts as delivered:
+the recipient answered.</p>
+<h2 id="controller-management-calls-from-the-wrong-place">Controller: management calls from the wrong place<a class="headerlink" href="#controller-management-calls-from-the-wrong-place" title="Permanent link">&para;</a></h2>
+<p>Group <code>authz</code>, COUNTERs, registered by <code>AuthorityMetrics</code> (<a href="../../security/authority/">authority follows the tree</a>).</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Counts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>authz.direction.would_refuse</code></strong></td>
+<td>calls that <code>authority_direction=enforce</code> would refuse: a management action from a node that is neither the target nor a controller above it (or a child's report from a node that is not below). Counted in <code>log</code> mode, where the call is allowed</td>
+</tr>
+<tr>
+<td><strong><code>authz.direction.would_refuse.&lt;action&gt;</code></strong></td>
+<td>the same per action: one meter for every action that has a direction and every privileged action of a plugin; <code>.watchdog</code> and <code>.kpi</code> for those message types; <code>.other</code> for an action a plugin gave a direction of its own</td>
+</tr>
+<tr>
+<td><strong><code>authz.direction.refused</code></strong>, <strong><code>authz.direction.refused.&lt;action&gt;</code></strong></td>
+<td>calls refused for their direction (<code>enforce</code> mode), named the same way</td>
+</tr>
+</tbody>
+</table>
+<p>Before <code>enforce</code> is turned on, <code>would_refuse</code> must read zero on every node for everything the fabric is meant to keep
+doing.</p>
+<h2 id="controller-jvm-system-micrometer-binders">Controller — JVM &amp; system (Micrometer binders)<a class="headerlink" href="#controller-jvm-system-micrometer-binders" title="Permanent link">&para;</a></h2>
+<p>The controller binds four standard Micrometer binders (<code>JvmMemoryMetrics</code>, <code>JvmThreadMetrics</code>,
+<code>ClassLoaderMetrics</code>, <code>ProcessorMetrics</code>) to its registry and adopts the following into the <code>jvm</code>
+group. (<code>JvmGcMetrics</code> and <code>system.load.average.1m</code> are intentionally not adopted — the latter
+misbehaves on Windows; sysinfo carries load average instead.)</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>jvm.memory.used</code></strong></td>
+<td>Bytes of JVM memory in use, per pool (heap / non-heap)</td>
+</tr>
+<tr>
+<td><strong><code>jvm.memory.committed</code></strong></td>
+<td>Bytes committed (guaranteed available), per pool</td>
+</tr>
+<tr>
+<td><strong><code>jvm.memory.max</code></strong></td>
+<td>Max bytes the JVM will attempt to use per pool (<code>-1</code> where unbounded)</td>
+</tr>
+<tr>
+<td><strong><code>jvm.buffer.memory.used</code></strong></td>
+<td>Bytes of direct/mapped NIO buffer memory in use</td>
+</tr>
+<tr>
+<td><strong><code>jvm.buffer.total.capacity</code></strong></td>
+<td>Total capacity of NIO buffers per pool</td>
+</tr>
+<tr>
+<td><strong><code>jvm.buffer.count</code></strong></td>
+<td>Number of buffers in the pool</td>
+</tr>
+<tr>
+<td><strong><code>jvm.threads.live</code></strong></td>
+<td>Live threads (daemon + non-daemon)</td>
+</tr>
+<tr>
+<td><strong><code>jvm.threads.daemon</code></strong></td>
+<td>Daemon threads</td>
+</tr>
+<tr>
+<td><strong><code>jvm.threads.peak</code></strong></td>
+<td>Peak live threads since JVM start</td>
+</tr>
+<tr>
+<td><strong><code>jvm.classes.loaded</code></strong></td>
+<td>Classes currently loaded</td>
+</tr>
+<tr>
+<td><strong><code>jvm.classes.unloaded</code></strong></td>
+<td>Classes unloaded since JVM start (counter)</td>
+</tr>
+<tr>
+<td><strong><code>system.cpu.count</code></strong></td>
+<td>Logical processors available to the JVM</td>
+</tr>
+<tr>
+<td><strong><code>system.cpu.usage</code></strong></td>
+<td>Recent whole-system CPU usage (0–1)</td>
+</tr>
+<tr>
+<td><strong><code>process.cpu.usage</code></strong></td>
+<td>Recent CPU usage of this JVM process (0–1)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="controller-network-link-metrics-netlink">Controller — network link metrics (<code>netlink</code>)<a class="headerlink" href="#controller-network-link-metrics-netlink" title="Permanent link">&para;</a></h2>
+<p>The <code>netlink</code> group carries <strong>per-edge link quality</strong>, one set of gauges per neighbor edge, named
+<code>link.&lt;region_agent&gt;.&lt;metric&gt;</code> (non-alphanumerics in the path become <code>_</code>). Values are pushed on the
+<code>AutoTuner</code> loop interval. These feed the <a href="../health/#linkquality-tags-link-linkquality"><code>link:quality</code></a>
+health check, the auto-tuner control loop (which adapts socket buffers, block sizes, and bridge
+connection counts to the bandwidth-delay product), and a composite link <strong>cost</strong> used for
+performance-aware routing.</p>
+<table>
+<thead>
+<tr>
+<th>Metric (per edge)</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>link.&lt;path&gt;.rtt_ms</code></strong></td>
+<td>GAUGE_DOUBLE, ms</td>
+<td>Jacobson/Karels smoothed RTT (<code>srtt</code>, α=1/8) of the parent health-ping RPC</td>
+<td>Smoothed round-trip latency to the neighbor</td>
+</tr>
+<tr>
+<td><strong><code>link.&lt;path&gt;.jitter_ms</code></strong></td>
+<td>GAUGE_DOUBLE, ms</td>
+<td>Jacobson/Karels RTT variation (<code>rttvar</code>, β=1/4) computed alongside srtt</td>
+<td>RTT variability / jitter of the edge</td>
+</tr>
+<tr>
+<td><strong><code>link.&lt;path&gt;.tx_mbps</code></strong></td>
+<td>GAUGE_DOUBLE, MB/s</td>
+<td>windowed rate from a <code>LongAdder</code> fed by <code>dp_bytes</code> on the producer send path</td>
+<td>Transmit throughput on the edge</td>
+</tr>
+<tr>
+<td><strong><code>link.&lt;path&gt;.rx_mbps</code></strong></td>
+<td>GAUGE_DOUBLE, MB/s</td>
+<td>windowed rate from the receive-byte adder</td>
+<td>Receive throughput on the edge</td>
+</tr>
+<tr>
+<td><strong><code>link.&lt;path&gt;.sendlat_ms</code></strong></td>
+<td>GAUGE_DOUBLE, ms</td>
+<td>EWMA (α=0.2) of producer <code>send()</code> dwell time</td>
+<td>Backpressure/congestion signal — rises when the broker is flow-controlled or memory-pressured</td>
+</tr>
+<tr>
+<td><strong><code>link.&lt;path&gt;.backlog</code></strong></td>
+<td>GAUGE_LONG, messages</td>
+<td>broker <code>QueueSize</code> via JMX, sampled by the auto-tuner</td>
+<td>Broker pending-message backlog on the edge (native congestion signal)</td>
+</tr>
+</tbody>
+</table>
+<p>Derived link values used internally by the cost-aware router but not published as gauges:
+<code>rttHigh = srtt + 4·rttvar</code>, link <code>utilization</code> (tx bits ÷ NIC speed ceiling from OSHI), and a
+composite <code>cost = rttHigh + sendLatEwma + backlog·0.1 + 50/throughput</code>.</p>
+<h2 id="plugin-sysinfo-host-telemetry-richest-set">Plugin: <code>sysinfo</code> — host telemetry (richest set)<a class="headerlink" href="#plugin-sysinfo-host-telemetry-richest-set" title="Permanent link">&para;</a></h2>
+<p><code>sysinfo</code> registers 30 gauges on its own <code>MeasurementEngine</code> from OSHI (<code>SystemInfo</code> →
+<code>HardwareAbstractionLayer</code>/<code>OperatingSystem</code>). All are always emitted (0 where the platform can't
+report a value). <code>getmetrics</code> caches the serialized result for <code>sysinfo_metrics_ttl_ms</code> (default
+5000 ms) because NIC/filesystem enumeration is expensive.</p>
+<h3 id="group-processor">Group <code>processor</code><a class="headerlink" href="#group-processor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>system.cpu.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>cpu.getLogicalProcessorCount()</code></td>
+<td>Logical CPU count</td>
+</tr>
+<tr>
+<td><strong><code>system.cpu.load</code></strong></td>
+<td>GAUGE_DOUBLE, 0–1</td>
+<td><code>cpu.getSystemCpuLoadBetweenTicks()</code> (tick deltas across calls, non-blocking)</td>
+<td>System CPU load since last read</td>
+</tr>
+<tr>
+<td><strong><code>system.load.average.1m</code></strong></td>
+<td>GAUGE_DOUBLE</td>
+<td><code>cpu.getSystemLoadAverage(1)[0]</code> (<code>-1</code> if unsupported)</td>
+<td>1-minute load average</td>
+</tr>
+<tr>
+<td><strong><code>cpu.context.switches</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>cpu.getContextSwitches()</code></td>
+<td>Context switches since boot</td>
+</tr>
+<tr>
+<td><strong><code>cpu.interrupts</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>cpu.getInterrupts()</code></td>
+<td>Interrupts since boot</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-memory">Group <code>memory</code><a class="headerlink" href="#group-memory" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>memory.total</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td><code>mem.getTotal()</code></td>
+<td>Total physical RAM</td>
+</tr>
+<tr>
+<td><strong><code>memory.available</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td><code>mem.getAvailable()</code></td>
+<td>Available physical RAM</td>
+</tr>
+<tr>
+<td><strong><code>memory.swap.total</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td><code>getVirtualMemory().getSwapTotal()</code></td>
+<td>Total swap</td>
+</tr>
+<tr>
+<td><strong><code>memory.swap.used</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td><code>getSwapUsed()</code></td>
+<td>Used swap</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-disk">Group <code>disk</code><a class="headerlink" href="#group-disk" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>disk.total</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>fs.getTotalSpace()</code> over all file stores</td>
+<td>Total filesystem space</td>
+</tr>
+<tr>
+<td><strong><code>disk.available</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>fs.getUsableSpace()</code></td>
+<td>Usable filesystem space</td>
+</tr>
+<tr>
+<td><strong><code>disk.read.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>disk.getReadBytes()</code> over all disk stores</td>
+<td>Bytes read across all disks since boot</td>
+</tr>
+<tr>
+<td><strong><code>disk.write.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>disk.getWriteBytes()</code></td>
+<td>Bytes written across all disks since boot</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-network">Group <code>network</code><a class="headerlink" href="#group-network" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>net.bytes.sent</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>net.getBytesSent()</code> over all NICs</td>
+<td>Bytes sent, all interfaces</td>
+</tr>
+<tr>
+<td><strong><code>net.bytes.recv</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>net.getBytesRecv()</code></td>
+<td>Bytes received, all interfaces</td>
+</tr>
+<tr>
+<td><strong><code>net.packets.sent</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>Σ <code>net.getPacketsSent()</code></td>
+<td>Packets sent, all interfaces</td>
+</tr>
+<tr>
+<td><strong><code>net.packets.recv</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>Σ <code>net.getPacketsRecv()</code></td>
+<td>Packets received, all interfaces</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-sensors">Group <code>sensors</code><a class="headerlink" href="#group-sensors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>sensor.cpu.temperature</code></strong></td>
+<td>GAUGE_DOUBLE, °C</td>
+<td><code>sensors.getCpuTemperature()</code> (0 if unavailable)</td>
+<td>CPU temperature</td>
+</tr>
+<tr>
+<td><strong><code>sensor.cpu.voltage</code></strong></td>
+<td>GAUGE_DOUBLE, V</td>
+<td><code>sensors.getCpuVoltage()</code> (0 if unavailable)</td>
+<td>CPU voltage</td>
+</tr>
+<tr>
+<td><strong><code>sensor.fan.max.rpm</code></strong></td>
+<td>GAUGE_INT, RPM</td>
+<td>max of <code>sensors.getFanSpeeds()</code> (0 if unavailable)</td>
+<td>Fastest fan speed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-power">Group <code>power</code><a class="headerlink" href="#group-power" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>power.remaining.percent</code></strong></td>
+<td>GAUGE_DOUBLE, 0–100</td>
+<td>mean <code>ps.getRemainingCapacityPercent()</code> ×100 (<code>-1</code> if no battery)</td>
+<td>Battery remaining</td>
+</tr>
+<tr>
+<td><strong><code>power.remaining.seconds</code></strong></td>
+<td>GAUGE_DOUBLE, s</td>
+<td><code>getTimeRemainingEstimated()</code> (<code>-1</code> on AC/unknown)</td>
+<td>Estimated runtime on battery</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-system">Group <code>system</code><a class="headerlink" href="#group-system" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>system.uptime.seconds</code></strong></td>
+<td>GAUGE_LONG, s</td>
+<td><code>os.getSystemUptime()</code></td>
+<td>OS uptime</td>
+</tr>
+<tr>
+<td><strong><code>system.process.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>os.getProcessCount()</code></td>
+<td>Running processes (OS-wide)</td>
+</tr>
+<tr>
+<td><strong><code>system.thread.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>os.getThreadCount()</code></td>
+<td>Running threads (OS-wide)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-gpu">Group <code>gpu</code><a class="headerlink" href="#group-gpu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>gpu.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td>count of <code>hal.getGraphicsCards()</code></td>
+<td>Graphics cards detected</td>
+</tr>
+<tr>
+<td><strong><code>gpu.vram.total</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>Σ <code>g.getVRam()</code></td>
+<td>Total VRAM capacity (OSHI cannot report live GPU load)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="group-devices">Group <code>devices</code><a class="headerlink" href="#group-devices" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>display.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>hal.getDisplays().size()</code></td>
+<td>Attached displays</td>
+</tr>
+<tr>
+<td><strong><code>usb.device.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>hal.getUsbDevices(false).size()</code></td>
+<td>Connected USB devices</td>
+</tr>
+<tr>
+<td><strong><code>soundcard.count</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>hal.getSoundCards().size()</code></td>
+<td>Sound cards</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plugin-executor">Plugin: <code>executor</code><a class="headerlink" href="#plugin-executor" title="Permanent link">&para;</a></h2>
+<h3 id="inventory-gauges-group-executor">Inventory gauges (group <code>executor</code>)<a class="headerlink" href="#inventory-gauges-group-executor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>executor.runners.configured</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>runnerEngine.getRunnerCount()</code></td>
+<td>Configured runners (running or not)</td>
+</tr>
+<tr>
+<td><strong><code>executor.runners.active</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>runnerEngine.getActiveCount()</code></td>
+<td>Runners currently executing a process</td>
+</tr>
+</tbody>
+</table>
+<h3 id="per-runner-process-telemetry-dataplane-stream-opt-in-metricstrue">Per-runner process telemetry (dataplane stream, opt-in <code>metrics=true</code>)<a class="headerlink" href="#per-runner-process-telemetry-dataplane-stream-opt-in-metricstrue" title="Permanent link">&para;</a></h3>
+<p>When a runner is configured with <code>metrics=true</code>, a <code>RunnerMetrics</code> thread samples the launched
+process tree (root PID + descendants via <code>ProcessHandle</code>) every 5 s and publishes a JMS <code>MapMessage</code>
+on the node-local <code>AGENT</code> topic. Each row is scoped <code>APP</code>, grouped <code>runner-&lt;streamName&gt;</code>, summed
+across the tree: <code>process.count</code>, <code>bytes.read</code>, <code>bytes.written</code>, <code>kernel.time</code> (ms),
+<code>thread.count</code>, <code>set.size</code> (RSS bytes), <code>virtual.size</code> (bytes).</p>
+<h2 id="plugin-filerepo">Plugin: <code>filerepo</code><a class="headerlink" href="#plugin-filerepo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Group / type</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>filerepo.files.count</code></strong></td>
+<td><code>filerepo</code>, GAUGE_LONG</td>
+<td><code>repoEngine.getRepoCount()</code></td>
+<td>Files tracked in the local repo catalog</td>
+</tr>
+<tr>
+<td><strong><code>filerepo.active.transfers</code></strong></td>
+<td><code>filerepo</code>, GAUGE_INT</td>
+<td><code>transferStreams.size()</code></td>
+<td>In-flight <code>streamfile</code> transfers</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plugin-repo">Plugin: <code>repo</code><a class="headerlink" href="#plugin-repo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Group / type</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>repo.plugin.count</code></strong></td>
+<td><code>repo</code>, GAUGE_INT</td>
+<td><code>getPluginInventory(repoDir).size()</code></td>
+<td>Plugin jars in the local repository</td>
+</tr>
+<tr>
+<td><strong><code>repo.bytes</code></strong></td>
+<td><code>repo</code>, GAUGE_LONG, bytes</td>
+<td>Σ <code>f.length()</code> over <code>*.jar</code> in the repo dir</td>
+<td>Total on-disk size of repository jars</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plugin-stunnel">Plugin: <code>stunnel</code><a class="headerlink" href="#plugin-stunnel" title="Permanent link">&para;</a></h2>
+<h3 id="inventory-gauges-group-stunnel">Inventory gauges (group <code>stunnel</code>)<a class="headerlink" href="#inventory-gauges-group-stunnel" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>stunnel.active.tunnels</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>activeServerChannels.size()</code></td>
+<td>Active SRC tunnel listeners</td>
+</tr>
+<tr>
+<td><strong><code>stunnel.active.clients</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>activeClientChannels.size()</code></td>
+<td>Active client channels</td>
+</tr>
+<tr>
+<td><strong><code>stunnel.active.targets</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>activeTargetChannels.size()</code></td>
+<td>Active target (destination) channels</td>
+</tr>
+</tbody>
+</table>
+<h3 id="per-tunnel-throughput-dataplane-stats-stream">Per-tunnel throughput (dataplane <code>stats</code> stream)<a class="headerlink" href="#per-tunnel-throughput-dataplane-stats-stream" title="Permanent link">&para;</a></h3>
+<p>Each tunnel direction runs a <code>PerformanceMonitor</code> that accumulates transferred bytes in a
+<code>LongAdder</code> and, every <code>performance_report_rate</code> ms (default 5000), publishes a JSON <code>TextMessage</code>
+on the <code>GLOBAL</code> topic with <code>type=stats</code>: <code>bits_per_second</code> (the primary throughput number,
+<code>bytesDelta/elapsed × 8</code>), <code>bytes_delta</code> (this interval), <code>total_bytes</code> (cumulative), plus
+<code>stunnel_id</code>, <code>direction</code>, <code>is_healthy</code>, <code>elapsed_time</code>, <code>buffer_size</code>.</p>
+<h2 id="plugin-wsapi">Plugin: <code>wsapi</code><a class="headerlink" href="#plugin-wsapi" title="Permanent link">&para;</a></h2>
+<p>The <code>wsapi</code> gauges (group <code>wsapi</code>) read process-wide atomics maintained by the Netty dataplane
+handler — one wsapi plugin per JVM, so the counts are node-wide.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type / unit</th>
+<th>How measured</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>wsapi.dataplane.connections</code></strong></td>
+<td>GAUGE_INT</td>
+<td><code>ACTIVE_CONNECTIONS</code> atomic, counted when a connection's handler is installed</td>
+<td>Active dataplane WebSocket connections (read 0 whatever was connected before agent release 1.3.377)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.api.unreadable</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented per frame that is not a readable request</td>
+<td>API requests that could not be read (answered 400; the connection is closed at its third)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td><code>DATAPLANE_BYTES</code> atomic, added per text/binary frame</td>
+<td>Total dataplane bytes ingested from clients</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.messages</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>DATAPLANE_MESSAGES</code> atomic, incremented per frame</td>
+<td>Total dataplane messages ingested from clients</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.pending.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>bytes queued to all WS consumers</td>
+<td>Dataplane bytes queued to WS consumers, not yet written</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.max.pending.bytes</code></strong></td>
+<td>GAUGE_LONG, bytes</td>
+<td>largest backlog one consumer reached</td>
+<td>How close bursts come to a consumer's budget (<code>wsapi_dataplane_egress_buffer_bytes</code>)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.paused</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented each time a consumer's listener waits</td>
+<td>Times a WS consumer more than its budget behind had its stream held at the broker (backpressure: writers slowed, nothing lost)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.stalled</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented on each 1013 stall close</td>
+<td>WS consumers closed because, held, they read nothing for <code>wsapi_dataplane_stall_close_ms</code></td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.egress.dropped</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented per dropped frame</td>
+<td>Frames dropped past a consumer's budget (only with <code>wsapi_dataplane_backpressure=false</code>)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.dataplane.ingress.failed</code></strong></td>
+<td>GAUGE_LONG</td>
+<td>incremented per client frame not taken</td>
+<td>Client dataplane frames the controller did not take (no session, controller not active)</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.auth.failures</code></strong> / <strong><code>.servicekey.failures</code></strong> / <strong><code>.refused</code></strong> / <strong><code>.revoked.connections</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>AuthRateLimiter</code>, <code>WsRouter.Gate</code></td>
+<td>Failed authentications, wrong service keys, authentications refused before they were checked (429), connections closed because their credential was revoked or changed</td>
+</tr>
+<tr>
+<td><strong><code>wsapi.inbound.inflight.bytes</code></strong> / <strong><code>wsapi.inbound.budget.closed</code></strong></td>
+<td>GAUGE_LONG</td>
+<td><code>InboundBudget</code></td>
+<td>Inbound message bytes held now; connections closed (1013) for too many bytes in flight</td>
+</tr>
+</tbody>
+</table>
+<p>Each forwarded binary dataplane message is stamped with <code>dp_bytes</code>, which is what feeds the
+controller's per-edge <code>link.*.tx_mbps</code> throughput accounting above.</p>
+<hr />
+<h2 id="legacy-complementary-telemetry">Legacy / complementary telemetry<a class="headerlink" href="#legacy-complementary-telemetry" title="Permanent link">&para;</a></h2>
+<p>Two richer, non-Micrometer streams predate the unified model and are folded in for back-compat:</p>
+<ul>
+<li><strong><code>sysinfo</code> <code>perf</code> stream + <code>getsysinfo</code></strong> — <code>PerfSysMonitor</code> publishes a per-component JSON
+  <code>MapMessage</code> every <code>perftimer</code> ms (default 10000) on the <code>AGENT</code> topic, and the <code>getsysinfo</code> EXEC
+  returns the same on demand: full per-CPU/mem/disk/filesystem/partition/NIC/OS/process records
+  (e.g. per-NIC <code>link-speed</code>, <code>mac</code>, <code>errors-in/out</code>; per-disk <code>disk-readbytes</code>/<code>disk-writebytes</code>;
+  sampled <code>cpu-user-load</code>/<code>cpu-sys-load</code>/<code>cpu-idle-load</code>). This is what the controller's
+  <code>resourceinfo</code> path parses to build region/agent resource totals (<code>cpu_core_count</code>,
+  <code>mem_available</code>, <code>mem_total</code>, <code>disk_available</code>, <code>disk_total</code>).</li>
+</ul>
+<h2 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h2>
+<p>On-demand CPU benchmarking (SciMark2) is available via <code>sysinfo</code>'s <code>getbenchmark</code> action —
+deliberately not run at startup, to keep node bring-up cheap. See the metrics-unification design doc
+via <a href="../../reference/design-docs/">Design Docs</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3570 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/design/optimal-global-routing-plan/">
+      
+      
+        <link rel="prev" href="../tenant-isolation-design/">
+      
+      
+        <link rel="next" href="../coordinator-decentralization-plan/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Optimal Global Routing - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cresco-optimal-tenant-aware-qos-enforced-global-routing-implementation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Optimal Global Routing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/plugin-actions/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../clients/overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../distributed-identity-trust-design/" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plugin-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed-identity-trust-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tenant-isolation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-the-one-thing-to-read-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. The one thing to read first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-re-baseline-research-building-blocks-vs-cresco-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Re-baseline — research building blocks vs. Cresco reality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-gating-reality-there-is-no-redundant-path-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The gating reality: there is no redundant path yet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-target-architecture-and-deliberate-deviations-from-the-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Target architecture and deliberate deviations from the report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-workstreams-the-real-remaining-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Workstreams (the real remaining build)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phased-delivery-dependency-ordered-not-a-schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phased delivery (dependency-ordered, not a schedule)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-decisions-needed-ive-flagged-recommendations-these-change-plan-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Decisions needed (I've flagged recommendations; these change plan shape)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Risks &amp; mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-validation-success-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Validation &amp; success metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-one-line-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. One-line summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../health-check-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-the-one-thing-to-read-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. The one thing to read first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-re-baseline-research-building-blocks-vs-cresco-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Re-baseline — research building blocks vs. Cresco reality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-gating-reality-there-is-no-redundant-path-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The gating reality: there is no redundant path yet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-target-architecture-and-deliberate-deviations-from-the-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Target architecture and deliberate deviations from the report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-workstreams-the-real-remaining-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Workstreams (the real remaining build)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phased-delivery-dependency-ordered-not-a-schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phased delivery (dependency-ordered, not a schedule)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-decisions-needed-ive-flagged-recommendations-these-change-plan-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Decisions needed (I've flagged recommendations; these change plan shape)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Risks &amp; mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-validation-success-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Validation &amp; success metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-one-line-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. One-line summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cresco-optimal-tenant-aware-qos-enforced-global-routing-implementation-plan">Cresco — Optimal, Tenant-Aware, QoS-Enforced Global Routing — Implementation Plan<a class="headerlink" href="#cresco-optimal-tenant-aware-qos-enforced-global-routing-implementation-plan" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-07-03 · <strong>Updated:</strong> 2026-07-06
+<strong>Status:</strong> PARTIALLY IMPLEMENTED. Phases <strong>A</strong> (redundant mesh + activate cost routing), <strong>C</strong> (route
+computation + per-class-capable path math), and <strong>D</strong> (source-routing data plane) have <strong>shipped</strong>, taking
+the <em>distributed-cost-first</em> path of deviation <strong>D1</strong> (each node builds a mesh-wide link-state view from
+<strong>pushed</strong> advertisements and runs Dijkstra locally, rather than a central FIB push) and adding a
+<strong>self-organizing link-inference</strong> capability beyond the original plan. See the shipped-feature reference:
+<a href="../../architecture/dynamic-routing/">Dynamic Cost-Aware Routing</a>. Phase <strong>B</strong>'s L1 tenant namespacing has
+since <strong>shipped + proven</strong> (flag <code>tenant_namespacing</code>, <code>tenant_namespacing_test.sh</code> 12/12 — see
+<a href="../tenant-isolation-design/"><code>tenant-isolation-design.md</code></a>); only its L3 bridge-scoping (per-bridge
+allowed-tenant forwarding) + multi-tenant carriage over the redundant paths remain. Phases <strong>E</strong>
+(per-tenant fairness) and <strong>F</strong> (joint routing/capacity) remain. Re-baselines an external architecture
+report against Cresco's actual in-tree state and sequences the real remaining work.
+<strong>No calendar/effort estimates here</strong> — phases are a <em>dependency order</em>, not a schedule.</p>
+<div class="admonition success">
+<p class="admonition-title">Implemented 2026-07-06</p>
+<p>W1 (redundant mesh + <code>net_cost_routing</code> selection), W3 (route computation — distributed variant D1, via
+pushed link-state <code>RouteView</code> + <code>RouteComputer</code> Dijkstra), W4 (source-routing data plane —
+<code>net_source_routing</code>, <code>srcroute</code> waypoint stacks, <code>MsgRouter.advanceSourceRoute</code>), and W8's hysteresis
+(<code>PathTable</code>, <code>net_route_hysteresis_ms</code>) are live and proven in the containerlab mesh. <strong>New beyond the
+plan:</strong> self-organizing inference — a region learns an un-configured peer's address from link-state and
+forms a direct link when it is faster (<code>RegionHealthWatcher.inferConnections</code>).</p>
+</div>
+<p><strong>Siblings:</strong> <a href="../link-metrics-design/"><code>link-metrics-design.md</code></a> (metrics/cost/tuning — <em>shipped</em>),
+<a href="../distributed-identity-trust-design/"><code>distributed-identity-trust-design.md</code></a> (identity/trust/tenant
+authz — <em>shipped through Phase 2</em>), <a href="../region-federation-design/"><code>region-federation-design.md</code></a>,
+<a href="../broker-performance/"><code>broker-performance.md</code></a>, <a href="../health-check-design/"><code>health-check-design.md</code></a>.</p>
+<hr />
+<h2 id="0-the-one-thing-to-read-first">0. The one thing to read first<a class="headerlink" href="#0-the-one-thing-to-read-first" title="Permanent link">&para;</a></h2>
+<p>The external report proposes a hybrid SDN + segment-routing control plane with cryptographic tenant
+isolation, multi-topology per-class routing (LARAC/widest-path), hop-by-hop H-DWRR fair queuing, and
+joint routing/capacity optimization. <strong>The architecture is sound. Its sequencing is wrong for Cresco</strong>,
+because it assumes a near-greenfield build. In fact <strong>the entire measurement/cost/actuation substrate
+and the entire security/trust/tenant-authz substrate are already implemented and proven live in this
+tree.</strong> The remaining work is a fraction of what the report describes, in a different order, with several
+places where we should deliberately build <em>less</em> than the report specifies.</p>
+<p>This plan (a) marks what is done, (b) states the deviations and why, (c) sequences only the remaining
+work against real classes and validation gates.</p>
+<hr />
+<h2 id="1-re-baseline-research-building-blocks-vs-cresco-reality">1. Re-baseline — research building blocks vs. Cresco reality<a class="headerlink" href="#1-re-baseline-research-building-blocks-vs-cresco-reality" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Research building block</th>
+<th>Cresco status</th>
+<th>Where (code / doc)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Out-of-band link telemetry (RTT/jitter/loss/backlog)</td>
+<td><strong>DONE + PROVEN</strong></td>
+<td><code>controller/netmetrics/LinkMetrics</code>, <code>LinkMetricsRegistry</code>; RTT harvested from existing ping RPC (agent→region <strong>and</strong> region→global bridge edge). <code>link-metrics-design.md</code> §3–4</td>
+</tr>
+<tr>
+<td>EWMA metric smoothing</td>
+<td><strong>DONE</strong></td>
+<td><code>LinkMetrics</code> uses Jacobson/Karels SRTT + RTTVAR (stronger than the report's flat α=0.15)</td>
+</tr>
+<tr>
+<td>Backlog / congestion signal</td>
+<td><strong>DONE</strong></td>
+<td><code>ActiveBroker.getBrokerPendingBacklog()</code> (JMX <code>DestinationViewMBean.QueueSize</code>), polled by AutoTuner</td>
+</tr>
+<tr>
+<td>Central metric aggregation at global</td>
+<td><strong>PARTIAL</strong></td>
+<td>Global already aggregates edge health (<code>GlobalExecutor</code>, <code>DBInterfaceImpl.getEdgeHealthStatus</code>); LinkMetrics are <strong>not</strong> yet streamed up as a topology graph</td>
+</tr>
+<tr>
+<td>Composite link cost model</td>
+<td><strong>DONE (gated)</strong></td>
+<td><code>LinkMetrics.cost()</code>, <code>LinkMetricsRegistry.costOf/lowestCostEdge</code>; <code>MsgRouter</code> per-hop cost annotation behind <code>net_cost_routing</code></td>
+</tr>
+<tr>
+<td>Dynamic capacity (spin up/down bridges)</td>
+<td><strong>DONE</strong></td>
+<td><code>ActiveBroker.addBridgeConnections/removeBridgeConnections</code>, driven by <code>AutoTuner</code> — <strong>in-process, not the JMX MBean API the report assumes</strong></td>
+</tr>
+<tr>
+<td>Automated tuning control loop</td>
+<td><strong>DONE (gated)</strong></td>
+<td><code>AutoTuner</code> (buffers/block/connections to BDP + saturation), <code>NetTuningProfile</code>, gated by <code>net_autotune</code></td>
+</tr>
+<tr>
+<td>Cryptographic tenant identity (O=tenant in cert DN)</td>
+<td><strong>DONE + PROVEN</strong></td>
+<td><code>CrescoIdentity</code>, <code>CertificateManager</code> identity-bearing leaves</td>
+</tr>
+<tr>
+<td>mTLS binding of identity at broker</td>
+<td><strong>DONE + PROVEN</strong></td>
+<td><code>broker_require_client_auth</code>; <code>CrescoAuthorizationBroker.addConnection</code> derives principal from validated cert DN (anti-spoof proven)</td>
+</tr>
+<tr>
+<td>Regional-CA trust distribution (O(regions), not O(n²))</td>
+<td><strong>DONE + PROVEN</strong></td>
+<td><code>RegionCA</code>, <code>CertificateManager.issueEnrollment/installEnrollment</code>; <code>security_regional_ca</code>; <code>run/tests/regional_ca_mtls_test.sh</code> 10/10</td>
+</tr>
+<tr>
+<td>Per-destination tenant ACL enforcement</td>
+<td><strong>DONE + PROVEN</strong></td>
+<td><code>TenantPolicy</code> + <code>CrescoAuthorizationBroker</code> (BrokerFilter on addConsumer/addProducer/send), <code>broker_security_enabled</code>; <code>tenant_isolation_mesh_test.sh</code> 10/10</td>
+</tr>
+<tr>
+<td>Selective message signing primitive</td>
+<td><strong>DONE</strong></td>
+<td><code>MessageSigner</code> (sign/verify payload digest)</td>
+</tr>
+<tr>
+<td>Loop safety in a mesh</td>
+<td><strong>DONE</strong></td>
+<td><code>BrokerPath</code> + TTL (<code>MsgRouter.getTTL</code>), native bridge loop suppression</td>
+</tr>
+<tr>
+<td><strong>Tenant destination namespacing</strong> (<code>T.&lt;tenant&gt;.&lt;raw&gt;</code>)</td>
+<td><strong>DONE + PROVEN (L1); L3 bridge-scoping TODO</strong></td>
+<td>Shipped flag <code>tenant_namespacing</code> (<code>TenantNamespace</code>/<code>TenantPolicy</code>, <code>tenant_namespacing_test.sh</code> 12/12 — <code>distributed-identity-trust-design.md</code> §5, <code>tenant-isolation-design.md</code>); <em>the keystone for both routing and isolation.</em> Per-bridge tenant-scoped forwarding (L3) still to build.</td>
+</tr>
+<tr>
+<td><strong>Redundant federation paths</strong> (distinct alternate routes, not parallel sockets to one peer)</td>
+<td><strong>TODO</strong></td>
+<td>Topology is still a strict tree; <code>addBridgeConnections</code> makes parallel sockets to the <em>same</em> peer, not alternate paths</td>
+</tr>
+<tr>
+<td><strong>Central route computation + routing-table push</strong> (SDN)</td>
+<td><strong>TODO</strong></td>
+<td>No global topology graph / path solver / pushed FIB</td>
+</tr>
+<tr>
+<td><strong>Segment / source-routing data plane</strong></td>
+<td><strong>TODO</strong></td>
+<td><code>MsgRouter</code> has a hop trail + per-hop cost, not a source-computed segment stack</td>
+</tr>
+<tr>
+<td><strong>Multi-topology per-class routing</strong> (4 logical topologies)</td>
+<td><strong>TODO</strong></td>
+<td>Single composite cost today; no per-class Dijkstra/widest-path/LARAC</td>
+</tr>
+<tr>
+<td><strong>Per-tenant fair scheduling</strong> (H-DWRR)</td>
+<td><strong>TODO</strong></td>
+<td>QoS is global 4-tier (<code>MsgQoS</code> + isolated <code>ControlPlaneSender</code>); no per-tenant fairness</td>
+</tr>
+<tr>
+<td><strong>Payload envelope encryption</strong> (per-tenant AES-256-GCM)</td>
+<td><strong>TODO (primitive exists)</strong></td>
+<td>mTLS protects in-flight; <code>MessageSigner</code> exists; per-tenant confidentiality-at-rest-in-transit is unbuilt</td>
+</tr>
+<tr>
+<td><strong>Joint routing + capacity (MCF/BwE, tenant quotas)</strong></td>
+<td><strong>TODO</strong></td>
+<td>AutoTuner does local saturation scaling; no global MCF / bandwidth-function starvation control</td>
+</tr>
+<tr>
+<td><strong>Path-switch stability</strong> (hysteresis, hold-down, flowlet)</td>
+<td><strong>TODO</strong></td>
+<td>No path switching exists yet, so nothing to damp — needed once selection is active</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaway:</strong> the report's Phase 1 (telemetry) is done, its Phase 2 metric/control half is done, and its
+Phase 3 security foundation (mTLS + regional CA + tenant authz) is done. What remains is <strong>namespacing,
+redundant topology, central computation, source routing, per-class routing, per-tenant fairness,
+encryption tier, and joint capacity</strong> — plus the stability controls that only matter once path selection
+is live.</p>
+<blockquote>
+<p><strong>⚠ Metric-source volatility (read with §4/W3).</strong> Metrics are <em>actively being centralized</em> onto the
+unified Micrometer <code>MeasurementEngine</code> + <code>getmetrics</code>/<code>getmetricinventory</code> contract (see
+<a href="../metrics-unification-design/"><code>metrics-unification-design.md</code></a>); the <code>netlink</code>/LinkMetrics group
+already lives there. <strong>So every specific metric reference in this plan — class location
+(<code>controller/netmetrics/…</code>), field name (<code>link.&lt;path&gt;.rtt_ms</code>), poller (<code>getBrokerPendingBacklog</code>) — is
+a moving target and will be re-bound as unification lands.</strong> This plan therefore commits only to metric
+<em>signals by role</em> — <strong>RTT, jitter, loss, throughput, send-latency, backlog, NIC ceiling</strong> — and to the
+unified metrics surface as the binding point. The architecture is metric-source-agnostic by design; the
+route-compute and cost inputs read whatever the unified registry exposes for those roles at build time.
+<strong>General planning proceeds now; the concrete metric bindings are (re-)verified at each phase's start,
+not frozen here.</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-the-gating-reality-there-is-no-redundant-path-yet">2. The gating reality: there is no redundant path yet<a class="headerlink" href="#2-the-gating-reality-there-is-no-redundant-path-yet" title="Permanent link">&para;</a></h2>
+<p><code>net_cost_routing</code> already annotates per-hop cost, and <code>lowestCostEdge</code> already exists — but <strong>min-cost
+selection has nothing to choose because the mesh is a strict tree</strong> (agent→region→global, one path).
+<code>link-metrics-design.md</code> §5 states this plainly: connection actuation is "validated for correctness;
+needs a multi-region mesh to validate throughput."</p>
+<p><strong>Therefore the #1 unblocker is standing up a redundant multi-region mesh</strong> (alternate region↔region /
+region↔global bridges forming real cycles). Nothing in routing — cost selection, per-class topologies,
+segment routing, capacity optimization — can be validated until redundant paths physically exist. This
+comes first, and it simultaneously validates the cost-routing layer that is already built but dormant.</p>
+<hr />
+<h2 id="3-target-architecture-and-deliberate-deviations-from-the-report">3. Target architecture and deliberate deviations from the report<a class="headerlink" href="#3-target-architecture-and-deliberate-deviations-from-the-report" title="Permanent link">&para;</a></h2>
+<p>Adopt the report's end state: <strong>SDN control (global) + source/segment routing data plane + per-tenant
+namespacing + per-tenant fair scheduling + joint routing/capacity + stability damping.</strong> Deviate on
+sequencing and scope as follows, each for a concrete engineering reason:</p>
+<ul>
+<li>
+<p><strong>D1 — Distributed-local cost routing first; central SDN layered on second.</strong> The local cost model is
+  <em>already built</em> (<code>net_cost_routing</code>); on a redundant mesh it yields correct min-cost next-hop with zero
+  new control-plane machinery. Ship that, then add central computation for global-optimal / multi-constraint
+  cases. Bonus: local cost routing becomes the <strong>graceful-degradation fallback</strong> when the central
+  controller is unreachable or its pushed table is stale — turning the report's SDN single-point-of-failure
+  into a non-issue. <em>(This is the main structural deviation from the report, which leads with central SDN.)</em></p>
+</li>
+<li>
+<p><strong>D2 — Right-size the path math.</strong> Start with per-class <strong>Dijkstra (latency/loss)</strong> and <strong>widest-path
+  (bulk)</strong> — cheap, well-understood, and enough for the common case. Defer <strong>LARAC / multi-commodity-flow
+  / BwE bandwidth functions</strong> until a measured need exists (a hard jitter SLA on control traffic, or proven
+  multi-tenant link contention). Do not build an NP-complete MCP solver before there is redundancy to run
+  it over.</p>
+</li>
+<li>
+<p><strong>D3 — Per-tenant scheduling at contention points, not every hop.</strong> The report puts H-DWRR in <em>every</em>
+  transit broker's dispatch loop. Contention happens at <strong>ingress (rate-limit)</strong> and <strong>shared bridge egress
+  (fair dispatch)</strong> — schedule there first. Implement it by <strong>extending the existing
+  <code>CrescoAuthorizationBroker</code> BrokerFilter chain</strong> (it already intercepts <code>send</code>), not a separate plugin
+  wired at every node. Add transit-hop scheduling only if measurements show mid-mesh contention.</p>
+</li>
+<li>
+<p><strong>D4 — Provision bridges via the in-process API we already have.</strong> Use
+  <code>addBridgeConnections/removeBridgeConnections</code> (AutoTuner already drives them), not the JMX MBean API the
+  report suggests. Same-process, already tested, no remote-JMX surface to secure.</p>
+</li>
+<li>
+<p><strong>D5 — Payload encryption is a tiered opt-in, not a blocking per-tenant KMS.</strong> Inter-broker hops are
+  already TLS-encrypted in flight (nio+ssl) and identity-bound (regional CA). The residual threat envelope
+  encryption addresses is <strong>payload-at-rest inside a compromised/inspected transit broker</strong>. Make AES-256-GCM
+  envelope encryption an <strong>opt-in tier for high-assurance tenants</strong>, reusing the shipped <code>MessageSigner</code>
+  pattern and the recipient's leaf public key; for most tenants, tenant-namespaced bridge forwarding +
+  removing the bridge ACL exemption (W10) is sufficient. Do not gate the routing program on standing up a
+  per-tenant symmetric KMS.</p>
+</li>
+<li>
+<p><strong>D6 — Multipath breaks JMS ordering; default to pinning a flow to one path.</strong> Splitting one logical
+  stream across parallel paths reorders messages, which order-sensitive JMS consumers do not tolerate.
+  Default: <strong>pin a flow (src→dst destination) to a single chosen path</strong>; only switch on an idle gap
+  (<strong>flowlet switching</strong>, gap ≥ ~2×RTT). Validate against consumers that assume per-destination order
+  before enabling any per-message splitting.</p>
+</li>
+<li>
+<p><strong>D7 — Keep BrokerPath + TTL even under source routing.</strong> Source-computed segment stacks are acyclic by
+  construction, but transit brokers must still validate the segment and honor <code>BrokerPath</code>/TTL as
+  defense-in-depth against a malformed or stale header.</p>
+</li>
+</ul>
+<hr />
+<h2 id="4-workstreams-the-real-remaining-build">4. Workstreams (the real remaining build)<a class="headerlink" href="#4-workstreams-the-real-remaining-build" title="Permanent link">&para;</a></h2>
+<p>Each: goal · primary integration point · depends-on · validation.</p>
+<ul>
+<li>
+<p><strong>W1 — Redundant federation topology + activate cost routing.</strong> Stand up alternate region↔region /
+  region↔global bridges (real cycles); enable <code>net_cost_routing</code> selection. <em>Integration:</em> <code>ActiveBroker</code>
+  bridge setup, <code>MsgRouter</code> (activate <code>lowestCostEdge</code> selection). <em>Depends:</em> multi-region test env.
+  <em>Validate:</em> failover time on link degrade; path matches oracle min-cost.</p>
+</li>
+<li>
+<p><strong>W2 — Tenant destination namespacing + bridge tenant filtering.</strong> <strong>L1 namespacing shipped + proven</strong>
+  (<code>T.&lt;tenant&gt;.&lt;raw&gt;</code> via <code>TenantNamespace</code>/<code>TenantPolicy</code>; <code>AgentProducer</code> stamps+qualifies; ingress drop
+  of mismatched-tenant publishes; <code>tenant_namespacing_test.sh</code> 12/12). <strong>Remaining (L3):</strong> bridge forwards
+  only its tenant namespace (closes the bridge-ACL-exemption leak for the common case). <em>Integration:</em>
+  <code>TenantPolicy</code>, <code>CrescoAuthorizationBroker</code>, <code>MsgRouter</code> ingress, <code>ActiveBroker</code> bridge
+  included/excluded destinations. <em>Depends:</em> nothing (security substrate + L1 namespacing shipped).
+  <em>Validate:</em> extend <code>tenant_isolation_mesh_test.sh</code> to multi-hop bridged paths. <em>Flag:</em> <code>tenant_namespacing</code>.</p>
+</li>
+<li>
+<p><strong>W3 — Central route computation (global as route reflector) + FIB push.</strong> Global builds the topology
+  graph from per-edge link signals, computes routes, and pushes a routing table to each regional
+  <code>MsgRouter</code> cache. <strong>Do not invent a new metric-push:</strong> the metrics-unification work is already building
+  the region/global metric fan-out (<code>getmetricinventory</code> scope=region|global, pull-based on demand — see
+  <a href="../metrics-unification-design/"><code>metrics-unification-design.md</code></a> §3–4). The route-compute service reads
+  the link signals (RTT/jitter/loss/throughput/backlog roles) from that unified inventory at whatever
+  location/schema they land, rather than binding to today's <code>netlink</code> field names. <em>Integration:</em>
+  route-compute service consuming <code>getmetricinventory</code>; CONFIG-message push of the FIB (reuse the
+  <code>nettuning</code> broadcast pattern). <em>Depends:</em> W1; metrics-unification region/global fan-out (Phase 2 there).
+  <em>Validate:</em> pushed table converges; stale-table fallback to local cost (D1). <em>Note:</em> pull-on-demand
+  aggregation may need a faster cadence for routing than for observability — confirm the inventory refresh
+  interval meets the control loop's needs, or add a lightweight route-scoped pull.</p>
+</li>
+<li>
+<p><strong>W4 — Segment / source-routing data plane.</strong> Ingress encodes the computed path as a segment stack in a
+  JMS header (<code>JMS_Cresco_SegmentPath</code>); transit brokers pop-and-forward statelessly (validate + TTL/BrokerPath).
+  <em>Integration:</em> <code>MsgRouter.route()</code> (extend <code>forwardDst</code> + <code>routepath</code> mechanics). <em>Depends:</em> W3.
+  <em>Validate:</em> loop-freedom under induced churn; transit statelessness.</p>
+</li>
+<li>
+<p><strong>W5 — Multi-topology per-class routing.</strong> Four logical topologies over one graph: liveness=min-RTT
+  Dijkstra, control=jitter-bounded (LARAC <em>when justified</em>, else latency Dijkstra), telemetry=min-loss
+  (−ln(1−p) additive), bulk=widest-path. <em>Integration:</em> route-compute service (W3), keyed by <code>MsgQoS.Tier</code>.
+  <em>Depends:</em> W3. <em>Validate:</em> each class takes its class-optimal path in a rigged topology.</p>
+</li>
+<li>
+<p><strong>W6 — Per-tenant QoS fair scheduling (H-DWRR at contention points).</strong> Two-level scheduler (L1 inter-tenant
+  weighted fair share, L2 intra-tenant priority class) at ingress rate-limit + bridge egress. <em>Integration:</em>
+  extend <code>CrescoAuthorizationBroker</code> filter chain; reuse <code>MsgQoS</code> tiers for L2. <em>Depends:</em> W2 (namespaced
+  destinations carry tenant+class). <em>Validate:</em> extend <code>StarvationRepro</code> — one tenant's bulk flood cannot
+  degrade another tenant's control-plane RTT; Jain fairness index across tenants.</p>
+</li>
+<li>
+<p><strong>W7 — Joint routing + capacity provisioning + starvation control.</strong> Global loop: detect link utilization
+  ≥ threshold → expand capacity (<code>addBridgeConnections</code>, bounded by tenant quota) or reroute low-priority
+  class; BwE-style bandwidth functions + per-tenant quotas guarantee baselines before any tenant expands.
+  <em>Integration:</em> global controller + <code>AutoTuner</code> (extend from local to global-informed). <em>Depends:</em> W3, W5,
+  W6. <em>Validate:</em> under overload, guaranteed baselines honored; no tenant monopolizes shared bridges.</p>
+</li>
+<li>
+<p><strong>W8 — Path-switch stability.</strong> Cost hysteresis (switch only if alternate &lt; current / 1.5), hold-down
+  timer (~30s per flow), flowlet switching (D6). <em>Integration:</em> <code>MsgRouter</code> selection + route-compute.
+  <em>Depends:</em> W1 (something to switch). <em>Validate:</em> induced flapping link → bounded switch rate, no
+  reordering to order-sensitive consumers.</p>
+</li>
+<li>
+<p><strong>W9 — Payload encryption tier (opt-in).</strong> AES-256-GCM envelope, per-tenant key, routing metadata stays
+  clear in JMS headers; decrypt at egress. <em>Integration:</em> ingress/egress <code>MsgRouter</code>, reuse <code>MessageSigner</code></p>
+</li>
+<li>
+<p>leaf public keys. <em>Depends:</em> W2. <em>Validate:</em> transit-broker store inspection yields ciphertext only.</p>
+</li>
+<li>
+<p><strong>W10 — Security hardening (adjacent, do alongside).</strong> (a) Replace the weak discovery-secret crypto
+  (AES-ECB / SHA-1 KDF / hardcoded salt in <code>DiscoveryCrypto</code>) with AES-GCM + a proper KDF. (b) Decide the
+  bridge ACL exemption policy — W2 namespacing lets bridges enforce a tenant-prefix rule instead of blanket
+  trust. <em>Validate:</em> join handshake still passes; bridges federate under the new rule.</p>
+</li>
+</ul>
+<hr />
+<h2 id="5-phased-delivery-dependency-ordered-not-a-schedule">5. Phased delivery (dependency-ordered, not a schedule)<a class="headerlink" href="#5-phased-delivery-dependency-ordered-not-a-schedule" title="Permanent link">&para;</a></h2>
+<p>Dependency-ordered, each flag-gated and default-off so the fabric is never changed blind (the same
+discipline <code>distributed-identity-trust-design.md</code> §5 used for the security fabric).</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Theme</th>
+<th>Workstreams</th>
+<th>Exit criteria / gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — Unblock &amp; prove</strong></td>
+<td>Redundant mesh + activate the <em>already-built</em> cost routing</td>
+<td>W1</td>
+<td>Redundant multi-region mesh forms; <code>net_cost_routing</code> selects min-cost path; failover on link degrade measured. <strong>Validates the dormant shipped layer.</strong></td>
+</tr>
+<tr>
+<td><strong>B — Isolation substrate</strong></td>
+<td>Tenant namespacing + bridge filtering; security hardening; encryption tier</td>
+<td>W2, W10, (W9 opt-in)</td>
+<td>Cross-tenant denied on <strong>multi-hop bridged</strong> paths; discovery crypto hardened; <code>tenant_namespacing</code> on in a 2-tenant mesh</td>
+</tr>
+<tr>
+<td><strong>C — Central brain</strong></td>
+<td>Route computation + push; per-class topologies (simple first); stability</td>
+<td>W3, W5 (Dijkstra/widest-path), W8</td>
+<td>Global computes + pushes routes; each <code>MsgQoS</code> class takes its class-optimal path; stale-table falls back to local cost; no route flap</td>
+</tr>
+<tr>
+<td><strong>D — Source routing</strong></td>
+<td>Segment-stack data plane</td>
+<td>W4</td>
+<td>Transit brokers stateless pop-and-forward; loop-free under churn</td>
+</tr>
+<tr>
+<td><strong>E — Fairness</strong></td>
+<td>Per-tenant H-DWRR at contention points</td>
+<td>W6</td>
+<td><code>StarvationRepro</code> multi-tenant: bulk flood by tenant X cannot starve tenant Y's control RTT; fairness index within target</td>
+</tr>
+<tr>
+<td><strong>F — Traffic engineering</strong></td>
+<td>Joint routing+capacity, quotas, BwE; LARAC/MCF <em>if justified</em></td>
+<td>W7, W5 (LARAC/MCF)</td>
+<td>Under overload, per-tenant baselines guaranteed before expansion; no shared-bridge monopoly</td>
+</tr>
+</tbody>
+</table>
+<p>Phases A–B are the high-value near term (activate what's built + close the multi-hop isolation gap).
+C–F are the genuinely new control-plane engineering, each independently shippable behind its flag.</p>
+<hr />
+<h2 id="6-decisions-needed-ive-flagged-recommendations-these-change-plan-shape">6. Decisions needed (I've flagged recommendations; these change plan shape)<a class="headerlink" href="#6-decisions-needed-ive-flagged-recommendations-these-change-plan-shape" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Route-computation primary model.</strong> <em>Recommend D1:</em> distributed-local cost routing first (built,
+   lowest effort, doubles as SPOF fallback), central SDN layered on in Phase C. Alternative: central-SDN-first
+   per the report (more upfront work, no fallback until it lands).</li>
+<li><strong>Namespacing scheme (final).</strong> Confirm <code>T&lt;tenant&gt;.&lt;priorityClass&gt;.&lt;region&gt;.&lt;agent&gt;</code> (matches the identity
+   doc). Blocks W2 and everything downstream.</li>
+<li><strong>Payload encryption.</strong> <em>Recommend D5:</em> opt-in tier. Alternative: mandatory envelope on all tenant traffic
+   (higher assurance, real throughput cost, needs per-tenant KMS).</li>
+<li><strong>H-DWRR scope.</strong> <em>Recommend D3:</em> contention points (ingress + bridge egress) first. Alternative: every
+   transit hop per the report (more isolation, more dispatch-loop overhead).</li>
+<li><strong>Multi-region test environment.</strong> W1 (and thus everything) needs a redundant multi-region mesh to
+   validate. Is there hardware/CI for this, or do we validate on same-host multi-global first
+   (per the <code>multi-global-mesh</code> learnings)?</li>
+</ol>
+<hr />
+<h2 id="7-risks-mitigations">7. Risks &amp; mitigations<a class="headerlink" href="#7-risks-mitigations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>No redundant path today blocks all routing work</strong> → Phase A first; it also finally validates the built
+  cost layer.</li>
+<li><strong>Central controller SPOF / stale FIB</strong> → local cost routing (built) is the always-on fallback (D1).</li>
+<li><strong>Message reordering under multipath</strong> → pin-flow default + flowlet switching + order-sensitive-consumer
+  validation before enabling splits (D6).</li>
+<li><strong>Scheduler overhead in the dispatch hot path</strong> → benchmark-gate every scheduler change against
+  <code>broker-bench</code> and <code>StarvationRepro</code>; keep the fast path unchanged when <code>broker_security_enabled</code> /
+  scheduling flags are off.</li>
+<li><strong>Tenant namespacing is fabric-breaking</strong> (like security Phase 2 was) → flag-gated <code>tenant_namespacing</code>,
+  staged region-by-region, <code>vm://</code> always exempt.</li>
+<li><strong>Over-engineering (LARAC/MCF/BwE) ahead of need</strong> → gate on measured contention/SLA (D2); the simple
+  per-class algorithms cover the common case.</li>
+</ul>
+<hr />
+<h2 id="8-validation-success-metrics">8. Validation &amp; success metrics<a class="headerlink" href="#8-validation-success-metrics" title="Permanent link">&para;</a></h2>
+<p><strong>Reuse:</strong> <code>broker-bench</code>, <code>StarvationRepro</code>, <code>run/tests/tenant_isolation_mesh_test.sh</code>,
+<code>run/tests/regional_ca_mtls_test.sh</code>, the full bring-up/recovery suite (must stay green with each new flag
+<strong>off</strong> and, separately, <strong>on</strong>).
+<strong>New:</strong> redundant-path failover test; per-class path-selection test (rigged topology); multi-tenant
+fairness test (extend <code>StarvationRepro</code>); path-flap stability test.
+<strong>Metrics:</strong> path optimality vs. offline oracle; failover time on link degrade; per-tenant Jain fairness
+index on a shared bridge; control-plane ping p50/p99 under cross-tenant bulk flood (compare to the
+<code>f157677</code> control-plane-priority baseline in <code>broker-performance.md</code>); <strong>zero</strong> cross-tenant leakage on
+multi-hop bridged paths.</p>
+<hr />
+<h2 id="9-one-line-summary">9. One-line summary<a class="headerlink" href="#9-one-line-summary" title="Permanent link">&para;</a></h2>
+<p>Cresco already has the measurement, cost, dynamic-capacity, mTLS, regional-CA, and tenant-authz substrate
+the report treats as to-be-built. The real program is: <strong>stand up redundant paths and switch on the
+cost routing that already exists (A)</strong>, <strong>namespace tenants end-to-end across bridges (B)</strong>, <strong>add a
+central route-compute brain with a local-cost fallback and per-class paths (C)</strong>, <strong>make transit stateless
+via segment routing (D)</strong>, <strong>enforce per-tenant fairness at the contention points (E)</strong>, and <strong>jointly
+optimize routing with capacity under per-tenant quotas (F)</strong> — building deliberately <em>less</em> math and
+fewer moving parts than the report until measurements justify more.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

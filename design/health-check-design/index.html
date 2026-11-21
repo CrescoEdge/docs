@@ -1,0 +1,3883 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/design/health-check-design/">
+      
+      
+        <link rel="prev" href="../stunnel-dataplane-design/">
+      
+      
+        <link rel="next" href="../metrics-unification-design/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Health, State & Inventory - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cresco-health-state-inventory-design" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Health, State & Inventory
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/plugin-actions/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../clients/overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../distributed-identity-trust-design/" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plugin-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed-identity-trust-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tenant-isolation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimal-global-routing-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-where-health-lives-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Where health lives today
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-state-layer-predicate-bugs-resolved-independent-of-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. State-layer predicate bugs — RESOLVED (independent of the model)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-design-principle-separate-the-verdict-from-the-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Design principle: separate the verdict from the signal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-one-health-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The one health vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-health-check-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Health check catalog
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Health check catalog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-local-checks-tag-local-pure-in-jvm-no-messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Local checks — tag local (pure in-JVM, no messaging)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-link-checks-tag-link-verdict-local-signal-communicated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Link checks — tag link (verdict local, signal communicated)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-aggregates-and-how-they-reach-mina" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Aggregates and how they reach MINA
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-state-stays-in-mina-health-moves-to-hc-the-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. State stays in MINA; health moves to HC — the bridge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. State stays in MINA; health moves to HC — the bridge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-separation-of-authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Separation of authority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-what-changes-in-the-state-layer-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 What changes in the state layer (minimal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-why-this-is-the-smarter-way-and-why-mina-stays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Why this is the "smarter way" (and why MINA stays)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-inventory-printer-the-read-surface-not-a-state-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Inventory Printer — the read surface (not a state store)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-concurrency-volatility-what-hc-absorbs-what-stays-custom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Concurrency &amp; volatility — what HC absorbs, what stays custom
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-felix-hc-integration-specifics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Felix HC integration specifics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-phased-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Phased implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-open-questions-need-decisions-beforeat-each-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Open questions (need decisions before/at each gate)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-where-health-lives-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Where health lives today
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-state-layer-predicate-bugs-resolved-independent-of-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. State-layer predicate bugs — RESOLVED (independent of the model)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-design-principle-separate-the-verdict-from-the-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Design principle: separate the verdict from the signal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-one-health-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The one health vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-health-check-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Health check catalog
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Health check catalog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-local-checks-tag-local-pure-in-jvm-no-messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Local checks — tag local (pure in-JVM, no messaging)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-link-checks-tag-link-verdict-local-signal-communicated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Link checks — tag link (verdict local, signal communicated)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-aggregates-and-how-they-reach-mina" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Aggregates and how they reach MINA
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-state-stays-in-mina-health-moves-to-hc-the-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. State stays in MINA; health moves to HC — the bridge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. State stays in MINA; health moves to HC — the bridge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-separation-of-authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Separation of authority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-what-changes-in-the-state-layer-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 What changes in the state layer (minimal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-why-this-is-the-smarter-way-and-why-mina-stays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Why this is the "smarter way" (and why MINA stays)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-inventory-printer-the-read-surface-not-a-state-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Inventory Printer — the read surface (not a state store)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-concurrency-volatility-what-hc-absorbs-what-stays-custom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Concurrency &amp; volatility — what HC absorbs, what stays custom
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-felix-hc-integration-specifics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Felix HC integration specifics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-phased-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Phased implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-open-questions-need-decisions-beforeat-each-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Open questions (need decisions before/at each gate)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cresco-health-state-inventory-design">Cresco Health, State &amp; Inventory — Design<a class="headerlink" href="#cresco-health-state-inventory-design" title="Permanent link">&para;</a></h1>
+<p>Status: <strong>IMPLEMENTED + SHIPPED</strong> (health subsystem built on Felix HC — <code>controller/health/</code>:
+<code>CrescoHealthExecutor</code>, <code>LocalHealthChecks</code>, <code>MeshHealth</code>, <code>link:parent</code>/<code>link:child</code> + broker/db/
+dataplane/disk/memory/plugin checks; Felix HC api-2.0.4 jar staged; plugins implement <code>HealthCheck</code>).
+The §3 state-predicate bugs are fixed in code. This doc is the design of record for that shipped work.
+· Scope: <strong>Health subsystem first</strong> (measurements and benchmark separation are tracked separately —
+measurements later shipped too, see <a href="../metrics-unification-design/"><code>metrics-unification-design.md</code></a>).
+Author: design pass, 2026-07-01.</p>
+<p>Decisions locked with the user going in:
+- <strong>Full Felix Health Checks</strong> (<code>org.apache.felix.hc</code>) as the health engine — not a thin facade;
+  plugins implement <code>org.apache.felix.hc.api.HealthCheck</code>.
+- <strong>State stays in MINA; health moves to HC.</strong> MINA remains the <strong>sole state authority</strong> (keep the
+  FSM and the <code>ControllerMode</code> states as-is — no Role×Phase enum restructure). HC is the <strong>health
+  authority</strong>. The two are bridged by <strong>events</strong>: HC produces verdicts, and only a <em>post-grace</em>
+  verdict fires an existing MINA transition. See §7.
+- <strong>Design doc before code.</strong> This is that doc. <strong>Start with health.</strong></p>
+<hr />
+<h2 id="1-goal">1. Goal<a class="headerlink" href="#1-goal" title="Permanent link">&para;</a></h2>
+<p>Move all health/liveness logic out of the state layer and onto <strong>one health model</strong> built on Felix
+HC, leaving MINA to do clean state transitions fed by clean events, such that:</p>
+<ol>
+<li>Every health verdict (local subsystem, parent link, child liveness, plugin) speaks <strong>one status
+   vocabulary</strong> and is <strong>queryable</strong>, not reactive-only.</li>
+<li>Transient volatility (a missed ping, a GC pause, a flapping link) <strong>cannot</strong> cause a spurious
+   <code>FAILED</code>/full-re-init. Anti-flap is a standard primitive (HC grace), applied uniformly, so a flap
+   is absorbed <strong>before</strong> any MINA event fires.</li>
+<li>What is computed <strong>in-JVM</strong> vs what must be <strong>communicated</strong> is explicit and minimal.</li>
+<li><strong>Health is de-tangled from state.</strong> MINA stops being fed by ad-hoc watcher retry/timer logic;
+   the derived-state predicate bugs (§3) are fixed directly. "Degraded" becomes an HC <em>health
+   status</em>, not a control state.</li>
+</ol>
+<p>Non-goals for this tranche: the measurement/metrics unification and the benchmark isolation (separate
+efforts). This doc only touches health where it overlaps them — e.g. retiring the dead
+<code>executeKPI</code>-as-health idea.</p>
+<hr />
+<h2 id="2-where-health-lives-today">2. Where health lives today<a class="headerlink" href="#2-where-health-lives-today" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>File</th>
+<th>What it does</th>
+<th>Anti-flap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AgentHealthWatcher</code></td>
+<td><code>controller/agentcontroller/AgentHealthWatcher.java</code></td>
+<td>agent → region: DB watchdog + active RPC ping</td>
+<td><strong>none</strong> — 1 miss ⇒ <code>regionalControllerLost</code></td>
+</tr>
+<tr>
+<td><code>RegionHealthWatcher</code></td>
+<td><code>controller/regionalcontroller/RegionHealthWatcher.java</code></td>
+<td>region → global ping + agent status tracking</td>
+<td>retries(2)+jitter+3-miss tolerance (recent fix)</td>
+</tr>
+<tr>
+<td><code>GlobalHealthWatcher</code></td>
+<td><code>controller/globalcontroller/GlobalHealthWatcher.java</code></td>
+<td>global → regions: DB-staleness only</td>
+<td>none, hardcoded 45s</td>
+</tr>
+<tr>
+<td>Node status ladder</td>
+<td><code>db/NodeStatusType.java</code></td>
+<td><code>STARTING, ACTIVE, PENDINGSTALE, STALE, PENDINGLOST, LOST, ...</code> for child nodes</td>
+<td>the <code>PENDING*</code> states ARE a bespoke grace ladder</td>
+</tr>
+<tr>
+<td>Plugin status</td>
+<td><code>controller/agentcontroller/PluginNode.java</code></td>
+<td>int codes: <code>10</code> working, <code>40</code> WATCHDOG STALE, <code>50</code> WATCHDOG LOST, ...</td>
+<td>the STALE→LOST step is a <em>third</em> bespoke grace ladder</td>
+</tr>
+<tr>
+<td>Controller role/lifecycle</td>
+<td><code>statemachine/ControllerSMHandler.java</code> (MINA FSM) + <code>core/ControllerStateImp.java</code></td>
+<td>~20-state <code>ControllerMode</code> FSM; health failures drive transitions</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>Health via KPI</td>
+<td><code>library/plugin/Executor.executeKPI()</code></td>
+<td>intended plugin-health hook</td>
+<td><strong>dead</strong> — all 8 impls <code>return null</code></td>
+</tr>
+</tbody>
+</table>
+<p>Three observations drive the whole design:</p>
+<ul>
+<li><strong>The same OK→transient→dead ladder is hand-rolled three times</strong> (<code>NodeStatusType</code> PENDING*,
+  plugin <code>40→50</code>, and the region ping retry/miss counters) — inconsistently. Felix HC has exactly
+  one: <code>OK → TEMPORARILY_UNAVAILABLE →(grace)→ CRITICAL</code>.</li>
+<li><strong>Robustness is applied unevenly.</strong> Region got retry+tolerance; Agent did not, so an agent still
+  drops on a single missed ping — the same class of bug we just fixed one level up.</li>
+<li><strong><code>executeKPI</code> as a health hook is dead.</strong> Nothing uses it. Health has no contract today.</li>
+</ul>
+<hr />
+<h2 id="3-state-layer-predicate-bugs-resolved-independent-of-the-model">3. State-layer predicate bugs — RESOLVED (independent of the model)<a class="headerlink" href="#3-state-layer-predicate-bugs-resolved-independent-of-the-model" title="Permanent link">&para;</a></h2>
+<p><code>ControllerMode</code> (in <code>library/agent/ControllerMode.java</code>) is a flat cross-product of role
+<code>{STANDALONE, AGENT, REGION, GLOBAL}</code> × phase <code>{INIT, ACTIVE, FAILED, SHUTDOWN}</code> — ~20 values. Meaning
+is reconstructed with hand-maintained OR-chains and <code>toString().startsWith(...)</code>, which had broken as
+below; these predicates are now <strong>fixed in code</strong> (<code>ControllerStateImp</code>):</p>
+<ul>
+<li><code>ControllerStateImp.isFailed()</code> no longer includes <code>REGION_GLOBAL</code> (the <strong>healthy active</strong> state) —
+  it enumerates only the <code>*_FAILED</code> modes, so a region+global controller no longer reports
+  <strong><code>isActive()==true</code> AND <code>isFailed()==true</code></strong> at once. <strong>Resolved.</strong></li>
+<li><code>ControllerStateImp.isActive()</code> now <strong>includes <code>REGION</code></strong>, so a region-only controller correctly
+  reports active. <strong>Resolved.</strong></li>
+<li><code>isRegionalController()</code> / <code>isGlobalController()</code> used <code>startsWith("REGION")</code> / <code>startsWith("GLOBAL")</code>
+  on the enum name — stringly-typed role logic (tidied alongside the above).</li>
+</ul>
+<p><strong>The <code>ControllerMode</code> model is kept (MINA owns it — §7) and the predicates were fixed directly</strong>:
+the correct set is enumerated explicitly. These were targeted correctness fixes, not a model rewrite.</p>
+<hr />
+<h2 id="4-design-principle-separate-the-verdict-from-the-signal">4. Design principle: separate the <em>verdict</em> from the <em>signal</em><a class="headerlink" href="#4-design-principle-separate-the-verdict-from-the-signal" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>All health verdict logic is centralized in-JVM (Felix HC over locally-held data). The only thing
+communicated over the fabric is the raw liveness signal that keeps that local data fresh.</strong></p>
+</blockquote>
+<p>Every check — even "is my child agent alive?" — becomes a <strong>local</strong> HC check reading a
+locally-held value. The messaging layer's only job is to keep those local values current
+(outbound pings, inbound pongs/heartbeats stamping timestamps).</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Centralized in-JVM (HC check reads local state)</th>
+<th>Communicated (fabric)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Broker up / not flow-blocked</td>
+<td><code>broker</code> check</td>
+<td>—</td>
+</tr>
+<tr>
+<td>DB reachable / disk headroom / JVM heap</td>
+<td><code>db</code>, <code>disk</code>, <code>memory</code> checks</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Dataplane (JMS) connected</td>
+<td><code>dataplane</code> check</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Each plugin's status</td>
+<td><code>plugin:&lt;id&gt;</code> check (reads <code>PluginNode.status_code</code>)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Parent liveness</strong></td>
+<td><code>link:parent</code> reads <code>lastPongAt</code></td>
+<td>outbound ping / inbound pong</td>
+</tr>
+<tr>
+<td><strong>Child liveness</strong></td>
+<td><code>link:child:&lt;id&gt;</code> reads <code>lastHeartbeatAt[id]</code></td>
+<td>inbound heartbeats</td>
+</tr>
+<tr>
+<td>Node role + lifecycle <strong>state</strong></td>
+<td><strong>MINA FSM</strong> (unchanged)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Full node/fabric snapshot</td>
+<td>InventoryPrinter (renders local state)</td>
+<td>heartbeats populate the child map</td>
+</tr>
+</tbody>
+</table>
+<p>Consequence: the three <code>*HealthWatcher</code> classes collapse to <strong>transport only</strong> — send ping, receive
+pong, stamp a timestamp. All retry/jitter/threshold/flap logic leaves them and becomes HC config.</p>
+<hr />
+<h2 id="5-the-one-health-vocabulary">5. The one health vocabulary<a class="headerlink" href="#5-the-one-health-vocabulary" title="Permanent link">&para;</a></h2>
+<p>Adopt <code>org.apache.felix.hc.api.Result.Status</code> as the single ladder everywhere:</p>
+<p><code>OK</code> · <code>WARN</code> (functional, trending bad) · <code>TEMPORARILY_UNAVAILABLE</code> (not functional now, expected to
+self-recover; executor auto-promotes to <code>CRITICAL</code> after a grace window) · <code>CRITICAL</code> (not functional,
+do not use) · <code>HEALTH_CHECK_ERROR</code> (status uncomputable).</p>
+<p>The three existing ladders map onto it directly — this is the migration table, not a rewrite:</p>
+<p><strong><code>NodeStatusType</code> → <code>Result.Status</code></strong></p>
+<table>
+<thead>
+<tr>
+<th>NodeStatusType</th>
+<th>Result.Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STARTING</code></td>
+<td><code>TEMPORARILY_UNAVAILABLE</code></td>
+</tr>
+<tr>
+<td><code>ACTIVE</code></td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td><code>PENDINGSTALE</code></td>
+<td><code>TEMPORARILY_UNAVAILABLE</code></td>
+</tr>
+<tr>
+<td><code>STALE</code></td>
+<td><code>WARN</code></td>
+</tr>
+<tr>
+<td><code>PENDINGLOST</code></td>
+<td><code>TEMPORARILY_UNAVAILABLE</code></td>
+</tr>
+<tr>
+<td><code>LOST</code> / <code>FAILED</code></td>
+<td><code>CRITICAL</code></td>
+</tr>
+<tr>
+<td><code>ERROR</code></td>
+<td><code>HEALTH_CHECK_ERROR</code></td>
+</tr>
+<tr>
+<td><code>DISABLED</code></td>
+<td>not registered / excluded from aggregate</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Plugin <code>status_code</code> → <code>Result.Status</code></strong></p>
+<table>
+<thead>
+<tr>
+<th>status_code</th>
+<th>meaning</th>
+<th>Result.Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>3</code></td>
+<td>agentcontroller init</td>
+<td><code>TEMPORARILY_UNAVAILABLE</code></td>
+</tr>
+<tr>
+<td><code>10</code></td>
+<td>started and working</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td><code>40</code></td>
+<td>WATCHDOG STALE</td>
+<td><code>TEMPORARILY_UNAVAILABLE</code> (→ WARN if sticky)</td>
+</tr>
+<tr>
+<td><code>50</code></td>
+<td>WATCHDOG LOST</td>
+<td><code>CRITICAL</code></td>
+</tr>
+<tr>
+<td><code>7,9,80</code></td>
+<td>could-not-start / bundle-fail</td>
+<td><code>CRITICAL</code></td>
+</tr>
+<tr>
+<td><code>8</code></td>
+<td>disabled</td>
+<td>excluded</td>
+</tr>
+<tr>
+<td><code>90,91,92</code></td>
+<td>shutdown timeouts</td>
+<td><code>WARN</code></td>
+</tr>
+<tr>
+<td><code>41</code></td>
+<td>missing status param</td>
+<td><code>HEALTH_CHECK_ERROR</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>NodeStatusType</code> and the int codes need not be deleted immediately — they become <strong>projections</strong> of
+the HC verdict (kept for DB/back-compat), written <em>from</em> the check result rather than driving logic.</p>
+<hr />
+<h2 id="6-health-check-catalog">6. Health check catalog<a class="headerlink" href="#6-health-check-catalog" title="Permanent link">&para;</a></h2>
+<p>All checks implement <code>org.apache.felix.hc.api.HealthCheck</code> and are registered as OSGi services with
+<code>hc.name</code>, <code>hc.tags</code>, and (for scheduled ones) <code>hc.async.intervalInSec</code>.</p>
+<h3 id="61-local-checks-tag-local-pure-in-jvm-no-messaging">6.1 Local checks — tag <code>local</code> (pure in-JVM, no messaging)<a class="headerlink" href="#61-local-checks-tag-local-pure-in-jvm-no-messaging" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th><code>hc.name</code></th>
+<th>Reads</th>
+<th>CRITICAL when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Broker</td>
+<td><code>broker</code></td>
+<td><code>ActiveBrokerManager</code> / broker service state</td>
+<td>broker not started / connector down</td>
+</tr>
+<tr>
+<td>DataPlane</td>
+<td><code>dataplane</code></td>
+<td>JMS connection in <code>DataPlaneServiceImpl</code></td>
+<td>JMS connection closed</td>
+</tr>
+<tr>
+<td>DB</td>
+<td><code>db</code></td>
+<td><code>DBEngine</code> ping</td>
+<td>Derby unreachable</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td><code>disk</code></td>
+<td>KahaDB + <code>cresco-data</code> dir free space</td>
+<td>below floor (configurable)</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td><code>memory</code></td>
+<td>JVM heap</td>
+<td>above ceiling</td>
+</tr>
+<tr>
+<td>Plugin</td>
+<td><code>plugin:&lt;id&gt;</code></td>
+<td><code>PluginNode.status_code</code> per plugin</td>
+<td 7_9_50_80>code ∈</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-link-checks-tag-link-verdict-local-signal-communicated">6.2 Link checks — tag <code>link</code> (verdict local, signal communicated)<a class="headerlink" href="#62-link-checks-tag-link-verdict-local-signal-communicated" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>link:parent</code> — reads <code>lastPongAt</code> maintained by the (now transport-only) parent watcher.
+  <code>now - lastPongAt &lt; interval</code> ⇒ <code>OK</code>; within grace ⇒ <code>TEMPORARILY_UNAVAILABLE</code>; beyond grace ⇒
+  <code>CRITICAL</code> (auto-promoted by the executor). Uses <code>hc.keepNonOkResultsStickyForSec</code> so a flap that
+  self-heals still surfaces in the record.</li>
+<li><code>link:child:&lt;id&gt;</code> — on region/global, one check per child reading <code>lastHeartbeatAt[id]</code>. Same
+  semantics. This is how a parent's view of children becomes local checks over communicated data.</li>
+</ul>
+<h3 id="63-aggregates-and-how-they-reach-mina">6.3 Aggregates and how they reach MINA<a class="headerlink" href="#63-aggregates-and-how-they-reach-mina" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>execute(tags=["local"])</code> → <strong>local health</strong> → surfaced as node health status (queryable via
+  Inventory/JMX). Hard local failures (broker/db/dataplane <code>CRITICAL</code>) may fire a MINA fail event
+  (see O3); non-fatal ones (one plugin) are reported as <code>DEGRADED</code> health <strong>without</strong> a state change.</li>
+<li><code>execute(tags=["link"])</code> → <strong>link health</strong> → <code>link:parent</code> <code>CRITICAL</code>-after-grace <strong>fires the
+  existing MINA event</strong> <code>regionalControllerLost</code> (agent) / <code>globalControllerLost</code> (region). MINA
+  handles it exactly as today. Because grace lives in HC, MINA only ever sees a <em>real</em> loss.</li>
+<li><code>execute(tags=["local","link"])</code> (OR) → the node's overall health, exposed via Inventory + JMX.</li>
+</ul>
+<p>Grace/interval come from config, defaulted to match today's effective ~5s ping timeout × tolerance so
+recovery latency is unchanged (see Open Question O2).</p>
+<hr />
+<h2 id="7-state-stays-in-mina-health-moves-to-hc-the-bridge">7. State stays in MINA; health moves to HC — the bridge<a class="headerlink" href="#7-state-stays-in-mina-health-moves-to-hc-the-bridge" title="Permanent link">&para;</a></h2>
+<h3 id="71-separation-of-authority">7.1 Separation of authority<a class="headerlink" href="#71-separation-of-authority" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>MINA is the state authority.</strong> Keep <code>ControllerSMHandler</code> (the <code>@State</code>/<code>@Transition</code> FSM), the
+  <code>ControllerMode</code> enum, and the transitions. MINA does a good job of state; we do not restructure it.</li>
+<li><strong>HC is the health authority.</strong> All liveness/verdict logic lives in HC checks (§6). HC owns no
+  state; it produces verdicts.</li>
+<li><strong>The bridge is events, one-directional (HC → MINA).</strong> A health verdict that crosses a threshold
+  fires an <strong>existing</strong> MINA event. HC replaces the <em>watchers</em> as the event source; MINA remains the
+  <em>state owner and actuator</em>. The anti-flap grace lives entirely in HC, so a transient blip is
+  absorbed <strong>before</strong> any MINA event fires — this is the fix for "one missed ping nukes the node,"
+  achieved <strong>without touching MINA's states</strong>.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a> fabric signal            in-JVM verdict (HC)                 state (MINA)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> ─────────────            ───────────────────                 ────────────
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> pong  ─────► lastPongAt ─► link:parent check ─(CRITICAL       fire regionalControllerLost
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                            after grace)──────────────────────► / globalControllerLost  ─► FAILED ─► recover
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> heartbeat ─► lastHb[x] ──► link:child:x check ─► child health projection (NodeStatusType in DB)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a> (none)      broker/db ───► local checks ───────► node health status;  hard CRITICAL ─► (O3) fail event
+</code></pre></div>
+<h3 id="72-what-changes-in-the-state-layer-minimal">7.2 What changes in the state layer (minimal)<a class="headerlink" href="#72-what-changes-in-the-state-layer-minimal" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>No enum restructure.</strong> <code>ControllerMode</code> and the MINA state set are unchanged.</li>
+<li><strong>Fix the §3 predicate bugs</strong> in <code>ControllerStateImp</code> (<code>isActive</code>/<code>isFailed</code>/<code>isRegional…</code>) — a small
+  correctness patch; the public <code>ControllerState</code> interface is <strong>unchanged</strong> (no back-compat shim
+  needed, unlike a model rewrite).</li>
+<li><strong>Watchers stop calling into state directly with hand-rolled logic.</strong> Today the watchers run their
+  own timers/retries and call <code>regionalControllerLost()</code>. After this change, the transport-only
+  watchers just stamp timestamps; the <strong>HC link check</strong> is what fires the MINA event. Net: the same
+  MINA transition, but sourced from a single, grace-protected, uniform place.</li>
+<li><strong>"Degraded" is a health status, not a MINA state.</strong> A node with one sick plugin stays in <code>AGENT</code>
+  (MINA) while its health reports <code>DEGRADED</code> (HC). Load-shedding or alerting can react to the health
+  status without a state transition.</li>
+</ul>
+<h3 id="73-why-this-is-the-smarter-way-and-why-mina-stays">7.3 Why this is the "smarter way" (and why MINA stays)<a class="headerlink" href="#73-why-this-is-the-smarter-way-and-why-mina-stays" title="Permanent link">&para;</a></h3>
+<p>MINA is used in exactly <strong>2 files</strong> (<code>ControllerSMHandler</code>, <code>ControllerEngine</code>), declared only in
+<code>controller/pom.xml</code> — isolated and working. The complexity that was flagged earlier came from
+<strong>health logic being tangled into the state layer</strong> (per-watcher timers, retry counters, <code>stateInit</code>
+calls near transitions), not from MINA. Removing health to HC leaves MINA as a clean FSM fed by clean
+events — which is exactly the simplification wanted, with <strong>no engine change and minimal state-layer
+risk</strong>. The MINA-vs-EnumMap question is therefore <strong>closed: keep MINA.</strong></p>
+<hr />
+<h2 id="8-inventory-printer-the-read-surface-not-a-state-store">8. Inventory Printer — the read surface (not a state store)<a class="headerlink" href="#8-inventory-printer-the-read-surface-not-a-state-store" title="Permanent link">&para;</a></h2>
+<p>Clarification on intent: <code>InventoryPrinter.print(PrintWriter, Format, isZip)</code> is an <strong>on-demand
+renderer</strong> (TEXT/JSON/HTML), not a place that "maintains" state. State is held by MINA (control state)
+and the HC executor's result cache (health); Inventory <strong>dumps</strong> it.</p>
+<p>Register printers (<code>felix.inventory.printer.*</code> service props):</p>
+<table>
+<thead>
+<tr>
+<th>Printer</th>
+<th>Renders</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node</code></td>
+<td>role/state (from MINA), identity, config summary</td>
+</tr>
+<tr>
+<td><code>plugins</code></td>
+<td>plugin table + per-plugin health</td>
+</tr>
+<tr>
+<td><code>fabric</code> (region/global only)</td>
+<td>children + their <code>link:child</code> health</td>
+</tr>
+<tr>
+<td><code>health</code></td>
+<td>latest HC results (all tags) as JSON</td>
+</tr>
+</tbody>
+</table>
+<p>Exposed via <strong>JMX</strong> and through <strong>wsapi</strong> (the existing websocket API). We do <strong>not</strong> enable the Felix
+Web Console servlet — it's an unneeded HTTP admin/security surface that overlaps wsapi. This retires
+the ad-hoc <code>getControllerInfoMap()</code> / <code>stateUpdateTask</code> export path.</p>
+<hr />
+<h2 id="9-concurrency-volatility-what-hc-absorbs-what-stays-custom">9. Concurrency &amp; volatility — what HC absorbs, what stays custom<a class="headerlink" href="#9-concurrency-volatility-what-hc-absorbs-what-stays-custom" title="Permanent link">&para;</a></h2>
+<p><strong>HC absorbs</strong> the health-execution concurrency you currently hand-roll:
+- Per-watcher <code>AtomicBoolean</code> "already running" guards → the HC async executor schedules/serializes.
+- <code>AtomicInteger consecutivePingFailures</code> + retry/jitter → grace window + <code>TEMPORARILY_UNAVAILABLE</code>.
+- 4 separate <code>Timer</code>s (agent/region/global watchers + <code>stateUpdateTimer</code>) → HC async executor.
+- Reads are <strong>atomic snapshots</strong>: <code>HealthCheckExecutor</code> caches results (<code>hc.resultCacheTtlInMs</code>), so
+  querying the aggregate is a cheap consistent read, never a re-run storm.</p>
+<p><strong>Stays custom (domain state HC/MINA do not own):</strong>
+- The child-inventory map (<code>lastHeartbeatAt</code>, plugin table) remains an in-JVM <code>ConcurrentHashMap</code>,
+  updated by inbound messages. HC checks <em>read</em> it; Inventory <em>renders</em> it.</p>
+<p><strong>Volatility fix — where it comes from now:</strong> the primary fix is structural — <strong>HC grace absorbs flaps
+before a MINA event fires</strong>, so the controller no longer transitions (and re-inits + re-persists) on a
+transient blip. Because MINA transitions only on real post-grace loss, the existing per-transition DB
+write in <code>ControllerStatePersistance</code> is no longer a flap-driven write storm; a secondary tidy-up
+(avoid persisting transient INIT churn) can follow but is not the main lever.</p>
+<hr />
+<h2 id="10-felix-hc-integration-specifics">10. Felix HC integration specifics<a class="headerlink" href="#10-felix-hc-integration-specifics" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Bundle: API only.</strong> Provision <code>org.apache.felix.healthcheck.api-2.0.4.jar</code> (exports
+  <code>org.apache.felix.hc.api</code>, <code>.api.execution</code>, <code>.api.condition</code>; imports only <code>org.osgi.framework</code> →
+  resolves trivially). Install it in the agent bootstrap
+  (<code>agent/src/main/java/io/cresco/main/HostApplication.java</code>, via <code>installInternalBundleJars</code>, before
+  library/controller). Jar staged into <code>agent/src/main/resources/</code>.</li>
+<li><strong>Why NOT <code>.core</code>:</strong> Felix HC <strong>core 2.3.0</strong> is an R8 bundle with mandatory imports absent from
+  Cresco's minimal R7 Felix — <code>org.osgi.service.condition [1.0,2)</code> and <code>org.osgi.service.servlet.context
+  [2.0,3)</code> (R8; <code>osgi.cmpn-7.0.0</code> is R7), plus <code>org.slf4j [1.7,2)</code> which <em>excludes</em> Cresco's SLF4J 2.x.
+  Provisioning core would force a compendium upgrade in a stripped Felix (high resolution risk, blocks
+  testing) for an executor whose behavior we want to own and tune for the mesh anyway.</li>
+<li><strong>Executor is controller-owned</strong> (<code>io.cresco.agent.controller.health.CrescoHealthExecutor</code>):
+  discovers <code>HealthCheck</code> services by <code>hc.tags</code> via a <code>ServiceTracker</code>, runs them on a scheduler, and
+  applies <strong>grace</strong> (<code>TEMPORARILY_UNAVAILABLE</code>→<code>CRITICAL</code> after a window), <strong>sticky</strong> non-OK, and a
+  <strong>result cache</strong> (atomic snapshot reads). This is where the mesh-tuning lives. Checks are real
+  <code>org.apache.felix.hc.api.HealthCheck</code> services with <code>hc.name</code>/<code>hc.tags</code> props, so the Felix HC
+  <strong>core bundle remains a drop-in</strong> replacement if Cresco ever moves to an R8 compendium.</li>
+<li><strong>Surfaces:</strong> JMX + wsapi. <strong>No</strong> webconsole servlet.</li>
+</ul>
+<hr />
+<h2 id="11-phased-implementation">11. Phased implementation<a class="headerlink" href="#11-phased-implementation" title="Permanent link">&para;</a></h2>
+<p>Each phase is independently reviewable; earlier phases are useful even if later ones slip. <strong>P1–P5
+have shipped</strong> (<code>controller/health/</code> + Felix HC api jar staged); P6 cleanup is the trailing tidy-up.</p>
+<ul>
+<li><strong>P1 — Foundation. ✅ DONE.</strong> Add HC bundles; <code>health</code> package; <code>Result.Status</code> adopted;
+  <code>NodeStatusType</code>/plugin-code adapters (§5). No behavior change yet.</li>
+<li><strong>P2 — Local checks. ✅ DONE.</strong> <code>broker/dataplane/db/disk/memory/plugin</code> checks, tag <code>local</code>
+  (<code>BrokerHealthCheck</code>, <code>DataPlaneHealthCheck</code>, <code>DbHealthCheck</code>, <code>MemoryHealthCheck</code>, <code>LocalHealthChecks</code>).
+  Live + queryable. Zero messaging. Lowest risk.</li>
+<li><strong>P3 — Link checks + watcher slimming. ✅ DONE.</strong> Watchers → transport-only (stamp timestamps);
+  <code>link:parent</code> + <code>link:child</code> checks with grace/sticky (<code>MeshHealth</code>/<code>MeshHealthChecks</code>). <strong>Agent
+  robustness fixed here for free</strong> (same check as region).</li>
+<li><strong>P4 — HC→MINA bridge + predicate fixes. ✅ DONE.</strong> Link-check <code>CRITICAL</code>-after-grace fires the
+  existing <code>regionalControllerLost</code>/<code>globalControllerLost</code> MINA events; retire the watchers' direct
+  calls; fix the §3 <code>isActive</code>/<code>isFailed</code> predicates (now fixed in <code>ControllerStateImp</code>). <strong>MINA states
+  unchanged.</strong></li>
+<li><strong>P5 — Inventory. ✅ DONE.</strong> <code>node/plugins/fabric/health</code> printers; wsapi + JMX (<code>HealthInventory</code>);
+  retire <code>getControllerInfoMap</code>/<code>stateUpdateTask</code>.</li>
+<li><strong>P6 — Retire custom machinery.</strong> Delete watcher atomics/counters/Timers; <code>NodeStatusType</code>/int codes
+  become projections; remove dead <code>executeKPI</code>-as-health. (Trailing cleanup.)</li>
+</ul>
+<p><strong>Proof harness (built alongside P3):</strong> a <strong>link-flap reproduction</strong> in <code>run/tests</code> — drop pongs for
+N seconds and assert the node stays in its MINA state (no <code>regionalControllerLost</code> fired, no re-init)
+until real loss beyond grace. The health analogue of <code>broker-bench/StarvationRepro</code>.</p>
+<hr />
+<h2 id="12-open-questions-need-decisions-beforeat-each-gate">12. Open questions (need decisions before/at each gate)<a class="headerlink" href="#12-open-questions-need-decisions-beforeat-each-gate" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>O1 (P1):</strong> Do Cresco plugins implement <code>org.apache.felix.hc.api.HealthCheck</code> directly (full Felix,
+  as chosen), confirming plugins may import the Felix HC API package? Assumed <strong>yes</strong> per the locked
+  decision; flagging because it puts a Felix package on the plugin classpath.</li>
+<li><strong>O2 (P3):</strong> Grace/interval defaults. Match today's effective detection latency (~5s ping ×
+  tolerance) or deliberately widen for edge/volatile links? Affects failover speed.</li>
+<li><strong>O3 (P4):</strong> Which <strong>local</strong> CRITICALs fire a MINA fail event vs just report <code>DEGRADED</code> health?
+  Proposal: broker/dataplane/db CRITICAL ⇒ fire a fail/re-init event; a single plugin CRITICAL ⇒
+  <code>DEGRADED</code> health only (no state change). Needs the specific MINA event(s) for local-subsystem loss
+  identified (today there may be no clean one — may add <code>localSubsystemFailed</code>).</li>
+<li><strong>O4 (P5):</strong> Expose Inventory JSON through wsapi to external clients (pycrescolib), or JMX-only?</li>
+</ul>
+<hr />
+<h2 id="13-risks">13. Risks<a class="headerlink" href="#13-risks" title="Permanent link">&para;</a></h2>
+<ul>
+<li>HC executor lifecycle across OSGi bundle refresh (felix-hygiene refreshes Felix bundles) — validate
+  the executor survives refresh.</li>
+<li>Recovery-latency regression if grace is mis-tuned (O2) — the flap-repro guards against <em>spurious</em>
+  failover; a separate test must confirm <em>real</em> failover still happens promptly.</li>
+<li>The HC→MINA event bridge must fire the existing events with the same semantics the watchers used, so
+  the recovery path (<code>stateInit</code>) behaves identically — inventory of who currently calls
+  <code>regionalControllerLost</code>/<code>globalControllerLost</code> required in P4.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

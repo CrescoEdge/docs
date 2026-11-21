@@ -1,0 +1,3864 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/design/tenant-isolation-design/">
+      
+      
+        <link rel="prev" href="../distributed-identity-trust-design/">
+      
+      
+        <link rel="next" href="../optimal-global-routing-plan/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Tenant Isolation - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cresco-tenant-isolation-glocal-design" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tenant Isolation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/plugin-actions/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../clients/overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../distributed-identity-trust-design/" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plugin-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed-identity-trust-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-framing-glocal-one-global-invariant-enforced-locally-at-every-hop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. Framing: "glocal" = one global invariant, enforced locally at every hop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-whats-in-place-vs-the-gap-code-grounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What's in place vs. the gap (code-grounded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-isolation-has-three-axes-name-them-or-youll-only-build-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Isolation has three axes — name them, or you'll only build one
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-layered-model-each-layer-independently-switchable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The layered model (each layer independently switchable)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The layered model (each layer independently switchable)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#l0-identity-done-tenant-cryptographically-bound-in-the-cert-dn-the-anchor-everything-keys-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L0 — Identity (done). Tenant cryptographically bound in the cert DN; the anchor everything keys off.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l1-namespace-the-keystone-make-the-tenant-a-mandatory-destination-prefix-everywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L1 — Namespace (the keystone). Make the tenant a mandatory destination prefix, everywhere.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l2-local-acl-mostly-done-simplify-around-the-prefix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2 — Local ACL (mostly done; simplify around the prefix).
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l3-bridge-scoped-tenant-forwarding-the-fix-for-gap-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L3 — Bridge-scoped tenant forwarding (THE fix for gap #3).
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l4-end-to-end-confidentiality-across-bridges-opt-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L4 — End-to-end confidentiality across bridges (opt-in).
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l5-per-tenant-performance-isolation-the-qos-everywhere-on-the-tenant-level-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L5 — Per-tenant performance isolation (the "QoS everywhere on the tenant level" requirement).
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-glocal-invariant-state-it-enforce-it-test-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The glocal invariant (state it, enforce it, test it)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-concrete-minimal-changes-grounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Concrete, minimal changes (grounded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cross-global-the-global-half-of-glocal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Cross-global — the "global" half of glocal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-migration-additive-flag-gated-staged-same-discipline-as-the-security-fabric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Migration (additive, flag-gated, staged — same discipline as the security fabric)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-decisions-to-make-recommendations-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Decisions to make (recommendations first)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-relationship-to-the-routing-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Relationship to the routing plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-configuration-operations-reference-shipped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Configuration &amp; operations reference (shipped)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-end-to-end-message-flow-walkthrough-namespacing-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. End-to-end message-flow walkthrough (namespacing on)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-security-properties-threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Security properties &amp; threat model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-verification-shipped-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Verification (shipped tests)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-implementation-map-where-each-layer-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Implementation map (where each layer lives)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-limitations-next-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Limitations &amp; next work
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimal-global-routing-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../health-check-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-framing-glocal-one-global-invariant-enforced-locally-at-every-hop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. Framing: "glocal" = one global invariant, enforced locally at every hop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-whats-in-place-vs-the-gap-code-grounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What's in place vs. the gap (code-grounded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-isolation-has-three-axes-name-them-or-youll-only-build-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Isolation has three axes — name them, or you'll only build one
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-layered-model-each-layer-independently-switchable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The layered model (each layer independently switchable)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The layered model (each layer independently switchable)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#l0-identity-done-tenant-cryptographically-bound-in-the-cert-dn-the-anchor-everything-keys-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L0 — Identity (done). Tenant cryptographically bound in the cert DN; the anchor everything keys off.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l1-namespace-the-keystone-make-the-tenant-a-mandatory-destination-prefix-everywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L1 — Namespace (the keystone). Make the tenant a mandatory destination prefix, everywhere.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l2-local-acl-mostly-done-simplify-around-the-prefix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2 — Local ACL (mostly done; simplify around the prefix).
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l3-bridge-scoped-tenant-forwarding-the-fix-for-gap-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L3 — Bridge-scoped tenant forwarding (THE fix for gap #3).
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l4-end-to-end-confidentiality-across-bridges-opt-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L4 — End-to-end confidentiality across bridges (opt-in).
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l5-per-tenant-performance-isolation-the-qos-everywhere-on-the-tenant-level-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L5 — Per-tenant performance isolation (the "QoS everywhere on the tenant level" requirement).
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-glocal-invariant-state-it-enforce-it-test-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The glocal invariant (state it, enforce it, test it)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-concrete-minimal-changes-grounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Concrete, minimal changes (grounded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cross-global-the-global-half-of-glocal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Cross-global — the "global" half of glocal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-migration-additive-flag-gated-staged-same-discipline-as-the-security-fabric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Migration (additive, flag-gated, staged — same discipline as the security fabric)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-decisions-to-make-recommendations-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Decisions to make (recommendations first)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-relationship-to-the-routing-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Relationship to the routing plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-configuration-operations-reference-shipped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Configuration &amp; operations reference (shipped)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-end-to-end-message-flow-walkthrough-namespacing-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. End-to-end message-flow walkthrough (namespacing on)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-security-properties-threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Security properties &amp; threat model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-verification-shipped-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Verification (shipped tests)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-implementation-map-where-each-layer-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Implementation map (where each layer lives)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-limitations-next-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Limitations &amp; next work
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cresco-tenant-isolation-glocal-design">Cresco — Tenant Isolation (Glocal) — Design<a class="headerlink" href="#cresco-tenant-isolation-glocal-design" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-07-03
+<strong>Status:</strong> <strong>L1+L2 SHIPPED + PROVEN (2026-07-03), flag <code>tenant_namespacing</code> (default off).</strong> Both controlled
+channels are namespaced end-to-end and role-based authorization is live. Proven by
+<code>run/tests/tenant_namespacing_test.sh</code> <strong>12/12</strong> (federation forms + zero self-denial under namespacing →
+MsgEvent wildcard-infra-inbox + producer tenant-qualification work; TENANT confined to <code>T.&lt;tenant&gt;.*</code>;
+SUPERUSER cross-tenant god view) with <strong>no regression</strong> (<code>tenant_isolation_mesh_test</code> 10/10,
+<code>security_foundation</code> 15/15, <code>regional_ca_mtls</code> 10/10). L3 (dedicated per-tenant bridges) + L4 (payload
+encryption) remain optional hardening tiers; core isolation already holds via client-edge ACL at every broker.</p>
+<p><strong>What shipped:</strong>
+- <code>library/security/TenantNamespace</code> — pure <code>T.&lt;tenant&gt;.&lt;raw&gt;</code> qualify/wildcard/parse helper.
+- <code>TenantPolicy</code> — role-aware (<code>SUPERUSER</code>/<code>INTERNAL</code>/<code>TENANT</code>) + namespaced-prefix rule (own <code>T.&lt;tenant&gt;.</code>
+  subtree only; closes the flat-name same-region write hole).
+- <code>CrescoAuthorizationBroker</code> — <code>roleOf()</code> from <code>broker_superuser_tenants</code> (default <code>cresco-system</code>).
+- <code>AgentProducer</code> — stamps origin tenant (<code>cresco_tenant</code> param) + qualifies the forward destination.
+- <code>ControllerSMHandler.initIOChannels</code> — infra (vm://) consumes the <code>T.*.</code> <strong>wildcard</strong> inbox; leaf agents
+  consume their own <code>T.&lt;tenant&gt;.</code> inbox.
+- <code>DataPlaneServiceImpl.getTopicName</code> — dataplane topics qualified <code>T.&lt;tenant&gt;.&lt;agent|region|global&gt;.event</code>.</p>
+<p>This doc recommends the target model and the minimal grounded changes.
+<strong>Siblings:</strong> <a href="../distributed-identity-trust-design/"><code>distributed-identity-trust-design.md</code></a> (owns
+identity/trust/authz — this doc is its §5 "tenant namespacing" expanded and revised),
+<a href="../optimal-global-routing-plan/"><code>optimal-global-routing-plan.md</code></a> (W2 = this doc's L1+L3; W6 = L5; W9 = L4),
+<a href="../metrics-unification-design/"><code>metrics-unification-design.md</code></a>.</p>
+<hr />
+<h2 id="0-framing-glocal-one-global-invariant-enforced-locally-at-every-hop">0. Framing: "glocal" = one global invariant, enforced locally at every hop<a class="headerlink" href="#0-framing-glocal-one-global-invariant-enforced-locally-at-every-hop" title="Permanent link">&para;</a></h2>
+<p>The design goal in one sentence: <strong>define a single global isolation invariant, and make it enforceable
+from purely <em>local</em> information at every broker — including every bridge — so no broker needs global
+coordination to uphold it.</strong> That is what "glocal" means here: think globally (one invariant over the
+whole federated mesh), act locally (each broker enforces it on the traffic it touches, using only what it
+can see).</p>
+<p>The mechanism that makes local enforcement of a global invariant possible is <strong>carrying the tenant in two
+places at once</strong>: (1) <em>cryptographically</em>, in the connection identity (already done — <code>O=tenant</code> in the
+cert DN, mTLS-bound), and (2) <em>syntactically</em>, in the destination name (a mandatory tenant prefix — not
+done). With both, any broker can check "does this connection's tenant match this destination's tenant?"
+with a local string comparison — no topology map, no controller round-trip. <strong>Namespacing is not cosmetic;
+it is the thing that turns a global rule into a local check.</strong></p>
+<hr />
+<h2 id="1-whats-in-place-vs-the-gap-code-grounded">1. What's in place vs. the gap (code-grounded)<a class="headerlink" href="#1-whats-in-place-vs-the-gap-code-grounded" title="Permanent link">&para;</a></h2>
+<p><strong>Shipped and proven (keep):</strong>
+- Tenant bound into the cert DN; mTLS derives the authoritative principal
+  (<code>CrescoAuthorizationBroker.java:141-167</code>).
+- Regional-CA trust distribution (O(regions), not O(n²)).
+- <code>TenantPolicy</code> ACL evaluated at addConsumer/addProducer/send.</p>
+<p><strong>The three real gaps — why isolation is "not implemented" for the mesh:</strong></p>
+<ol>
+<li>
+<p><strong>Destinations are not tenant-namespaced, so the strong boundary is dormant.</strong> The primary rule —
+   allow <code>destination == tenant || destination.startsWith(tenant + ".")</code>
+   (<code>TenantPolicy.java:70-72</code>) —
+   only matches destinations that <em>happen</em> to be tenant-prefixed. Nothing <strong>mandates</strong> that, and the
+   fabric's own destinations (<code>region_agent</code> inboxes, <code>global.event</code>) are not prefixed. The boundary
+   exists in code but has almost nothing to match.</p>
+</li>
+<li>
+<p><strong>A concrete cross-tenant <em>write</em> hole in the flat scheme.</strong> Because inboxes are <code>region_agent</code> with no
+   tenant, the "same-region-write" rule
+   (<code>TenantPolicy.java:82-85</code>)
+   lets <strong>tenant B send into tenant A's inbox whenever they share a region</strong> (<code>R_agentA</code> starts with
+   <code>R_</code>, so WRITE is allowed). Confidentiality of A's inbox holds (B can't read), but <em>delivery integrity</em>
+   does not — B can inject. Namespacing closes this: the peer rule becomes intra-tenant.</p>
+</li>
+<li>
+<p><strong>The shared dataplane topics are a cross-tenant channel, and bridges bypass enforcement entirely.</strong>
+   <code>agent/region/global.event</code> are allow-listed for <em>all</em> tenants
+   (<code>TenantPolicy.java:62-63</code>,
+   <code>DataPlaneServiceImpl</code> flat topic names). The comment's justification ("isolated by physical per-region
+   broker separation") <strong>fails on a global broker</strong>, where multiple regions/tenants converge. And every
+   broker-to-broker bridge is <em>blanket-exempt</em> —
+   <code>ctx.isNetworkConnection() → return true</code>
+   (<code>CrescoAuthorizationBroker.java:102</code>) —
+   so inter-broker hops carry <strong>all tenants with zero tenant enforcement.</strong></p>
+</li>
+</ol>
+<p><strong>Conclusion:</strong> enforcement today exists only at the <em>client edge of a single broker</em>. It is neither
+end-to-end nor cross-bridge. That is exactly the piece to build.</p>
+<hr />
+<h2 id="2-isolation-has-three-axes-name-them-or-youll-only-build-one">2. Isolation has three axes — name them, or you'll only build one<a class="headerlink" href="#2-isolation-has-three-axes-name-them-or-youll-only-build-one" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>"A tenant cannot …"</th>
+<th>Covered by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Confidentiality</strong></td>
+<td>…read another tenant's data</td>
+<td>L1 namespace + L2 ACL (read-deny) + L4 encryption</td>
+</tr>
+<tr>
+<td><strong>Delivery integrity</strong></td>
+<td>…inject into / misdeliver to another tenant</td>
+<td>L1 namespace + L2 ACL (write-deny) + <strong>L3 bridge scoping</strong></td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>…starve/degrade another tenant (noisy neighbor)</td>
+<td><strong>L5 per-tenant QoS (H-DWRR)</strong></td>
+</tr>
+</tbody>
+</table>
+<p>An ACL-only design covers confidentiality and part of delivery integrity, <em>on one broker</em>. Real isolation
+across the mesh needs all three axes, at every hop.</p>
+<hr />
+<h2 id="3-the-layered-model-each-layer-independently-switchable">3. The layered model (each layer independently switchable)<a class="headerlink" href="#3-the-layered-model-each-layer-independently-switchable" title="Permanent link">&para;</a></h2>
+<h3 id="l0-identity-done-tenant-cryptographically-bound-in-the-cert-dn-the-anchor-everything-keys-off">L0 — Identity (done). Tenant cryptographically bound in the cert DN; the anchor everything keys off.<a class="headerlink" href="#l0-identity-done-tenant-cryptographically-bound-in-the-cert-dn-the-anchor-everything-keys-off" title="Permanent link">&para;</a></h3>
+<h3 id="l1-namespace-the-keystone-make-the-tenant-a-mandatory-destination-prefix-everywhere">L1 — Namespace (the keystone). Make the tenant a <strong>mandatory</strong> destination prefix, everywhere.<a class="headerlink" href="#l1-namespace-the-keystone-make-the-tenant-a-mandatory-destination-prefix-everywhere" title="Permanent link">&para;</a></h3>
+<p>Every destination — inboxes <strong>and</strong> dataplane topics — carries its tenant:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Inbox / queue:   t.&lt;tenant&gt;.&lt;class&gt;.&lt;region&gt;.&lt;agent&gt;
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Dataplane topic: t.&lt;tenant&gt;.&lt;class&gt;.event        (per-tenant, replacing the shared global.event)
+</code></pre></div>
+<code>&lt;class&gt;</code> ∈ {live, ctrl, tele, bulk} — the <code>MsgQoS</code> tier, placed <em>before</em> region so a bridge or scheduler
+can filter by tenant <strong>and</strong> class with one prefix. Use <code>.</code> as the hierarchy separator so a whole tenant
+is one wildcard subtree: <code>t.&lt;tenant&gt;.&gt;</code>. This single change:
+- makes L2/L3 a local prefix rule (the whole point of "glocal");
+- removes the shared-topic cross-tenant channel (gap #3) — <code>global.event</code> becomes N per-tenant topics;
+- closes the same-region write hole (gap #2) — inboxes are now tenant-scoped;
+- gives L5 (per-tenant QoS) and the router (per-tenant/per-class paths) a ready-made key.</p>
+<h3 id="l2-local-acl-mostly-done-simplify-around-the-prefix">L2 — Local ACL (mostly done; simplify around the prefix).<a class="headerlink" href="#l2-local-acl-mostly-done-simplify-around-the-prefix" title="Permanent link">&para;</a></h3>
+<p><code>TenantPolicy</code> collapses to: <em>a connection authenticated as tenant T may only touch <code>t.&lt;T&gt;.…</code></em> (plus
+advisories, handled in L1/§5). The flat-name special cases (<code>region_agent</code> own-inbox, same-region peer
+read/write asymmetry) become <strong>intra-tenant</strong> sub-rules under the prefix, and the cross-tenant write hole
+disappears. Net: fewer rules, stronger guarantee.</p>
+<h3 id="l3-bridge-scoped-tenant-forwarding-the-fix-for-gap-3">L3 — Bridge-scoped tenant forwarding (THE fix for gap #3).<a class="headerlink" href="#l3-bridge-scoped-tenant-forwarding-the-fix-for-gap-3" title="Permanent link">&para;</a></h3>
+<p>Replace the blanket <code>isNetworkConnection → exempt</code> with a <strong>per-bridge allowed-tenant set</strong>. Two levers,
+both already available in Cresco:
+- <strong>Forwarding filter (primary):</strong> each bridge connector forwards <em>only</em> its allowed tenant namespaces via
+  <code>setDynamicallyIncludedDestinations(t.&lt;tenant&gt;.&gt;)</code> / <code>setExcludedDestinations(...)</code> — the <em>exact</em>
+  mechanism <code>buildConnector</code> already uses for dataplane sharding
+  (<code>ActiveBroker.java:572-586</code>).
+  A message for a non-allowed tenant prefix is never bridged.
+- <strong>Receiving-side enforcement (defense in depth):</strong> the bridge connection <em>does</em> have an identity (the
+  peer broker's cert, chaining to a region CA). Give bridges a <code>BridgeTenantPolicy</code> (allowed-tenant set for
+  that edge) instead of a free pass, so even if a mislabeled message crosses, the receiving broker's L2
+  prefix check drops it.</p>
+<p><strong>Shared prefix-filtered bridges (O(E)) are the default</strong>; <strong>dedicated per-tenant bridges (O(T·E)) are an
+opt-in high-assurance tier</strong> — mechanically just multiple connectors per host, which <code>bridgeGroups</code> /
+<code>addBridgeConnections</code> already support.</p>
+<h3 id="l4-end-to-end-confidentiality-across-bridges-opt-in">L4 — End-to-end confidentiality across bridges (opt-in).<a class="headerlink" href="#l4-end-to-end-confidentiality-across-bridges-opt-in" title="Permanent link">&para;</a></h3>
+<p>Transport mTLS encrypts each hop <em>in flight</em>; the residual threat is <strong>payload at rest inside a
+compromised/inspected transit broker</strong>. For tenants that can't accept that: envelope-encrypt the payload
+with a tenant key (AES-256-GCM), keep routing metadata (namespaced dst + segment path) clear in JMS
+headers, decrypt at egress. Reuse the shipped <code>MessageSigner</code> pattern / recipient leaf public key. Opt-in,
+because it's costly and most tenants are satisfied by L1–L3 + hop TLS.</p>
+<h3 id="l5-per-tenant-performance-isolation-the-qos-everywhere-on-the-tenant-level-requirement">L5 — Per-tenant performance isolation (the "QoS everywhere on the tenant level" requirement).<a class="headerlink" href="#l5-per-tenant-performance-isolation-the-qos-everywhere-on-the-tenant-level-requirement" title="Permanent link">&para;</a></h3>
+<p>Hierarchical Deficit-Weighted Round Robin keyed by the L1 tenant prefix (L1 inter-tenant fair share, L2
+intra-tenant <code>MsgQoS</code> priority), enforced at the contention points (ingress rate-limit + shared-bridge
+egress) by extending the existing <code>CrescoAuthorizationBroker</code> filter chain. This is routing-plan W6; it is
+<strong>part of the isolation model, not an add-on</strong> — without it, one tenant's bulk flood violates isolation
+axis 3.</p>
+<hr />
+<h2 id="4-the-glocal-invariant-state-it-enforce-it-test-it">4. The glocal invariant (state it, enforce it, test it)<a class="headerlink" href="#4-the-glocal-invariant-state-it-enforce-it-test-it" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Global invariant:</strong> a message stamped tenant <em>T</em> exists <em>only</em> on destinations prefixed <code>t.&lt;T&gt;.</code>, and
+is accessible <em>only</em> to connections cryptographically authenticated as <em>T</em>.</p>
+<p><strong>Local enforcement (every broker, every op — produce, consume, send, <em>and bridge-forward</em>):</strong> compare
+the connection's cert-bound tenant to the destination prefix; allow iff they match (plus explicit
+advisory/shared carve-outs). No global state consulted.</p>
+</blockquote>
+<p>Because tenant is both cert-bound and name-carried, the check is purely local, so it <strong>composes</strong>: if every
+hop upholds it, the mesh upholds it. Defense in depth: a message that somehow reaches the wrong broker is
+dropped by that broker's L2 check even if a bridge misforwarded it.</p>
+<hr />
+<h2 id="5-concrete-minimal-changes-grounded">5. Concrete, minimal changes (grounded)<a class="headerlink" href="#5-concrete-minimal-changes-grounded" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Mandate the prefix at ingress.</strong> <code>MsgRouter</code> ingress stamps/validates <code>t.&lt;tenant&gt;.&lt;class&gt;.…</code> from the
+   connection's bound identity; a publish whose destination tenant ≠ authenticated tenant is dropped at
+   ingress (not just denied at the broker).</li>
+<li><strong>Per-tenant dataplane topics.</strong> <code>DataPlaneServiceImpl</code> topic names become <code>t.&lt;tenant&gt;.&lt;class&gt;.event</code>;
+   remove <code>global.event</code> (and the sharded <code>global.event.N</code>) from <code>broker_shared_destinations</code> — the shared
+   carve-out (<code>TenantPolicy.java:62</code>)
+   should shrink to genuinely tenant-agnostic control only.</li>
+<li><strong>Bridge policy.</strong> New <code>BridgeTenantPolicy</code> + per-connector <code>setDynamicallyIncludedDestinations</code>; replace
+   the <code>isNetworkConnection</code> blanket exemption
+   (<code>CrescoAuthorizationBroker.java:99-111</code>)
+   with the allowed-tenant-set check.</li>
+<li><strong>Advisory leak (subtle).</strong> <code>ActiveMQ.Advisory.*</code> is allow-listed
+   (<code>TenantPolicy.java:59-61</code>);
+   advisories can leak <em>destination existence</em> across tenants on a shared broker. Decide: scope advisories
+   per tenant subtree, suppress cross-tenant advisory propagation on bridges, or accept + document.</li>
+</ol>
+<hr />
+<h2 id="6-cross-global-the-global-half-of-glocal">6. Cross-global — the "global" half of glocal<a class="headerlink" href="#6-cross-global-the-global-half-of-glocal" title="Permanent link">&para;</a></h2>
+<p>A global controller must only accept/forward tenant namespaces it is <em>federated for</em>. Reuse the trust-bundle
+gossip already designed for CA distribution
+(<a href="../distributed-identity-trust-design/">distributed-identity-trust-design.md</a> §3.2): alongside the region-CA
+bundle, a global advertises an <strong>allowed-tenant set per federation edge</strong>. A global↔global bridge then
+applies L3 with that set, so a tenant present under G1 is only reachable under G2 if the G1↔G2 edge is
+authorized for it. Tenant reachability becomes a policy artifact distributed the same way trust is — no new
+distribution channel.</p>
+<hr />
+<h2 id="7-migration-additive-flag-gated-staged-same-discipline-as-the-security-fabric">7. Migration (additive, flag-gated, staged — same discipline as the security fabric)<a class="headerlink" href="#7-migration-additive-flag-gated-staged-same-discipline-as-the-security-fabric" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Flag <code>tenant_namespacing</code></strong>, default off → fabric unchanged.</li>
+<li><strong>Dual-namespace transition shim:</strong> during rollout, brokers accept both flat and namespaced destinations;
+  a translation layer maps legacy <code>region_agent</code> → <code>t.&lt;tenant&gt;.&lt;region&gt;.&lt;agent&gt;</code> using the connection's
+  bound tenant, so un-migrated clients keep working. Flip enforcement on per region once both ends speak
+  namespaced.</li>
+<li><strong>Default tenant:</strong> existing single-tenant deployments map to <code>t.default.…</code> — nothing breaks.</li>
+<li><strong><code>vm://</code> stays exempt</strong> for local rights, but the controller must now stamp the correct tenant on
+  outbound so its own messages land in the right namespace.</li>
+<li>Stage region-by-region; keep the full bring-up/recovery + <code>tenant_isolation_mesh_test.sh</code> +
+  <code>regional_ca_mtls_test.sh</code> suites green with the flag both off and on.</li>
+</ul>
+<hr />
+<h2 id="8-decisions-to-make-recommendations-first">8. Decisions to make (recommendations first)<a class="headerlink" href="#8-decisions-to-make-recommendations-first" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Namespace scheme.</strong> <em>Recommend</em> <code>t.&lt;tenant&gt;.&lt;class&gt;.&lt;region&gt;.&lt;agent&gt;</code>, <code>.</code>-hierarchical, class before
+   region. Confirm delimiter and that IDs never contain it.</li>
+<li><strong>Tenant ID form.</strong> <em>Recommend an opaque stable ID</em> (UUID/hash), not the human <code>O=tenant</code> string, so
+   tenant names don't leak in destination strings visible to shared-broker operators; controllers hold the
+   map. (Trade: harder debugging.)</li>
+<li><strong>Bridge model.</strong> <em>Recommend</em> shared prefix-filtered (O(E)) default + dedicated per-tenant opt-in.</li>
+<li><strong>Advisory handling.</strong> <em>Recommend</em> scope/suppress cross-tenant advisories (close the existence leak).</li>
+<li><strong>Encryption tier + key mgmt.</strong> <em>Recommend</em> opt-in; per-tenant key via recipient leaf pubkey to avoid a
+   new KMS dependency initially.</li>
+<li><strong>Cross-global tenant policy.</strong> Allowed-tenant-per-edge in the trust bundle (§6).</li>
+</ol>
+<hr />
+<h2 id="9-relationship-to-the-routing-plan">9. Relationship to the routing plan<a class="headerlink" href="#9-relationship-to-the-routing-plan" title="Permanent link">&para;</a></h2>
+<p>L1 (namespace) + L3 (bridge scoping) <strong>are</strong> routing-plan W2 and are its prerequisite — the router forwards
+per-tenant prefixes on chosen bridges, so isolation and routing share the same substrate. L5 = W6, L4 = W9.
+<strong>Build order:</strong> L1 → L2 → L3 first (they close the actual leaks and unblock W2 routing), L5 alongside the
+QoS/fairness work, L4 as an opt-in tier. Do L1–L3 before any redundant-path routing carries multi-tenant
+traffic, or the new paths widen the very leak we're closing.</p>
+<hr />
+<h2 id="10-configuration-operations-reference-shipped">10. Configuration &amp; operations reference (shipped)<a class="headerlink" href="#10-configuration-operations-reference-shipped" title="Permanent link">&para;</a></h2>
+<p>All tenant-isolation behavior is additive and flag-gated; the defaults reproduce the pre-existing fabric
+exactly. There are two independent switches — the <strong>security fabric</strong> (identity/mTLS/authz, shipped
+earlier) and <strong>namespacing</strong> (this work). Namespacing is only meaningful with the security fabric on.</p>
+<table>
+<thead>
+<tr>
+<th>Config (<code>-D</code> or config file)</th>
+<th>Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tenant_namespacing</code></td>
+<td><code>false</code></td>
+<td>Master switch for this work. When on: MsgEvent inbox queues and dataplane topics are qualified <code>T.&lt;tenant&gt;.&lt;raw&gt;</code>; producers stamp+qualify by message tenant; infra (vm://) consumes the <code>T.*.</code> wildcard inbox. Off ⇒ raw names, byte-for-byte unchanged.</td>
+</tr>
+<tr>
+<td><code>tenant_id</code></td>
+<td><code>default</code></td>
+<td>This node's tenant. Bound into the leaf cert DN (<code>O=&lt;tenant&gt;</code>) and used as the local tenant for stamping/qualification. In a single-tenant deployment leave as <code>default</code>.</td>
+</tr>
+<tr>
+<td><code>broker_security_enabled</code></td>
+<td><code>false</code></td>
+<td>Installs <code>CrescoAuthorizationBroker</code> (the ACL). Required for isolation to be <em>enforced</em>; namespacing without it only <em>names</em> destinations, it does not deny.</td>
+</tr>
+<tr>
+<td><code>broker_require_client_auth</code></td>
+<td><code>false</code></td>
+<td>Broker demands a client cert (mTLS) and binds the principal from the validated DN — makes tenant identity non-spoofable. Strongly recommended whenever <code>broker_security_enabled</code> is on.</td>
+</tr>
+<tr>
+<td><code>broker_superuser_tenants</code></td>
+<td><code>cresco-system</code></td>
+<td>Comma list of tenants whose <strong>network</strong> clients get the cross-tenant <code>SUPERUSER</code> role (god view). The local controller (<code>vm://</code>) and broker bridges are superuser-equivalent regardless.</td>
+</tr>
+<tr>
+<td><code>broker_shared_destinations</code></td>
+<td><code>agent.event,region.event,global.event</code></td>
+<td>Tenant-agnostic destinations allowed for everyone. Under namespacing the real dataplane topics are <code>T.&lt;tenant&gt;.*.event</code>, so these flat names are unused; kept for back-compat.</td>
+</tr>
+<tr>
+<td><code>security_regional_ca</code></td>
+<td><code>false</code></td>
+<td>Regional-CA enrollment (O(regions) trust). Recommended at scale so every node presents a CA-signed, identity-bearing leaf.</td>
+</tr>
+<tr>
+<td><code>broker_security_log_allow</code></td>
+<td><code>false</code></td>
+<td>Verbose: log every ALLOW decision (debugging ACLs). DENY is always logged.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommended enablement order (staged, per region, never blind):</strong>
+1. Turn on <code>security_regional_ca</code> fabric-wide; confirm every node enrolls and bridges under mTLS
+   (<code>regional_ca_mtls_test</code>).
+2. Turn on <code>broker_security_enabled</code> + <code>broker_require_client_auth</code>; confirm zero self-denial and that
+   cross-tenant is denied (<code>tenant_isolation_mesh_test</code>).
+3. Turn on <code>tenant_namespacing</code>; confirm the fabric still forms and control plane flows with zero
+   self-denial (<code>tenant_namespacing_test</code>). Roll it region-by-region.
+4. Provision <code>broker_superuser_tenants</code> only for genuine fabric-admin/god-view clients.</p>
+<p><strong>Failure modes &amp; what they look like:</strong>
+- A <code>DENY &lt;READ|WRITE&gt; '&lt;dest&gt;' for &lt;identity&gt; : &lt;reason&gt;</code> in a broker log is the ACL working. On a
+  <em>legit</em> flow it means a namespacing mismatch — usually a producer stamping the wrong tenant or an infra
+  node not using the <code>T.*.</code> wildcard inbox.
+- Messages silently not delivered under namespacing (no DENY) ⇒ producer qualified with tenant X but the
+  consumer subscribes tenant Y (a genuine cross-tenant send — correct isolation), <em>or</em> an infra node was
+  mis-detected as a leaf and got a tenant-specific inbox instead of the wildcard.</p>
+<hr />
+<h2 id="11-end-to-end-message-flow-walkthrough-namespacing-on">11. End-to-end message-flow walkthrough (namespacing on)<a class="headerlink" href="#11-end-to-end-message-flow-walkthrough-namespacing-on" title="Permanent link">&para;</a></h2>
+<p>Trace a request from <strong>agent1 (tenantA, region-a)</strong> to <strong>agent2 (tenantA, region-c)</strong>, relayed
+region-a → global → region-c. Local tenant of each node in parentheses.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>agent1 (tenantA)                 region-a ctrl (tenantA)      global ctrl (global)         region-c ctrl (tenantA)      agent2 (tenantA)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   |  produce, dst=region-c_agent2                                                                                          |
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>   |  AgentProducer: no cresco_tenant param -&gt; stamp tenantA; qualify -&gt; T.tenantA.region-c_agent2                          |
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>   |  send to its regional ctrl inbox (T.tenantA.region-a_ctrlA)                                                            |
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>   |-------------------------------&gt;|                                                                                       |
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>   |            (network client, mTLS tenantA; ACL: writing own T.tenantA.* -&gt; ALLOW)                                       |
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>   |                                | MsgRouter relays; AgentProducer sees cresco_tenant=tenantA (preserved)                |
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>   |                                | qualify raw fwd dst with tenantA -&gt; T.tenantA.&lt;global&gt;_&lt;globalAgent&gt;                   |
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>   |                                |=========bridge========&gt;|                                                              |
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>   |                                |   (bridge exempt; demand-forwards T.tenantA.* on demand)                              |
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>   |                                |                        | global ctrl on vm:// consumes T.*.&lt;global&gt;_&lt;globalAgent&gt;   |
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>   |                                |                        | (wildcard infra inbox -&gt; receives any tenant stamp)        |
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>   |                                |                        | relays; qualify with preserved tenantA                     |
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>   |                                |                        |=========bridge========&gt;|                                     |
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>   |                                |                        |         (demand-forwards T.tenantA.*)                       |
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>   |                                |                        |                        | region-c ctrl vm:// T.*. inbox     |
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>   |                                |                        |                        | relays to leaf; qualify tenantA    |
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>   |                                |                        |                        |-----------------------------------&gt;|
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>   |                                |                        |                        |  agent2 network client, mTLS       |
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>   |                                |                        |                        |  consumes T.tenantA.region-c_agent2|
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>   |                                |                        |                        |  (ACL: own tenant -&gt; ALLOW)        |
+</code></pre></div>
+<p>Key invariants this shows: <strong>(a)</strong> the tenant is stamped once at origin and <em>preserved</em> across every relay,
+so every hop qualifies to the identical queue name; <strong>(b)</strong> infra controllers (vm://) use the <code>T.*.</code>
+<strong>wildcard</strong> inbox so they relay any tenant regardless of the stamp; <strong>(c)</strong> the leaf's own regional
+controller is always same-tenant, so the last hop qualifies correctly; <strong>(d)</strong> a cross-tenant send would
+qualify to <code>T.tenantB.…</code>, which agent2 (tenantA) never consumes <em>and</em> which agent1's own ACL would deny —
+isolation is enforced twice over.</p>
+<hr />
+<h2 id="12-security-properties-threat-model">12. Security properties &amp; threat model<a class="headerlink" href="#12-security-properties-threat-model" title="Permanent link">&para;</a></h2>
+<p><strong>Guaranteed (with <code>broker_security_enabled</code> + <code>broker_require_client_auth</code> + <code>tenant_namespacing</code>):</strong>
+- <em>Confidentiality (client-to-client):</em> a <code>TENANT</code> client cannot <strong>subscribe</strong> to any destination outside
+  its own <code>T.&lt;tenant&gt;.</code> subtree at <strong>any</strong> broker in the mesh — enforced locally at every broker from the
+  cert-bound tenant, so it holds across bridges and across globals.
+- <em>Delivery integrity:</em> a <code>TENANT</code> client cannot <strong>publish</strong> into another tenant's subtree; the flat-name
+  same-region write hole (tenant B injecting into tenant A's <code>region_agent</code> inbox) is closed because inboxes
+  are now <code>T.&lt;tenant&gt;.</code>-scoped.
+- <em>Non-spoofable identity:</em> under mTLS the tenant is derived from the validated client-cert DN and overrides
+  any self-asserted username.</p>
+<p><strong>Explicitly NOT guaranteed by L1+L2 (documented, tiered mitigations):</strong>
+- <em>A malicious/compromised BROKER</em> is trusted infrastructure (it holds a region-CA identity and relays all
+  tenants); it can read/inject across tenants. Mitigation: L3 dedicated per-tenant bridges (blast radius)
+  and L4 payload encryption (confidentiality from the broker itself). Out of scope for L1+L2.
+- <em>Payload confidentiality at rest inside a transit broker.</em> mTLS encrypts each hop in flight; a payload
+  sitting in a transit broker's store is readable by that broker. Mitigation: L4 envelope encryption (opt-in).
+- <em>Advisory destination-existence leak.</em> <code>ActiveMQ.Advisory.*</code> is allow-listed; a tenant can learn other
+  tenants' destination <em>names</em> (not contents) via advisories. Mitigation: scope/suppress advisories (future).
+- <em>Metadata:</em> routing headers (tenant, src/dst region/agent) travel in clear so brokers can route; only
+  payloads are candidates for L4 encryption.</p>
+<p><strong>Trust boundary:</strong> tenants trust the Cresco infrastructure (controllers/brokers) to relay faithfully;
+they do <strong>not</strong> trust each other. That is the standard shared-fabric multi-tenant model and matches how
+NATS accounts / Solace VPNs draw the line.</p>
+<hr />
+<h2 id="13-verification-shipped-tests">13. Verification (shipped tests)<a class="headerlink" href="#13-verification-shipped-tests" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Result</th>
+<th>What it proves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run/tests/tenant_namespacing_test.sh</code> (new)</td>
+<td><strong>12/12</strong></td>
+<td>Federated 1-global/2-tenant-region mesh forms under <code>tenant_namespacing=true</code>; <strong>zero self-denial</strong> on every node's control plane (⇒ MsgEvent <code>T.*.</code> wildcard inbox + producer tenant-qualification work end-to-end); <code>TENANT</code> confined to own <code>T.&lt;tenant&gt;.*</code>, denied cross-tenant and <code>T.*.</code> wildcard; <code>SUPERUSER</code> (<code>cresco-system</code>) gets cross-tenant god view.</td>
+</tr>
+<tr>
+<td><code>run/tests/tenant_isolation_mesh_test.sh</code></td>
+<td>10/10</td>
+<td><strong>No regression</strong> with namespacing off (default): legacy <code>&lt;tenant&gt;.stream</code> ACL isolation intact across the federated mesh.</td>
+</tr>
+<tr>
+<td><code>run/tests/security_foundation_test.sh</code></td>
+<td>15/15</td>
+<td>Identity/sign/verify/chain-trust primitives intact.</td>
+</tr>
+<tr>
+<td><code>run/tests/regional_ca_mtls_test.sh</code></td>
+<td>10/10</td>
+<td>Regional-CA enrollment + fabric-wide mutual-TLS federation intact.</td>
+</tr>
+</tbody>
+</table>
+<p>Run all four after any change to the auth or namespacing path; each must stay green with the flags both
+<strong>off</strong> (default) and <strong>on</strong>.</p>
+<hr />
+<h2 id="14-implementation-map-where-each-layer-lives">14. Implementation map (where each layer lives)<a class="headerlink" href="#14-implementation-map-where-each-layer-lives" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>File(s)</th>
+<th>Symbol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 namespace helper</td>
+<td><code>library/.../security/TenantNamespace.java</code></td>
+<td><code>qualify</code> / <code>wildcard</code> / <code>tenantOf</code> / <code>isNamespaced</code></td>
+</tr>
+<tr>
+<td>L1 MsgEvent producer</td>
+<td><code>controller/.../communication/AgentProducer.java</code></td>
+<td><code>sendMessage</code> — stamp <code>cresco_tenant</code> + qualify <code>dstPath</code></td>
+</tr>
+<tr>
+<td>L1 MsgEvent inbox</td>
+<td><code>controller/.../statemachine/ControllerSMHandler.java</code></td>
+<td><code>initIOChannels</code> — <code>T.*.</code> wildcard (vm://) vs <code>T.&lt;tenant&gt;.</code> (network)</td>
+</tr>
+<tr>
+<td>L1 dataplane</td>
+<td><code>controller/.../data/DataPlaneServiceImpl.java</code></td>
+<td><code>getTopicName</code> — qualify topics</td>
+</tr>
+<tr>
+<td>L2 policy</td>
+<td><code>controller/.../communication/TenantPolicy.java</code></td>
+<td><code>Role</code> enum + namespaced-prefix rule in <code>check</code></td>
+</tr>
+<tr>
+<td>L2 role resolution</td>
+<td><code>controller/.../communication/CrescoAuthorizationBroker.java</code></td>
+<td><code>roleOf</code> from <code>broker_superuser_tenants</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-limitations-next-work">15. Limitations &amp; next work<a class="headerlink" href="#15-limitations-next-work" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>L3 — dedicated per-tenant bridges</strong> (blast-radius / physical isolation). Core isolation already holds
+  via client-edge ACL; L3 is a high-assurance tier. The mechanism is a per-connector
+  <code>setDynamicallyIncludedDestinations(T.&lt;tenant&gt;.&gt;)</code> (the same lever <code>ActiveBroker.buildConnector</code> already
+  uses for shard partitioning).</li>
+<li><strong>L4 — payload envelope encryption</strong> (opt-in; protects against a compromised transit broker).</li>
+<li><strong>Advisory scoping</strong> — close the destination-existence leak (§12).</li>
+<li><strong>Infra cross-tenant dataplane aggregation</strong> — with topics qualified by local tenant, a global "god
+  view" of all tenants' dataplane streams needs a <code>T.*.</code> wildcard <em>consumer</em> on infra (produce stays
+  tenant-scoped). Not built; per-tenant monitoring is arguably the more correct default under isolation.</li>
+<li><strong>App-destination enforcement</strong> — application destinations that opt out of the <code>T.</code> prefix still fall to
+  the legacy tenant rules; a strict mode could require every non-shared destination to be namespaced.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

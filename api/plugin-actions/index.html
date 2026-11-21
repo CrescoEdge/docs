@@ -1,0 +1,4562 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/api/plugin-actions/">
+      
+      
+        <link rel="prev" href="../../plugins/executor/">
+      
+      
+        <link rel="next" href="../library-api/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Plugin Actions (Capability Inventory) - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plugin-actions-capability-inventory" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plugin Actions (Capability Inventory)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../clients/overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/distributed-identity-trust-design/" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-capability-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The capability model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The capability model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crescoaction-and-friends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        @CrescoAction and friends
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getcapabilityinventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getcapabilityinventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invoking-an-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invoking an action
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Invoking an action">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-cresco_global_listagents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example — cresco_global_listagents
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Action reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        global tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regional-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        regional tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysinfo-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sysinfo plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stunnel-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stunnel plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wsapi-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wsapi plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repo plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filerepo-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filerepo plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executor-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        executor plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/distributed-identity-trust-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tenant-isolation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/optimal-global-routing-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/health-check-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-capability-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The capability model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The capability model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crescoaction-and-friends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        @CrescoAction and friends
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getcapabilityinventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getcapabilityinventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invoking-an-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invoking an action
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Invoking an action">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-cresco_global_listagents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example — cresco_global_listagents
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Action reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        global tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regional-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        regional tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysinfo-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sysinfo plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stunnel-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stunnel plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wsapi-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wsapi plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repo plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filerepo-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filerepo plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executor-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        executor plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="plugin-actions-capability-inventory">Plugin Actions (Capability Inventory)<a class="headerlink" href="#plugin-actions-capability-inventory" title="Permanent link">&para;</a></h1>
+<p>Every Cresco capability — from listing agents to configuring a tunnel — is a <strong>message action</strong>: a
+<a href="../msgevent/"><code>MsgEvent</code></a> of a given <code>Type</code> carrying an <code>action</code> parameter. A plugin (or controller tier)
+handles the action and, for RPC, returns a reply <code>MsgEvent</code> whose params carry the result. Because an
+external client reaches Cresco only over the WebSocket message bus (the <a href="../../plugins/wsapi/"><code>wsapi</code></a>
+plugin), <strong>actions are the entire callable surface</strong> — there are no direct method calls into the fabric.</p>
+<p>This page is the canonical human reference for every action across the fabric — <strong>≈130 actions</strong> over 9
+namespaces (the three controller tiers — global, regional, agent — plus the <code>sysinfo</code>, <code>stunnel</code>, <code>wsapi</code>,
+<code>repo</code>, <code>filerepo</code>, and <code>executor</code> plugins). The same information is produced, machine-readable, by the
+capability inventory described below.</p>
+<h2 id="the-capability-model">The capability model<a class="headerlink" href="#the-capability-model" title="Permanent link">&para;</a></h2>
+<p>Actions are <strong>self-describing</strong>. Each handler method is annotated so the fabric can emit, for every action,
+an LLM-ready tool definition (<code>name</code> / <code>description</code> / <code>input_schema</code>) plus a Cresco <em>binding</em> telling a
+caller how to build and route the <code>MsgEvent</code>.</p>
+<h3 id="crescoaction-and-friends"><code>@CrescoAction</code> and friends<a class="headerlink" href="#crescoaction-and-friends" title="Permanent link">&para;</a></h3>
+<p>The annotations live in <code>io.cresco.library.capability</code>
+(<code>code/library/src/main/java/io/cresco/library/capability/</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Placed on</th>
+<th>Key fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@CrescoCapabilities</code></td>
+<td>the <code>Executor</code> class (bundle/tier)</td>
+<td><code>namespace</code> (tool-name prefix), <code>summary</code>, default <code>target</code>, default <code>routingParams</code></td>
+</tr>
+<tr>
+<td><code>@CrescoAction</code></td>
+<td>each handler method</td>
+<td><code>name</code> (the <code>action</code> value), <code>type</code> (MsgEvent Type, default <code>EXEC</code>), <code>summary</code> (WHAT), <code>why</code> (WHEN/WHY), <code>params()</code>, <code>returns()</code>, optional <code>target</code>/<code>routingParams</code> overrides</td>
+</tr>
+<tr>
+<td><code>@CrescoParam</code></td>
+<td>nested in <code>params()</code></td>
+<td><code>name</code> (the param key), <code>type</code> (JSON-Schema type), <code>required</code>, <code>description</code>, <code>compressed</code></td>
+</tr>
+<tr>
+<td><code>@CrescoReturn</code></td>
+<td>nested in <code>returns()</code></td>
+<td><code>name</code> (reply param key), <code>type</code>, <code>description</code>, <code>compressed</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>(type, name)</code> pair is the dispatch key: an <code>EXEC</code> message with <code>action=name</code> routes to that method.
+<code>summary</code> + <code>why</code> become the tool description; <code>params()</code> becomes the <code>input_schema</code>. A drift test asserts
+that every <code>switch</code> case in an executor has a matching <code>@CrescoAction</code>, so <strong>the inventory can never
+silently disagree with the code</strong>.</p>
+<p>Bundle symbolic name and <strong>version come from the OSGi manifest</strong> via <code>FrameworkUtil.getBundle(clazz)</code> —
+never hardcoded. A bundle answers the standard <code>getcapabilities</code> EXEC in one line via
+<code>CapabilityResponder.respond(incoming, this)</code>, which reflects its annotations into a <code>CapabilityDocument</code>
+JSON.</p>
+<h3 id="getcapabilityinventory"><code>getcapabilityinventory</code><a class="headerlink" href="#getcapabilityinventory" title="Permanent link">&para;</a></h3>
+<p>Every bundle exposes <code>getcapabilities</code> (its own document). The controller additionally exposes
+<strong><code>getcapabilityinventory</code></strong>, which aggregates:</p>
+<ul>
+<li>the three controller-tier executors' own actions (scanned statically), plus</li>
+<li>each local plugin's <code>getcapabilities</code> (over RPC), plus</li>
+<li>optionally, the OSGi surface (<code>Export-Package</code> headers and registered service interfaces).</li>
+</ul>
+<p>With <code>action_scope=global</code> it fans out to every region and agent and returns <strong>one fabric-wide tool
+catalog</strong>. <code>action_scope</code> may be <code>node</code>, <code>region</code>, or <code>global</code>; <code>action_include_plugins</code> and
+<code>action_include_osgi</code> toggle the plugin and OSGi halves. The OSGi surface is <em>informational metadata only</em> —
+a tool-runner walks the message actions, never the OSGi services.</p>
+<p>Tool names are formed as <code>cresco_&lt;namespace&gt;_&lt;action&gt;</code> (e.g. <code>cresco_global_listagents</code>). In the tables
+below the <code>&lt;namespace&gt;</code> prefix is dropped; the section heading is the namespace.</p>
+<h2 id="invoking-an-action">Invoking an action<a class="headerlink" href="#invoking-an-action" title="Permanent link">&para;</a></h2>
+<p>Invoking an action is always the same three steps:</p>
+<ol>
+<li><strong>Build a <code>MsgEvent</code></strong> of the action's <code>Type</code>, addressed to the action's <code>target</code>, with
+   <code>params["action"]</code> set to the action name and the action's arguments added as params.</li>
+<li><strong>Send it</strong> (as RPC if you want the reply) from a client library or from another plugin.</li>
+<li><strong>Read the reply</strong> — the result rides in the reply's params; large/structured values are
+   gzip+Base64 <em>compressed</em> (marked in the Returns column).</li>
+</ol>
+<p>The routing <code>target</code> determines which helper builds the envelope:</p>
+<table>
+<thead>
+<tr>
+<th><code>target</code></th>
+<th>Reached with (client helper)</th>
+<th>Handled by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>global</code></td>
+<td><code>global_controller_msgevent(is_rpc, type, payload)</code></td>
+<td>GlobalExecutor (global controller)</td>
+</tr>
+<tr>
+<td><code>regional</code></td>
+<td>region-controller message (usually via the global fan-out)</td>
+<td>RegionalExecutor (region controller)</td>
+</tr>
+<tr>
+<td><code>agent</code></td>
+<td><code>global_agent_msgevent(is_rpc, type, payload, region, agent)</code></td>
+<td>AgentExecutor (that agent)</td>
+</tr>
+<tr>
+<td><code>plugin</code></td>
+<td><code>global_plugin_msgevent(is_rpc, type, payload, region, agent, pluginid)</code></td>
+<td>that plugin's Executor</td>
+</tr>
+</tbody>
+</table>
+<p><code>plugin</code>- and <code>agent</code>-target actions require <strong>routing identity</strong> params (<code>region</code>, <code>agent</code>, and for
+plugins <code>pluginid</code>) so the caller can address the right node; these are listed in the Key-params column.</p>
+<h3 id="example-cresco_global_listagents">Example — <code>cresco_global_listagents</code><a class="headerlink" href="#example-cresco_global_listagents" title="Permanent link">&para;</a></h3>
+<p>An <code>EXEC</code> action on the <code>global</code> target. It takes an optional <code>action_region</code> filter and returns a
+compressed <code>agentslist</code>.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Python (pycrescolib)</label><label for="__tabbed_1_2">Reply MsgEvent params</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_controller_msgevent</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="kc">True</span><span class="p">,</span>                      <span class="c1"># is_rpc — wait for the reply</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">"EXEC"</span><span class="p">,</span>                    <span class="c1"># MsgEvent Type</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"listagents"</span><span class="p">,</span>   <span class="c1"># the action</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>     <span class="s2">"action_region"</span><span class="p">:</span> <span class="s2">"edge-region"</span><span class="p">},</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">agents</span> <span class="o">=</span> <span class="n">json_deserialize</span><span class="p">(</span><span class="n">decompress_param</span><span class="p">(</span><span class="n">reply</span><span class="p">[</span><span class="s2">"agentslist"</span><span class="p">]))</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">[</span><span class="s2">"agents"</span><span class="p">]:</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">"agent_id"</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="s2">"region_id"</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="s2">"plugins"</span><span class="p">])</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"listagents"</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10"</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">"agentslist"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"agents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"agent_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"global-controller"</span><span class="p">,</span><span class="w"> </span><span class="nt">"region_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"global-region"</span><span class="p">,</span><span class="w"> </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"agent_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"edge-controller"</span><span class="p">,</span><span class="w">   </span><span class="nt">"region_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"edge-region"</span><span class="p">,</span><span class="w">   </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"agent_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"edge-agent-001"</span><span class="p">,</span><span class="w">    </span><span class="nt">"region_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"edge-region"</span><span class="p">,</span><span class="w">   </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>A <code>status</code> of <code>10</code> means success and <code>9</code> means failure. See <a href="../msgevent/">MsgEvent</a> for the envelope,
+<code>setReturn()</code> reply mechanics, and compressed-param handling.</p>
+<div class="admonition note">
+<p class="admonition-title">Global vs regional are not duplicates</p>
+<p>Several actions (<code>getmetricinventory</code>, <code>getcapabilities</code>, <code>ping</code>, …) exist on both the <strong>global</strong> and
+<strong>regional</strong> tiers with the same name. They differ by <strong>scope</strong>: the global tier aggregates across
+every region it sees (a fabric-wide report); the regional tier answers only for its own region. Treat
+the tier as part of the action's identity.</p>
+</div>
+<hr />
+<h2 id="action-reference">Action reference<a class="headerlink" href="#action-reference" title="Permanent link">&para;</a></h2>
+<p>Every action below is reachable as a <code>MsgEvent</code>. Columns: <strong>Action</strong> (bare action name; tool name is
+<code>cresco_&lt;namespace&gt;_&lt;action&gt;</code>), <strong>Type</strong> (the MsgEvent <code>Type</code>), <strong>Description</strong>, <strong>Key params</strong> (routing
+identity + notable arguments), and <strong>Returns</strong> (principal reply params; <em>compressed</em> where noted).</p>
+<h3 id="global-tier">global tier<a class="headerlink" href="#global-tier" title="Permanent link">&para;</a></h3>
+<p>Routed to the <strong>global controller</strong> (<code>global_controller_msgevent</code>). This is the fabric-wide control API:
+registry, discovery, resource inventory, and global application (pipeline) scheduling. Reports at this tier
+<strong>aggregate across every region</strong> the global sees. Namespace <code>global</code> — <strong>33 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>addplugin</code></td>
+<td>CONFIG</td>
+<td>Schedule an iNode (plugin instance) for deployment.</td>
+<td><code>inode_id</code>, <code>resource_id</code>, <code>configparams</code></td>
+<td><code>status_code</code>, <code>status_desc</code></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return the global controller's self-describing capability document.</td>
+<td>none</td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getcapabilityinventory</code></td>
+<td>EXEC</td>
+<td>Fabric-wide capability inventory: tiers + plugins + OSGi as one tool catalog.</td>
+<td><code>action_scope</code>, <code>action_include_plugins</code>, <code>action_include_osgi</code></td>
+<td><code>capabilityinventory</code></td>
+</tr>
+<tr>
+<td><code>getenvstatus</code></td>
+<td>EXEC</td>
+<td>Count nodes matching an environment index key=value.</td>
+<td><code>environment_id</code>, <code>environment_value</code></td>
+<td><code>count</code></td>
+</tr>
+<tr>
+<td><code>getgpipeline</code></td>
+<td>EXEC</td>
+<td>Get a pipeline definition by id.</td>
+<td><code>action_pipelineid</code></td>
+<td><code>gpipeline</code></td>
+</tr>
+<tr>
+<td><code>getgpipelineexport</code></td>
+<td>EXEC</td>
+<td>Get a pipeline in export (portable) format.</td>
+<td><code>action_pipelineid</code></td>
+<td><code>gpipeline</code></td>
+</tr>
+<tr>
+<td><code>getgpipelinestatus</code></td>
+<td>EXEC</td>
+<td>Get status of one pipeline or all pipelines.</td>
+<td><code>action_pipeline</code></td>
+<td><code>pipelineinfo</code></td>
+</tr>
+<tr>
+<td><code>getinodestatus</code></td>
+<td>EXEC</td>
+<td>Get an iNode (plugin instance) status map from the DB.</td>
+<td><code>inode_id</code></td>
+<td><code>inodemap</code></td>
+</tr>
+<tr>
+<td><code>getisassignmentinfo</code></td>
+<td>EXEC</td>
+<td>Check assignment info for an iNode/resource.</td>
+<td><code>action_inodeid</code>, <code>action_resourceid</code></td>
+<td><code>isassignmentinfo</code>, <code>isassignmentresourceinfo</code></td>
+</tr>
+<tr>
+<td><code>gethealthinventory</code></td>
+<td>EXEC</td>
+<td>Unified health inventory: every Felix HealthCheck result (the queryable parallel of <code>getmetricinventory</code>).</td>
+<td>none</td>
+<td><code>healthinventory</code></td>
+</tr>
+<tr>
+<td><code>getmetricinventory</code></td>
+<td>EXEC</td>
+<td>Unified metric inventory: controller + plugins + resource summary.</td>
+<td><code>action_scope</code>, <code>action_include_plugins</code>, <code>action_include_resource</code></td>
+<td><code>metricinventory</code></td>
+</tr>
+<tr>
+<td><code>gpipelineremove</code></td>
+<td>CONFIG</td>
+<td>Remove/undeploy a global pipeline by id.</td>
+<td><code>action_pipelineid</code></td>
+<td><code>success</code></td>
+</tr>
+<tr>
+<td><code>gpipelinesubmit</code></td>
+<td>CONFIG</td>
+<td>Submit a global application pipeline for scheduling.</td>
+<td><code>action_gpipeline</code>, <code>action_tenantid</code></td>
+<td><code>gpipeline_id</code></td>
+</tr>
+<tr>
+<td><code>listagents</code></td>
+<td>EXEC</td>
+<td>List agents in the fabric, optionally filtered by region.</td>
+<td><code>action_region</code></td>
+<td><code>agentslist</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>listplugins</code></td>
+<td>EXEC</td>
+<td>List plugin instances, optionally filtered by region/agent.</td>
+<td><code>action_region</code>, <code>action_agent</code></td>
+<td><code>pluginslist</code></td>
+</tr>
+<tr>
+<td><code>listpluginsbytype</code></td>
+<td>EXEC</td>
+<td>List plugin instances matching a key=value.</td>
+<td><code>action_plugintype_id</code>, <code>action_plugintype_value</code></td>
+<td><code>pluginsbytypelist</code></td>
+</tr>
+<tr>
+<td><code>listpluginsrepo</code></td>
+<td>EXEC</td>
+<td>List all plugins available across the fabric's repos.</td>
+<td>none</td>
+<td><code>listpluginsrepo</code></td>
+</tr>
+<tr>
+<td><code>listregions</code></td>
+<td>EXEC</td>
+<td>List all regions plus live inter-broker bridge info.</td>
+<td>none</td>
+<td><code>regionslist</code></td>
+</tr>
+<tr>
+<td><code>listrepoinstances</code></td>
+<td>EXEC</td>
+<td>List all repo plugin instances in the fabric.</td>
+<td>none</td>
+<td><code>listrepoinstances</code></td>
+</tr>
+<tr>
+<td><code>netresourceinfo</code></td>
+<td>EXEC</td>
+<td>Get network-wide resource totals.</td>
+<td>none</td>
+<td><code>netresourceinfo</code></td>
+</tr>
+<tr>
+<td><code>ping</code></td>
+<td>EXEC</td>
+<td>Liveness ping; replies pong and exchanges mesh health.</td>
+<td>none</td>
+<td><code>action</code> (pong)</td>
+</tr>
+<tr>
+<td><code>plugindownload</code></td>
+<td>CONFIG</td>
+<td>Download a plugin JAR from a URL into the repo (cache-checked).</td>
+<td><code>pluginurl</code>, <code>agentcontroller</code>, <code>forceplugindownload</code></td>
+<td><code>hasplugin</code></td>
+</tr>
+<tr>
+<td><code>plugininfo</code></td>
+<td>EXEC</td>
+<td>Get metadata for a specific plugin instance.</td>
+<td><code>action_region</code>, <code>action_agent</code>, <code>action_plugin</code></td>
+<td><code>plugininfo</code></td>
+</tr>
+<tr>
+<td><code>plugininventory</code></td>
+<td>EXEC</td>
+<td>List plugins in the local repo jar directory (name=version).</td>
+<td>none</td>
+<td><code>pluginlist</code> (CSV)</td>
+</tr>
+<tr>
+<td><code>pluginkpi</code></td>
+<td>EXEC</td>
+<td>Get metrics attached to a specific plugin instance.</td>
+<td><code>action_region</code>, <code>action_agent</code>, <code>action_plugin</code></td>
+<td><code>pluginkpi</code></td>
+</tr>
+<tr>
+<td><code>region_disable</code></td>
+<td>CONFIG</td>
+<td>Unregister a region from the global registry.</td>
+<td>none</td>
+<td><code>is_unregistered</code></td>
+</tr>
+<tr>
+<td><code>region_enable</code></td>
+<td>CONFIG</td>
+<td>Register a region in the global registry.</td>
+<td>none</td>
+<td><code>is_registered</code></td>
+</tr>
+<tr>
+<td><code>regionalimport</code></td>
+<td>CONFIG</td>
+<td>Register/import a regional node into the global DB.</td>
+<td>none</td>
+<td>(status only)</td>
+</tr>
+<tr>
+<td><code>removeplugin</code></td>
+<td>CONFIG</td>
+<td>Schedule an iNode (plugin instance) for removal.</td>
+<td><code>inode_id</code>, <code>resource_id</code></td>
+<td><code>status_code</code>, <code>status_desc</code></td>
+</tr>
+<tr>
+<td><code>resourceinfo</code></td>
+<td>EXEC</td>
+<td>Aggregated cpu/mem/disk for a region/agent or whole fabric.</td>
+<td><code>action_region</code>, <code>action_agent</code></td>
+<td><code>resourceinfo</code></td>
+</tr>
+<tr>
+<td><code>resourceinventory</code></td>
+<td>EXEC</td>
+<td>Get fabric resource totals.</td>
+<td>none</td>
+<td><code>resourceinventory</code></td>
+</tr>
+<tr>
+<td><code>savetorepo</code></td>
+<td>CONFIG</td>
+<td>Save/replicate a plugin JAR to all repo instances.</td>
+<td><code>configparams</code>, <code>jardata</code></td>
+<td><code>is_saved</code></td>
+</tr>
+<tr>
+<td><code>setinodestatus</code></td>
+<td>CONFIG</td>
+<td>Set the status of an iNode (plugin instance) in the DB.</td>
+<td><code>action_inodeid</code>, <code>action_statuscode</code>, <code>action_statusdesc</code></td>
+<td><code>success</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="agent-tier">agent tier<a class="headerlink" href="#agent-tier" title="Permanent link">&para;</a></h3>
+<p>Routed to a specific <strong>agent controller</strong> (<code>global_agent_msgevent</code>, requiring <code>region</code> + <code>agent</code>). This is
+the per-node control API: plugin lifecycle on that agent, logs, files, controller/JVM lifecycle, and
+dataplane log streaming. Namespace <code>agent</code> — <strong>30 actions</strong>. All actions take routing identity
+<code>region</code>, <code>agent</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cepadd</code></td>
+<td>CONFIG</td>
+<td>Add a Complex-Event-Processing rule to the embedded Siddhi engine.</td>
+<td><code>region</code>, <code>agent</code>, <code>cepparams</code></td>
+<td><code>cepid</code></td>
+</tr>
+<tr>
+<td><code>cepremove</code></td>
+<td>CONFIG</td>
+<td>Remove a CEP rule by id (tears down the streaming query).</td>
+<td><code>region</code>, <code>agent</code>, <code>cepid</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>cepinput</code></td>
+<td>CONFIG</td>
+<td>Feed a single JSON event into a CEP input stream over RPC.</td>
+<td><code>region</code>, <code>agent</code>, <code>cep_input_stream</code>, <code>cep_payload</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>controllerupdate</code></td>
+<td>CONFIG</td>
+<td>Stage a controller JAR for the next restart.</td>
+<td><code>region</code>, <code>agent</code>, <code>jar_file_path</code></td>
+<td>(status only)</td>
+</tr>
+<tr>
+<td><code>getagentinfo</code></td>
+<td>CONFIG</td>
+<td>Return the agent's data-directory path.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>agent-data</code></td>
+</tr>
+<tr>
+<td><code>getbroadcastdiscovery</code></td>
+<td>EXEC</td>
+<td>Return this agent's network discovery list (slow ~10s scan).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>broadcast_discovery</code></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return the agent controller's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getcapabilityinventory</code></td>
+<td>EXEC</td>
+<td>Return this node's capability inventory (node scope).</td>
+<td><code>region</code>, <code>agent</code>, <code>action_include_plugins</code>, <code>action_include_osgi</code></td>
+<td><code>capabilityinventory</code></td>
+</tr>
+<tr>
+<td><code>getcontrollerstatus</code></td>
+<td>EXEC</td>
+<td>Return this agent's controller state code.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>controller_status</code></td>
+</tr>
+<tr>
+<td><code>getcryptopolicy</code></td>
+<td>EXEC</td>
+<td>Return the fabric crypto policy this node holds (set at the global controller).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>crypto_policy</code>, <code>crypto_policy_id</code>, <code>crypto_policy_level</code>, <code>crypto_policy_source</code></td>
+</tr>
+<tr>
+<td><code>getfiledata</code></td>
+<td>EXEC</td>
+<td>Stream a chunk of a file on this agent (seek + read).</td>
+<td><code>region</code>, <code>agent</code>, <code>filepath</code>, <code>skiplength</code>, <code>partsize</code></td>
+<td><code>payload</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>getfileinfo</code></td>
+<td>EXEC</td>
+<td>Return metadata (md5, size) for a file on this agent.</td>
+<td><code>region</code>, <code>agent</code>, <code>filepath</code></td>
+<td><code>md5</code>, <code>size</code></td>
+</tr>
+<tr>
+<td><code>getislogdp</code></td>
+<td>CONFIG</td>
+<td>Query whether dataplane log streaming is enabled for a session.</td>
+<td><code>region</code>, <code>agent</code>, <code>session_id</code></td>
+<td><code>islogdp</code></td>
+</tr>
+<tr>
+<td><code>getlog</code></td>
+<td>EXEC</td>
+<td>Fetch this agent's main log (inline or file).</td>
+<td><code>region</code>, <code>agent</code>, <code>action_inmessage</code></td>
+<td><code>log</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>gethealthinventory</code></td>
+<td>EXEC</td>
+<td>Return this node's health inventory (every Felix HealthCheck result, node scope).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>healthinventory</code></td>
+</tr>
+<tr>
+<td><code>getmetricinventory</code></td>
+<td>EXEC</td>
+<td>Return this node's unified metric inventory (node scope).</td>
+<td><code>region</code>, <code>agent</code>, <code>action_include_plugins</code>, <code>action_include_resource</code></td>
+<td><code>metricinventory</code></td>
+</tr>
+<tr>
+<td><code>iscontrolleractive</code></td>
+<td>EXEC</td>
+<td>Return whether this agent's controller is active.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>is_controller_active</code></td>
+</tr>
+<tr>
+<td><code>killjvm</code></td>
+<td>CONFIG</td>
+<td>Kill the agent JVM (async, <strong>destructive</strong>).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td>(status only)</td>
+</tr>
+<tr>
+<td><code>listagents</code></td>
+<td>EXEC</td>
+<td>List agents in this agent's region.</td>
+<td><code>region</code>, <code>agent</code>, <code>action_region</code></td>
+<td><code>agentslist</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>pluginadd</code></td>
+<td>CONFIG</td>
+<td>Add/start a plugin bundle on this agent.</td>
+<td><code>region</code>, <code>agent</code>, <code>configparams</code>, <code>edges</code></td>
+<td><code>status_code</code>, <code>pluginid</code></td>
+</tr>
+<tr>
+<td><code>pluginlist</code></td>
+<td>CONFIG</td>
+<td>List all plugins on this agent.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>plugin_list</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>pluginremove</code></td>
+<td>CONFIG</td>
+<td>Stop/remove a plugin on this agent.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>pluginrepopull</code></td>
+<td>CONFIG</td>
+<td>Validate a set of plugins against the repo.</td>
+<td><code>region</code>, <code>agent</code>, <code>configparams</code></td>
+<td><code>is_updated</code></td>
+</tr>
+<tr>
+<td><code>pluginstatus</code></td>
+<td>CONFIG</td>
+<td>Get the status of one plugin on this agent.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>plugin_status</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>pluginupload</code></td>
+<td>CONFIG</td>
+<td>Upload a plugin JAR and register it.</td>
+<td><code>region</code>, <code>agent</code>, <code>configparams</code>, <code>jardata</code></td>
+<td><code>is_updated</code></td>
+</tr>
+<tr>
+<td><code>restartcontroller</code></td>
+<td>CONFIG</td>
+<td>Restart this agent's controller (async, <strong>destructive</strong>).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td>(status only)</td>
+</tr>
+<tr>
+<td><code>restartframework</code></td>
+<td>CONFIG</td>
+<td>Restart the OSGi framework (async, <strong>destructive</strong>).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td>(status only)</td>
+</tr>
+<tr>
+<td><code>setlogdp</code></td>
+<td>CONFIG</td>
+<td>Enable/disable dataplane log streaming for a session.</td>
+<td><code>region</code>, <code>agent</code>, <code>session_id</code>, <code>setlogdp</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>setloglevel</code></td>
+<td>CONFIG</td>
+<td>Set log level for a class/session.</td>
+<td><code>region</code>, <code>agent</code>, <code>session_id</code>, <code>loglevel</code>, <code>baseclassname</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>stopcontroller</code></td>
+<td>CONFIG</td>
+<td>Stop this agent's controller (async, <strong>destructive</strong>).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td>(status only)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="regional-tier">regional tier<a class="headerlink" href="#regional-tier" title="Permanent link">&para;</a></h3>
+<p>Routed to a <strong>region controller</strong> (<code>regional</code>; usually reached via the global fan-out). The per-region
+control API: agent registry for that region, region-scoped capability/metric/liveness reports, and
+region-first (Kandoo-style) pipeline scheduling.
+Namespace <code>regional</code> — <strong>8 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent_disable</code></td>
+<td>CONFIG</td>
+<td>Unregister an agent from this region.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>is_unregistered</code></td>
+</tr>
+<tr>
+<td><code>agent_enable</code></td>
+<td>CONFIG</td>
+<td>Register an agent in this region.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>is_registered</code></td>
+</tr>
+<tr>
+<td><code>rpipelinesubmit</code></td>
+<td>CONFIG</td>
+<td>Submit a CADL application pipeline at the <strong>regional</strong> tier: a pipeline whose nodes are all region-local is scheduled regionally with no global; only a cross-region pipeline escalates to a coordinator (Kandoo local/root split).</td>
+<td><code>cadl</code></td>
+<td><code>scheduled_regionally</code></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return the regional controller's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getcapabilityinventory</code></td>
+<td>EXEC</td>
+<td>Return this region node's capability inventory.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>capabilityinventory</code></td>
+</tr>
+<tr>
+<td><code>gethealthinventory</code></td>
+<td>EXEC</td>
+<td>Return this region node's health inventory (every Felix HealthCheck result).</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>healthinventory</code></td>
+</tr>
+<tr>
+<td><code>getmetricinventory</code></td>
+<td>EXEC</td>
+<td>Return this region node's unified metric inventory.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>metricinventory</code></td>
+</tr>
+<tr>
+<td><code>ping</code></td>
+<td>EXEC</td>
+<td>Liveness ping; replies pong, exchanges mesh health.</td>
+<td><code>region</code>, <code>agent</code></td>
+<td><code>action</code> (pong)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sysinfo-plugin">sysinfo plugin<a class="headerlink" href="#sysinfo-plugin" title="Permanent link">&para;</a></h3>
+<p>Host telemetry plugin (<a href="../../plugins/sysinfo/"><code>sysinfo</code></a>) — <code>target=plugin</code>, so actions take routing
+identity <code>region</code>, <code>agent</code>, <code>pluginid</code>. Namespace <code>sysinfo</code> — <strong>4 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getbenchmark</code></td>
+<td>EXEC</td>
+<td>Run and return a SciMark2 CPU benchmark (compressed JSON).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td>benchmark <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return this plugin's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getmetrics</code></td>
+<td>EXEC</td>
+<td>Return live metrics (cpu/mem/disk/net/sensors/power/gpu).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>metrics</code></td>
+</tr>
+<tr>
+<td><code>getsysinfo</code></td>
+<td>EXEC</td>
+<td>Full host OS/CPU/memory/disk/fs/network snapshot.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>perf</code> <em>(compressed)</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="stunnel-plugin">stunnel plugin<a class="headerlink" href="#stunnel-plugin" title="Permanent link">&para;</a></h3>
+<p>Secure TCP tunneling plugin (<a href="../../plugins/stunnel/"><code>stunnel</code></a>) — <code>target=plugin</code> (<code>region</code>, <code>agent</code>,
+<code>pluginid</code>). A tunnel has a <strong>source</strong> (listener) side and a <strong>destination</strong> side, configured
+independently. Namespace <code>stunnel</code> — <strong>12 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>configsrctunnel</code></td>
+<td>CONFIG</td>
+<td>Create the source (listener) side of a TCP tunnel.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>configdsttunnel</code></td>
+<td>CONFIG</td>
+<td>Configure the destination side (agent nearest the target host:port).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_tunnel_config</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>configdstsession</code></td>
+<td>CONFIG</td>
+<td>Open a destination-side client session for an existing dst tunnel.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_session_config</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return this plugin's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getmetrics</code></td>
+<td>EXEC</td>
+<td>Return live tunnel metrics as MeasurementEngine gauges JSON.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>metrics</code></td>
+</tr>
+<tr>
+<td><code>gettunnelconfig</code></td>
+<td>EXEC</td>
+<td>Get the full configuration of one tunnel.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_stunnel_id</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>gettunnelstatus</code></td>
+<td>EXEC</td>
+<td>Get live status of one tunnel (ACTIVE/RECOVERING/DOWN/UNKNOWN).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_stunnel_id</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>listtunnels</code></td>
+<td>EXEC</td>
+<td>List all active tunnels on this node with live status.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>tunnels</code></td>
+</tr>
+<tr>
+<td><code>nettuning</code></td>
+<td>CONFIG</td>
+<td>Apply fabric-wide network tuning (buffer/block sizes) to live tunnels.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>removesrctunnel</code></td>
+<td>CONFIG</td>
+<td>Tear down the source (listener) side of a tunnel.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_stunnel_id</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>removedsttunnel</code></td>
+<td>CONFIG</td>
+<td>Tear down the destination side of a tunnel.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_stunnel_id</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>tunnelhealthcheck</code></td>
+<td>EXEC</td>
+<td>Check whether a tunnel config exists on this node.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_stunnel_id</code></td>
+<td><code>status</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="wsapi-plugin">wsapi plugin<a class="headerlink" href="#wsapi-plugin" title="Permanent link">&para;</a></h3>
+<p>WebSocket API / dataplane ingress plugin (<a href="../../plugins/wsapi/"><code>wsapi</code></a>) — the bus external clients
+connect to. <code>target=plugin</code> (<code>region</code>, <code>agent</code>, <code>pluginid</code>). Namespace <code>wsapi</code> — <strong>4 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return this plugin's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getmetrics</code></td>
+<td>EXEC</td>
+<td>Return wsapi dataplane metrics (connections, bytes, messages).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>metrics</code></td>
+</tr>
+<tr>
+<td><code>globalinfo</code></td>
+<td>EXEC</td>
+<td>Return the global controller's region and agent identity.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>global_region</code>, <code>global_agent</code></td>
+</tr>
+<tr>
+<td><code>nettuning</code></td>
+<td>CONFIG</td>
+<td>Apply fabric-wide network tuning to the live wss server.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>status</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="repo-plugin">repo plugin<a class="headerlink" href="#repo-plugin" title="Permanent link">&para;</a></h3>
+<p>Plugin-artifact repository (<a href="../../plugins/repo/"><code>repo</code></a>) — stores and serves plugin JARs. <code>target=plugin</code>
+(<code>region</code>, <code>agent</code>, <code>pluginid</code>). Namespace <code>repo</code> — <strong>5 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return this plugin's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>capabilities</code></td>
+</tr>
+<tr>
+<td><code>getjar</code></td>
+<td>EXEC</td>
+<td>Retrieve a plugin JAR's bytes by name + content hash (<code>md5</code> field).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>action_pluginname</code>, <code>action_pluginmd5</code></td>
+<td><code>jardata</code></td>
+</tr>
+<tr>
+<td><code>getmetrics</code></td>
+<td>EXEC</td>
+<td>Return repo inventory metrics (plugin count, bytes on disk).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>metrics</code></td>
+</tr>
+<tr>
+<td><code>putjar</code></td>
+<td>EXEC</td>
+<td>Store a signed plugin JAR into the repo (verifies its signature against <code>plugin_signing_truststore</code>; writes the verified bytes).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code>, <code>pluginname</code>, <code>md5</code>, <code>jarfile</code>, <code>version</code>, <code>jardata</code></td>
+<td><code>uploaded</code>, <code>md5-confirm</code></td>
+</tr>
+<tr>
+<td><code>repolist</code></td>
+<td>EXEC</td>
+<td>List every plugin JAR plus the repo's server identity.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>repolist</code> <em>(compressed)</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="filerepo-plugin">filerepo plugin<a class="headerlink" href="#filerepo-plugin" title="Permanent link">&para;</a></h3>
+<p>Distributed file/artifact repository (<a href="../../plugins/filerepo/"><code>filerepo</code></a>) — scans a directory,
+tracks files in an embedded catalog, and moves files/jars across the mesh (inline transfer, byte-range
+dataplane streaming, watched-directory sync, push-to-remote). <code>target=plugin</code> (<code>region</code>, <code>agent</code>,
+<code>pluginid</code>). Namespace <code>filerepo</code> — <strong>25 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>repolist</code></td>
+<td>EXEC</td>
+<td>Plugin/jar inventory of the repo dir.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>repolist</code> <em>(compressed)</em></td>
+</tr>
+<tr>
+<td><code>getrepofilelist</code></td>
+<td>EXEC</td>
+<td>List catalog rows (path/md5/size/mtime); paginated.</td>
+<td><code>repo_name</code>, <code>limit</code>, <code>offset</code></td>
+<td><code>repofilelist</code> <em>(compressed)</em>, <code>repo_total</code></td>
+</tr>
+<tr>
+<td><code>getfile</code></td>
+<td>EXEC</td>
+<td>Return a cataloged file inline (≤ <code>max_inline_bytes</code>).</td>
+<td><code>file_path</code></td>
+<td><code>file_data</code> <em>(bytes)</em>, <code>file_metadata</code></td>
+</tr>
+<tr>
+<td><code>getjar</code></td>
+<td>EXEC</td>
+<td>Return a plugin jar inline, matched by name + content hash (<code>md5</code> field).</td>
+<td><code>action_pluginname</code>, <code>action_pluginmd5</code></td>
+<td><code>jardata</code> <em>(bytes)</em></td>
+</tr>
+<tr>
+<td><code>putjar</code></td>
+<td>EXEC</td>
+<td>Write a signed plugin jar (signature-verified, path-traversal-safe).</td>
+<td><code>pluginname</code>, <code>md5</code>, <code>jarfile</code>, <code>version</code>, <code>jardata</code></td>
+<td><code>uploaded</code></td>
+</tr>
+<tr>
+<td><code>putfiles</code></td>
+<td>EXEC</td>
+<td>Land pushed files (MsgEvent attachments) into a repo.</td>
+<td><code>repo_name</code>, <code>overwrite</code></td>
+<td>(status)</td>
+</tr>
+<tr>
+<td><code>putfilesremote</code></td>
+<td>EXEC</td>
+<td>Push a set of files from this repo to another agent's repo.</td>
+<td><code>file_list</code>, <code>dst_region</code>, <code>dst_agent</code>, <code>dst_plugin</code>, <code>repo_name</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>streamfile</code></td>
+<td>EXEC</td>
+<td>Stream a byte-range over the dataplane in chunks (any size).</td>
+<td><code>file_path</code>, <code>start_byte</code>, <code>byte_length</code>, <code>transfer_id</code>, <code>ident_key</code>, <code>ident_id</code>, <code>buffer_size</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>streamfilecancel</code></td>
+<td>EXEC</td>
+<td>Cancel an in-flight streamfile transfer.</td>
+<td><code>transfer_id</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>getscandir</code></td>
+<td>EXEC</td>
+<td>Report the configured scan directory.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>scan_dir</code></td>
+</tr>
+<tr>
+<td><code>removefile</code></td>
+<td>EXEC</td>
+<td>Remove a file (disk + catalog row), path-traversal-safe.</td>
+<td><code>repo_name</code>, <code>file_name</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>clearrepo</code></td>
+<td>EXEC</td>
+<td>Clear the repository directory, armed explicitly (<code>confirm</code> names the directory; an <code>ONLY_COPY</code> needs <code>force=true</code> and <code>admin</code>; protected and live-tier directories are refused).</td>
+<td><code>repo_name</code>, <code>confirm</code>, <code>force</code></td>
+<td><code>status</code>, <code>refusal</code></td>
+</tr>
+<tr>
+<td><code>repolistin</code></td>
+<td>EXEC</td>
+<td>Sync consumer side — receive a producer's diff and pull changed files.</td>
+<td><code>repolistin</code>, <code>transfer_id</code></td>
+<td><code>status_code</code></td>
+</tr>
+<tr>
+<td><code>repoconfirm</code></td>
+<td>EXEC</td>
+<td>Sync handshake ack.</td>
+<td><code>transfer_id</code></td>
+<td>(status)</td>
+</tr>
+<tr>
+<td><code>reposubscribe</code> / <code>reposubscribed</code></td>
+<td>EXEC</td>
+<td>Sync protocol 2: a subscriber asks a producer to serve it / the producer's answer (plugin-to-plugin).</td>
+<td><code>filerepo_name</code>, <code>sync_gen</code></td>
+<td><code>refill</code></td>
+</tr>
+<tr>
+<td><code>reporefill</code></td>
+<td>EXEC</td>
+<td>A subscriber asks its producer for files it lost; they are offered to it alone.</td>
+<td><code>filerepo_name</code>, <code>sync_gen</code>, <code>names</code>, <code>transfer_id</code></td>
+<td><code>refill</code></td>
+</tr>
+<tr>
+<td><code>syncpin</code></td>
+<td>EXEC</td>
+<td>Pin a mirror's producer (<code>region/agent#&lt;key fingerprint&gt;</code>) or forget the pin (<code>infra</code>/<code>admin</code>).</td>
+<td><code>confirm</code></td>
+<td><code>pinned_producer</code></td>
+</tr>
+<tr>
+<td><code>releasedeletes</code> / <code>releaserewrites</code></td>
+<td>EXEC</td>
+<td>Release the deletes / rewrites the mass-delete or rewrite guard is holding (<code>infra</code>/<code>admin</code>).</td>
+<td><code>confirm</code>, <code>hold_id</code></td>
+<td><code>released</code></td>
+</tr>
+<tr>
+<td><code>repostate</code></td>
+<td>EXEC</td>
+<td>Report what this repo is: <code>LIVE</code>, <code>WORKSPACE_CLEAN</code>, <code>WORKSPACE_DIRTY</code>, <code>MIRROR</code> or <code>ONLY_COPY</code>.</td>
+<td>—</td>
+<td><code>state</code>, <code>backing</code></td>
+</tr>
+<tr>
+<td><code>liverelay</code></td>
+<td>EXEC</td>
+<td>Relay a request signed by its end user, unchanged, through this agent's live-tier provider (<code>infra</code>/<code>admin</code>).</td>
+<td><code>request</code></td>
+<td><code>reply</code>, <code>reply_status</code></td>
+</tr>
+<tr>
+<td><code>liverealise</code></td>
+<td>EXEC</td>
+<td>Keep a live-backed repo's copy live: realise it again at this node (<code>infra</code>/<code>admin</code>).</td>
+<td><code>lease_ms</code>, <code>request_id</code></td>
+<td><code>job_id</code>, <code>reply_status</code></td>
+</tr>
+<tr>
+<td><code>getmetrics</code></td>
+<td>EXEC</td>
+<td>Return filerepo metrics (cataloged file count, in-flight transfers).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>metrics</code></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return this plugin's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>capabilities</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="executor-plugin">executor plugin<a class="headerlink" href="#executor-plugin" title="Permanent link">&para;</a></h3>
+<p>Process/shell execution plugin (<a href="../../plugins/executor/"><code>executor</code></a>) — runs OS processes and shell
+commands, streaming stdout/stderr over the dataplane and taking stdin through <code>write_stdin</code> (never the dataplane).
+<code>target=plugin</code> (<code>region</code>, <code>agent</code>, <code>pluginid</code>). Namespace <code>executor</code> — <strong>9 actions</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Type</th>
+<th>Description</th>
+<th>Key params</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config_process</code></td>
+<td>CONFIG</td>
+<td>Register a runner (a named command); does not start it.</td>
+<td><code>stream_name</code>, <code>command</code>, <code>metrics</code>, <code>stdin</code></td>
+<td><code>config_status</code>, <code>stdin</code></td>
+</tr>
+<tr>
+<td><code>run_process</code></td>
+<td>EXEC</td>
+<td>Start a configured runner.</td>
+<td><code>stream_name</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>start_process</code></td>
+<td>CONFIG</td>
+<td>Start a runner (CONFIG variant).</td>
+<td><code>stream_name</code></td>
+<td><code>start_status</code></td>
+</tr>
+<tr>
+<td><code>status_process</code></td>
+<td>CONFIG</td>
+<td>Is the runner currently running?</td>
+<td><code>stream_name</code></td>
+<td><code>run_status</code></td>
+</tr>
+<tr>
+<td><code>end_process</code></td>
+<td>CONFIG</td>
+<td>Kill the process (whole tree) and free the runner.</td>
+<td><code>stream_name</code></td>
+<td><code>end_status</code></td>
+</tr>
+<tr>
+<td><code>write_stdin</code></td>
+<td>EXEC</td>
+<td>Write to a running runner's stdin (one line of text, or bytes); only its starter, an admin or infra.</td>
+<td><code>stream_name</code>, <code>data</code> or <code>data_b64</code>, <code>close_stdin</code></td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>reset_runners</code></td>
+<td>CONFIG</td>
+<td>Stop every runner on this executor.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>reset_status</code></td>
+</tr>
+<tr>
+<td><code>getmetrics</code></td>
+<td>EXEC</td>
+<td>Return live executor gauges (configured/active runners).</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>metrics</code></td>
+</tr>
+<tr>
+<td><code>getcapabilities</code></td>
+<td>EXEC</td>
+<td>Return this plugin's self-describing capability document.</td>
+<td><code>region</code>, <code>agent</code>, <code>pluginid</code></td>
+<td><code>capabilities</code></td>
+</tr>
+</tbody>
+</table>
+<p>Runner output rides the <strong>GLOBAL</strong> dataplane topic sharded by <code>stream_name</code> (type <code>output</code>/<code>error</code>); an external
+client reads it via <code>get_dataplane(stream_name)</code> and writes stdin with <code>write_stdin</code>.</p>
+<hr />
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Every plugin/tier exposes <code>getcapabilities</code></strong> (its own document) and the controller tiers additionally
+  expose <code>getcapabilityinventory</code> (the aggregate). Every plugin also exposes <code>getmetrics</code>; see
+  <a href="../../architecture/metrics/">Metrics &amp; Measurements</a>.</li>
+<li><strong>Destructive actions</strong> (<code>killjvm</code>, <code>stopcontroller</code>, <code>restartcontroller</code>, <code>restartframework</code>, plugin
+  removal, tunnel teardown) mutate node state — invoke deliberately.</li>
+<li>The exhaustive, auto-generated per-action detail (full parameter descriptions, chain-of-events, and
+  captured live responses) lives in <code>docs/cresco-tools-reference.md</code> and the capability design doc
+  <code>docs/capability-inventory-design.md</code>; <strong>this page is the canonical human reference</strong> distilled from them.</li>
+</ul>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../msgevent/">MsgEvent</a> — the envelope every action travels in.</li>
+<li><a href="../../architecture/messaging/">Messaging &amp; Routing</a> — how an action reaches its <code>target</code>.</li>
+<li><a href="../library-api/">Library API</a> — the plugin authoring API (<code>Executor</code>, <code>PluginBuilder</code>).</li>
+<li><a href="../../clients/java/">Java client (clientlib)</a> · <a href="../../clients/python/">Python client (pycrescolib)</a> —
+  building and sending action messages, including <code>get_capability_inventory()</code>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

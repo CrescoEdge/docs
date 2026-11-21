@@ -1,0 +1,3388 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/design/distributed-identity-trust-design/">
+      
+      
+        <link rel="prev" href="../../reference/design-docs/">
+      
+      
+        <link rel="next" href="../tenant-isolation-design/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Distributed Identity & Trust - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cresco-distributed-identity-trust-data-rights-design" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Distributed Identity & Trust
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/plugin-actions/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../clients/overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plugin-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-shipped-this-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What shipped (this pass)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-requirements-as-stated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Requirements (as stated)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-exists-today-code-grounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What exists today (code-grounded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-recommended-architecture-regional-cas-federated-trust-bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Recommended architecture — Regional CAs + federated trust bundles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Recommended architecture — Regional CAs + federated trust bundles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-identity-make-the-certificate-self-describing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Identity — make the certificate self-describing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-trust-the-region-is-the-ca-globals-distribute-trust-they-do-not-sign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Trust — the region is the CA; globals distribute trust, they do not sign
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-data-rights-enforce-at-every-broker-and-end-to-end-when-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Data rights — enforce at every broker, and end-to-end when needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-lifecycle-at-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Lifecycle at scale
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phasing-nothing-below-is-flipped-on-a-live-mesh-blind-each-is-flag-gated-staged-region-by-region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phasing (nothing below is flipped on a live mesh blind — each is flag-gated, staged region-by-region)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-test-matrix-per-phase-before-enable-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Test matrix (per phase, before enable-by-default)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tenant-isolation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimal-global-routing-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../health-check-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-shipped-this-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What shipped (this pass)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-requirements-as-stated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Requirements (as stated)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-exists-today-code-grounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What exists today (code-grounded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-recommended-architecture-regional-cas-federated-trust-bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Recommended architecture — Regional CAs + federated trust bundles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Recommended architecture — Regional CAs + federated trust bundles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-identity-make-the-certificate-self-describing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Identity — make the certificate self-describing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-trust-the-region-is-the-ca-globals-distribute-trust-they-do-not-sign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Trust — the region is the CA; globals distribute trust, they do not sign
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-data-rights-enforce-at-every-broker-and-end-to-end-when-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Data rights — enforce at every broker, and end-to-end when needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-lifecycle-at-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Lifecycle at scale
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phasing-nothing-below-is-flipped-on-a-live-mesh-blind-each-is-flag-gated-staged-region-by-region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phasing (nothing below is flipped on a live mesh blind — each is flag-gated, staged region-by-region)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-test-matrix-per-phase-before-enable-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Test matrix (per phase, before enable-by-default)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cresco-distributed-identity-trust-data-rights-design">Cresco — Distributed Identity, Trust &amp; Data-Rights Design<a class="headerlink" href="#cresco-distributed-identity-trust-data-rights-design" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-07-02
+<strong>Status:</strong> Phase 0 (identity/sign/trust primitives) + a working slice of Phase 2 (broker tenant
+authorization) <strong>SHIPPED and PROVEN LIVE</strong> in a 2-tenant / 2-region / 1-global federated mesh
+(<code>run/tests/tenant_isolation_mesh_test.sh</code> 10/10; <code>security_foundation_test.sh</code> 15/15). Mutual-TLS
+<em>binding</em> of identity at the broker and regional-CA <em>issuance</em> have since also <strong>SHIPPED and PROVEN</strong>
+(<code>regional_ca_mtls_test.sh</code> 10/10 — see the shipped bullets below and the phasing table §5). Remaining:
+L3 bridge tenant-filtering (per-bridge allowed-tenant scoping) + cross-region region-CA bundle
+distribution. All enforcement is behind <code>broker_security_enabled</code> (default OFF → fabric unchanged).</p>
+<h3 id="what-shipped-this-pass">What shipped (this pass)<a class="headerlink" href="#what-shipped-this-pass" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>library <code>io.cresco.library.security</code>:</strong> <code>CrescoIdentity</code> (identity⇄cert-DN), <code>MessageSigner</code>
+  (sign/verify payloads), <code>CertTrust</code> (PKIX chain-verify to trusted region CAs). Pure JDK, additive.</li>
+<li><strong>controller:</strong> <code>TenantPolicy</code> (pure ACL logic) + <code>CrescoAuthorizationBroker</code> (ActiveMQ 6.2.7
+  <code>BrokerFilter</code>/<code>BrokerPlugin</code>), wired in <code>ActiveBroker</code> behind <code>broker_security_enabled</code>;
+  <code>ActiveClient</code> asserts identity (<code>tenant|region|agent</code>) as the JMS username on network connections.</li>
+<li><strong>Proven live:</strong> federation bridges form under security (0 self-denial); tenantB is denied tenantA's
+  namespace at <em>every</em> broker in the mesh (cross-region cross-tenant); each tenant free in its own;
+  RTT/scaling machinery intact. Local <code>vm://</code> controller + broker bridges are exempt by design.</li>
+<li><strong>Cryptographic identity binding — SHIPPED + PROVEN (single broker).</strong> Leaf certificates are now
+  identity-bearing (<code>CertificateManager</code> issues <code>CN=&lt;agent&gt;, OU=&lt;region&gt;, O=&lt;tenant&gt;</code>), the broker
+  connector takes <code>needClientAuth</code> (<code>broker_require_client_auth</code>), and <code>CrescoAuthorizationBroker.
+  addConnection</code> derives the principal from the validated client-cert DN — authoritative, overriding any
+  self-asserted username. Proven live: a client with <strong>no certificate is rejected</strong> by the handshake; a
+  client presenting a <strong>tenantB cert but a spoofed <code>tenantA</code> username is treated as tenantB</strong>
+  (broker log: <code>mTLS identity bound from certificate: CrescoIdentity{tenant=tenantB…}</code> →
+  <code>DENY READ 'tenantA.stream' … outside tenant 'tenantB'</code>). Anti-spoof, end to end.</li>
+<li><strong>Fabric-wide mutual TLS via regional CAs — SHIPPED + PROVEN (2026-07-03).</strong> The trust-distribution
+  boundary is closed. Regional-CA enrollment (<code>security_regional_ca</code>) rides the existing
+  discovery-secret-authenticated cert exchange: the responder (a region/global acting as issuer) signs
+  the joiner a leaf under its CA (<code>RegionCA</code> / <code>CertificateManager.issueEnrollment</code>, region stamps
+  identity) and returns the chain; the joiner installs it (<code>installEnrollment</code>) and trusts the issuing
+  CA that rides inside the chain — so trust is <strong>O(regions)</strong> (region-CA certs), not O(nodes²). With
+  every node then presenting a CA-signed leaf, <code>broker_require_client_auth</code> validates any peer by chain.
+  Proven: <code>run/tests/regional_ca_mtls_test.sh</code> <strong>10/10</strong> — a global establishes a region CA, two regions
+  (tenantA, tenantB) enroll + install global-CA-signed identities and <strong>bridge to the global under
+  mutual TLS</strong>, 0 TLS trust failures, healthy federation RTT. (Key fix: <code>ActiveClient.refreshTrust</code>
+  rebuilds only <em>network</em> factories and preserves <code>vm://localhost</code> — closing it dropped the RPC reply
+  consumer and the ping PONG never returned.)
+<strong>Supersedes:</strong> the "B-7 broker-auth" item in <code>broken-and-untouched-report.md</code> (which framed this as
+a single broker-auth switch). It is not one switch — it is a distributed security fabric.</li>
+</ul>
+<h2 id="1-requirements-as-stated">1. Requirements (as stated)<a class="headerlink" href="#1-requirements-as-stated" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Tenant isolation</strong> — <em>who can see what, who can do what.</em> Data-access rights enforced at the broker.</li>
+<li><strong>Mutual identity</strong> — an agent must be able to <strong>identify itself</strong> and <strong>be identified by other agents</strong>.</li>
+<li><strong>Trust establishment</strong> — nodes must establish trust with each other across the mesh.</li>
+<li><strong>Data rights secured broker-to-broker</strong> — protection must survive relaying/bridging across the network,
+   not just the first TLS hop.</li>
+<li><strong>Optional signing / encryption</strong> of messages where needed.</li>
+<li><strong>Scale</strong> — a <em>huge mesh of interconnected regions</em> and <em>multiple globals</em>. <strong>A central CA will not
+   scale</strong>; issuance must be <strong>distributed, at the regional level</strong>.</li>
+</ol>
+<p>Mechanisms (cert exchange / signing / encryption) are open — the recommendation below is my judgment.</p>
+<h2 id="2-what-exists-today-code-grounded">2. What exists today (code-grounded)<a class="headerlink" href="#2-what-exists-today-code-grounded" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Certs:</strong> every node self-generates a <strong>3-tier chain</strong> in <code>CertificateManager.generateCertChain()</code>
+  (<code>controller/.../communication/CertificateManager.java:229</code>): <code>rootCA</code> (self-signed) → <code>intermedCA</code>
+  (signed by rootCA) → <code>endUserCert</code> (leaf, signed by intermedCA), BouncyCastle RSA. The leaf CN is a
+  throwaway UUID (<code>CN=endUserCert-message-&lt;uuid&gt;</code>) — <strong>carries no identity.</strong></li>
+<li><strong>Trust:</strong> peer-to-peer — each node writes its public leaf cert to a shared dir as <code>&lt;region&gt;_&lt;agent&gt;.cer</code>
+  and imports everyone else's (<code>CertificateManager</code> export/import, ~lines 149-197). Identity lives in the
+  <strong>filename</strong>, not the cert. <strong>O(agents²)</strong> trust material; no CA relationship.</li>
+<li><strong>Transport:</strong> ActiveMQ <code>nio+ssl</code> with the node's chain as key/trust material. <strong>Server-auth only</strong> —
+  <code>needClientAuth</code> is set <strong>nowhere</strong>; clients don't present certs.</li>
+<li><strong>Connections are anonymous:</strong> <code>createConnection()</code> is called with <strong>no credentials</strong>
+  (<code>ActiveClient.java:114,189</code>). <code>broker.setUseAuthenticatedPrincipalForJMSXUserID(true)</code> is already set
+  (<code>ActiveBroker.java:283</code>) — waiting for an authenticated principal that never arrives.</li>
+<li><strong>Topology:</strong> each region runs its <strong>own broker</strong>; agents are broker <strong>clients</strong>; region↔global and
+  global↔global federate via broker-to-broker <strong>bridges</strong> (<code>ActiveBroker.AddNetworkConnector</code>).</li>
+<li><strong>Destinations:</strong> per-agent <strong>queue <code>&lt;region&gt;_&lt;agent&gt;</code></strong> is the one identity-scoped name (the strong
+  isolation point); dataplane <strong>topics</strong> <code>agent.event</code>/<code>region.event</code>/<code>global.event</code> are flat (not scoped).</li>
+<li><strong>Enrollment gate already exists:</strong> discovery carries <code>discovery_secret_region</code> / <code>_global</code> — a
+  pre-shared join secret proving a node is allowed into a region/global.</li>
+</ul>
+<p>The 3-tier chain, the region-broker/global-bridge topology, the join secret, and the
+<code>useAuthenticatedPrincipalForJMSXUserID</code> flag are <strong>exactly the primitives this design needs.</strong> This is a
+restructuring, not a greenfield build.</p>
+<h2 id="3-recommended-architecture-regional-cas-federated-trust-bundles">3. Recommended architecture — Regional CAs + federated trust bundles<a class="headerlink" href="#3-recommended-architecture-regional-cas-federated-trust-bundles" title="Permanent link">&para;</a></h2>
+<p>Three layers, defense-in-depth. Each is independently valuable and separately switch-able.</p>
+<h3 id="31-identity-make-the-certificate-self-describing">3.1 Identity — make the certificate self-describing<a class="headerlink" href="#31-identity-make-the-certificate-self-describing" title="Permanent link">&para;</a></h3>
+<p>Bind identity <strong>into</strong> the leaf cert DN instead of a sidecar filename:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Subject:  CN=&lt;agent&gt;, OU=&lt;region&gt;, O=&lt;tenant&gt;, UID=&lt;stable-node-uuid&gt;
+</code></pre></div>
+Now every cert cryptographically asserts <em>"I am agent A, in region R, tenant T"</em>, verifiable by anyone who
+trusts the issuer. This is the cornerstone — every option below depends on it, and it is Phase-0 additive
+(subject content doesn't affect the current whole-cert-import trust, so it can't break today's handshake).</p>
+<h3 id="32-trust-the-region-is-the-ca-globals-distribute-trust-they-do-not-sign">3.2 Trust — the region <strong>is</strong> the CA; globals distribute trust, they do not sign<a class="headerlink" href="#32-trust-the-region-is-the-ca-globals-distribute-trust-they-do-not-sign" title="Permanent link">&para;</a></h3>
+<p>The scaling insight: <strong>separate issuance from trust distribution.</strong></p>
+<ul>
+<li><strong>Issuance is regional.</strong> The regional controller holds a <strong>persistent region CA</strong> (its <code>intermedCA</code>
+  tier, promoted from throwaway to a durable signing authority). Agents enroll by submitting a CSR during
+  the <em>existing</em> discovery/registration handshake; the join secret (<code>discovery_secret_region</code>) is the
+  enrollment gate. The region CA signs the agent's leaf (identity in DN) and returns leaf + region-CA cert</li>
+<li>
+<p>the region's trust bundle. <strong>No round-trip to any central authority</strong> → issuance scales horizontally,
+  works under partition, and has no single point of compromise.</p>
+</li>
+<li>
+<p><strong>Trust anchors are region CA certs — not leaf certs.</strong> A node trusts <em>"any leaf that chains to a region
+  CA in my bundle."</em> Trust material collapses from <strong>O(agents)</strong> to <strong>O(regions you federate with)</strong> — one
+  CA cert per region instead of one leaf per agent. This is the key scale win.</p>
+</li>
+<li>
+<p><strong>Globals are trust-list <em>introducers/aggregators</em>, not signers.</strong> When region R joins global G, R
+  publishes its (self-signed, identity-bound) <strong>region CA cert</strong> to G. G maintains the <strong>regional trust
+  bundle</strong> for its domain and distributes it to member regions. This replaces the fragile per-agent
+  filename exchange with <strong>per-region CA distribution.</strong></p>
+</li>
+<li>
+<p><strong>Cross-global mesh = bundle gossip.</strong> Globals exchange their regional bundles with peer globals (subject
+  to tenant/trust policy). An agent under G1 can verify an agent under G2 because G1 imported G2's bundle.
+  Federation is <strong>bundle-level</strong> (a handful of CA certs per global), so it scales with the number of
+  <em>federating domains</em>, not nodes.</p>
+</li>
+<li>
+<p><strong>Optional fabric root (opt-in).</strong> Deployments wanting a single cryptographic anchor can have region CAs
+  <strong>cross-signed by an offline fabric root</strong>. Then trust = <em>chain-to-fabric-root</em> and bundle distribution
+  becomes an optimization rather than a requirement. The root signs region CAs <strong>at region birth only</strong>
+  (not per agent), so it is never a runtime bottleneck. Kept optional so the default stays fully distributed.</p>
+</li>
+</ul>
+<p><strong>Why not the alternatives:</strong>
+- <em>Central CA / global-signs-everything</em> — the user's rejected case: per-agent enrollment round-trips to
+  global, global compromise = total compromise, global is an enrollment SPOF. ✗
+- <em>Pure per-agent web-of-trust</em> (today's model) — O(agents²) cert exchange; does not scale to a huge mesh. ✗
+- <em>Regional CAs + federated bundles</em> (this) — regional issuance + O(regions) trust + optional root. ✓</p>
+<h3 id="33-data-rights-enforce-at-every-broker-and-end-to-end-when-needed">3.3 Data rights — enforce at every broker, and end-to-end when needed<a class="headerlink" href="#33-data-rights-enforce-at-every-broker-and-end-to-end-when-needed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Transport (default): mutual TLS.</strong> Turn on <code>needClientAuth</code> so the broker requires a client cert,
+  validates it chains to a trusted region CA, and extracts the DN → <strong>authenticated principal</strong>. With
+  <code>useAuthenticatedPrincipalForJMSXUserID(true)</code> (already on), every message is stamped with a <em>verified</em>
+  origin identity the broker trusts.</p>
+</li>
+<li>
+<p><strong>Authorization: <code>CrescoAuthorizationBroker</code></strong> — an ActiveMQ <code>BrokerFilter</code> plugin that checks the
+  authenticated principal (tenant/region/agent parsed from the DN) against destination ACLs on
+  <code>addConsumer</code>/<code>addProducer</code>/<code>send</code>:</p>
+</li>
+<li>an agent may pub/sub <strong>only</strong> its own queue <code>&lt;region&gt;_&lt;agent&gt;</code> and its region/tenant-scoped topics;</li>
+<li>cross-tenant destinations → <strong>deny</strong>;</li>
+<li>
+<p><code>vm://localhost</code> (the controller's own in-JVM connection) → full local rights (bounds blast radius:
+    the local agent keeps working; only <em>network</em> clients are constrained).</p>
+</li>
+<li>
+<p><strong>Tenant isolation on shared topics (Phase 3): namespace destinations by tenant</strong> — <code>T&lt;tenant&gt;.region.event</code>,
+  <code>T&lt;tenant&gt;.&lt;region&gt;_&lt;agent&gt;</code>. ACLs and bridges become simple <strong>prefix rules</strong>; a bridge only forwards its
+  tenant namespace, so even a shared global broker cannot leak across tenants.</p>
+</li>
+<li>
+<p><strong>End-to-end across bridges (the "broker-to-broker" requirement): selective message signing.</strong> Transport
+  mTLS protects one hop; a control/data message that transits region→global→region crosses multiple broker
+  trust domains. For those, the <strong>sender signs the payload digest with its leaf private key</strong>; any receiver
+  verifies with the sender's leaf cert (chain-validated to a trusted region CA). The signature proves origin
+  identity <strong>and</strong> tamper-evidence independent of how many brokers relayed it. <strong>Selective</strong> (per-message
+  flag) because signing every message is costly — mTLS is the default, signing is the elevated tier for
+  cross-domain / sensitive traffic.</p>
+</li>
+<li>
+<p><strong>Confidentiality beyond transport (optional): payload encryption</strong> to the recipient's public key (from
+  their leaf cert) for messages that must stay opaque to an intermediate broker. Expensive; use selectively.</p>
+</li>
+</ul>
+<h2 id="4-lifecycle-at-scale">4. Lifecycle at scale<a class="headerlink" href="#4-lifecycle-at-scale" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Enrollment:</strong> agent generates keypair → CSR(identity) → submits to region CA over the existing
+  discovery handshake, gated by the join secret → receives signed leaf + region CA cert + trust bundle.</li>
+<li><strong>Revocation by expiry:</strong> short-lived leaves (hours/days) + auto re-enrollment. A compromised node simply
+  isn't renewed; access lapses fast — no mesh-wide CRL/OCSP to scale. A small region-published revocation
+  delta rides along in the bundle for immediate kills.</li>
+<li><strong>Rotation:</strong> region CA rollover overlaps old+new CA certs in the bundle; leaf rotation is just
+  re-enrollment. Fabric-root (if used) signs region CAs rarely and offline.</li>
+</ul>
+<h2 id="5-phasing-nothing-below-is-flipped-on-a-live-mesh-blind-each-is-flag-gated-staged-region-by-region">5. Phasing (nothing below is flipped on a live mesh blind — each is flag-gated, staged region-by-region)<a class="headerlink" href="#5-phasing-nothing-below-is-flipped-on-a-live-mesh-blind-each-is-flag-gated-staged-region-by-region" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Deliverable</th>
+<th>Risk</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0 ✅ DONE</strong></td>
+<td>Identity-bearing leaf DN; <code>io.cresco.library.security</code> identity/chain-verify + <strong>sign/verify</strong> primitive</td>
+<td>additive, none</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td><strong>2 ✅ SHIPPED</strong></td>
+<td><code>CrescoAuthorizationBroker</code> tenant ACLs (proven in federated mesh) + broker mutual-TLS <code>needClientAuth</code> cert-DN binding (proven single-broker)</td>
+<td>high (fabric)</td>
+<td><code>broker_security_enabled</code>, <code>broker_require_client_auth</code></td>
+</tr>
+<tr>
+<td><strong>1 ✅ SHIPPED</strong></td>
+<td>Region-CA issuance at enrollment (over the discovery-secret exchange) + chain-based trust — fabric-wide mutual TLS proven (<code>regional_ca_mtls_test.sh</code> 10/10)</td>
+<td>medium</td>
+<td><code>security_regional_ca</code></td>
+</tr>
+<tr>
+<td><strong>3 ✅ SHIPPED (namespacing)</strong></td>
+<td>Tenant destination namespacing <strong>shipped + proven</strong> (<code>tenant_namespacing_test.sh</code> 12/12; <code>TenantNamespace</code>/<code>TenantPolicy</code> <code>T.&lt;tenant&gt;.*</code>, <code>AgentProducer</code> stamp+qualify — see <a href="../tenant-isolation-design/"><code>tenant-isolation-design.md</code></a>). <strong>Remaining:</strong> L3 bridge tenant-filtering + cross-region region-CA bundle distribution (global→regions, global↔global).</td>
+<td>high</td>
+<td><code>tenant_namespacing</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Revocation/rotation automation; selective payload encryption</td>
+<td>medium</td>
+<td>per-feature</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Phase 2 is the fabric-breaking one</strong> — mТLS + ACLs mean a misconfigured principal/ACL denies real
+traffic. It ships only after Phase 1 gives every node an identity-bound cert chaining to a distributed
+region CA, and it is enabled per-region behind <code>broker_security_enabled</code> with the local <code>vm://</code> path always
+allowed, so a bad rule can never lock a controller out of its own broker.</p>
+<h2 id="6-test-matrix-per-phase-before-enable-by-default">6. Test matrix (per phase, before enable-by-default)<a class="headerlink" href="#6-test-matrix-per-phase-before-enable-by-default" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Identity: leaf DN parses to correct tenant/region/agent; peer cert chain-verifies to region CA; <strong>fails</strong>
+  for a cert from an untrusted region.</li>
+<li>Signing: verify passes for untampered payload, <strong>fails</strong> on a flipped bit or wrong signer.</li>
+<li>Enrollment: agent with valid join secret gets a chaining cert; wrong/missing secret is refused.</li>
+<li>Authz: agent reads/writes its own queue; <strong>denied</strong> on another agent's queue and a cross-tenant topic;
+  local <code>vm://</code> retains full rights; region bridge still federates.</li>
+<li>Scale/federation: region joins a global and its CA propagates; two globals exchange bundles; an agent
+  under G1 verifies an agent under G2; revoked/expired leaf is rejected fabric-wide within the TTL window.</li>
+<li>Regression: the full existing bring-up/recovery suite stays green with each flag <strong>off</strong> (default) and,
+  separately, <strong>on</strong>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

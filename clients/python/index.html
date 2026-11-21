@@ -1,0 +1,4488 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The canonical documentation for Cresco — a hierarchical, secure, multi-tenant distributed agent mesh.">
+      
+      
+        <meta name="author" content="CrescoEdge">
+      
+      
+        <link rel="canonical" href="https://crescoedge.github.io/docs/clients/python/">
+      
+      
+        <link rel="prev" href="../java/">
+      
+      
+        <link rel="next" href="../../operations/deployment/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Python (pycrescolib) - Cresco Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#python-client-pycrescolib" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cresco Documentation" class="md-header__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cresco Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Python (pycrescolib)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../plugins/overview/" class="md-tabs__link">
+          
+  
+  
+  Modules & Plugins
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/plugin-actions/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
+          
+  
+  
+  Client Libraries
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/distributed-identity-trust-design/" class="md-tabs__link">
+          
+  
+  
+  Design Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cresco Documentation" class="md-nav__button md-logo" aria-label="Cresco Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Cresco Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CrescoEdge/agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    CrescoEdge/agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation & Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dynamic-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Cost-Aware Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/coordinator-decentralization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tunnel-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tunnel Path Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/tenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Tenancy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Measurements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/secure-defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/message-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/authority/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authority Follows the Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/pki/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator PKI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrading to 1.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/api-auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/signed-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signed Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/fips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIPS 140-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules & Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules & Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent (host bootstrap)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    library (plugin API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/controller/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    controller (fabric brain)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/filerepo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    filerepo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/sysinfo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sysinfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/wsapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsapi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/stunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plugin-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Actions (Capability Inventory)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/library-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/msgevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MsgEvent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Libraries
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client Libraries
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java (clientlib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python (pycrescolib)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Connection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#context-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tls-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLS verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interfaces
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        api
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalcontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        globalcontroller
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        admin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        messaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataplane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dataplane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logstreamer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        logstreamer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worked examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connect-and-list-the-mesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect and list the mesh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#submit-a-pipeline-cadl-and-poll-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submit a pipeline (CADL) and poll status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send-a-message-rpc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Send a message / RPC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manage-a-plugin-on-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manage a plugin on an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subscribe-to-a-dataplane-stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscribe to a dataplane stream
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stream-logs-from-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stream logs from an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restart-an-agent-guarded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restart an agent (guarded)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-language-parity-and-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-language parity and testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/design-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/distributed-identity-trust-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Identity & Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tenant-isolation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tenant Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/optimal-global-routing-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimal Global Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/coordinator-decentralization-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinator Decentralization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/broker-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker & Data-Plane Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/region-federation-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Region Federation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/link-metrics-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Link Metrics & Auto-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/control-dataplane-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control / Data Plane Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/stunnel-dataplane-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stunnel Data Path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/health-check-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health, State & Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/metrics-unification-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Unification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/capability-inventory-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability Inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/cresco-tools-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Tools Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Connection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#context-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tls-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLS verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interfaces
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        api
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalcontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        globalcontroller
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        admin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        messaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataplane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dataplane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logstreamer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        logstreamer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worked examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connect-and-list-the-mesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect and list the mesh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#submit-a-pipeline-cadl-and-poll-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submit a pipeline (CADL) and poll status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send-a-message-rpc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Send a message / RPC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manage-a-plugin-on-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manage a plugin on an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subscribe-to-a-dataplane-stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscribe to a dataplane stream
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stream-logs-from-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stream logs from an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restart-an-agent-guarded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restart an agent (guarded)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-language-parity-and-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-language parity and testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="python-client-pycrescolib">Python Client (<code>pycrescolib</code>)<a class="headerlink" href="#python-client-pycrescolib" title="Permanent link">&para;</a></h1>
+<p><code>pycrescolib</code> is the official Python SDK for driving a Cresco fabric. It opens a single
+authenticated, secure WebSocket control connection to an agent running the
+<a href="../../plugins/wsapi/"><code>wsapi</code></a> plugin (<code>wss://host:8282</code>) and exposes a set of interface
+objects that let you inspect the mesh, deploy plugins, submit pipelines, and open
+separate stream sockets for the data plane and for live logs.</p>
+<p>The Python and Java clients are kept <strong>feature- and name-identical</strong>: the same
+submodules, the same method names (snake_case in both languages), the same wire messages,
+and the same worked examples. Anything you can do in one you can do in the others with the same
+call — see the <a href="../java/">Java Client</a> for the equivalents.</p>
+<div class="admonition info">
+<p class="admonition-title">Async underneath, blocking on the surface</p>
+<p>The client was migrated to <code>asyncio</code> + <a href="https://websockets.readthedocs.io/"><code>websockets</code></a>:
+every socket operation runs on a dedicated background event-loop thread. The <strong>public API
+that you call is synchronous</strong> — control-plane methods block until the reply arrives (RPC)
+or until the message is flushed (fire-and-forget). You do <strong>not</strong> <code>await</code> <code>clientlib</code>
+methods. The <code>async</code>/<code>await</code> mechanics are internal (<code>ws_interface</code>, <code>messaging</code>), so the
+client is safe to use from ordinary synchronous scripts, notebooks, and test suites without
+an event loop of your own. See <a href="#async-model">Async model</a> for details.</p>
+</div>
+<hr />
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>pycrescolib
+</code></pre></div>
+<p>From a source checkout:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>.<span class="w">          </span><span class="c1"># install into the current environment</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>-m<span class="w"> </span>build<span class="w">        </span><span class="c1"># build sdist + wheel into dist/</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Package name</td>
+<td><code>pycrescolib</code></td>
+</tr>
+<tr>
+<td>Version</td>
+<td>1.5.0</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.9+ (tested through 3.12)</td>
+</tr>
+<tr>
+<td>License</td>
+<td>Apache-2.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Constraint</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://pypi.org/project/websockets/"><code>websockets</code></a></td>
+<td><code>&gt;=14.0</code></td>
+<td>The WebSocket transport for the control connection and stream sockets.</td>
+</tr>
+<tr>
+<td><a href="https://pypi.org/project/cryptography/"><code>cryptography</code></a></td>
+<td><code>&gt;=36.0.0</code></td>
+<td>Parsing the server X.509 certificate to extract the agent's region / agent / plugin identity.</td>
+</tr>
+<tr>
+<td><a href="https://pypi.org/project/backoff/"><code>backoff</code></a></td>
+<td><code>&gt;=2.0.0</code></td>
+<td>Exponential-backoff retry on transient connection / timeout errors.</td>
+</tr>
+</tbody>
+</table>
+<p>The optional <code>test</code> extra (<code>pip install pycrescolib[test]</code>) adds <code>pytest</code> for the
+cross-language conformance suite.</p>
+<hr />
+<h2 id="connection">Connection<a class="headerlink" href="#connection" title="Permanent link">&para;</a></h2>
+<p>The single entry point is the <code>clientlib</code> class:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">service_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ca_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>                   <span class="n">check_hostname</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>                   <span class="n">client_cert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">client_key_password</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td><code>str</code></td>
+<td>Host or IP of an agent running the <code>wsapi</code> plugin.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td><code>int</code></td>
+<td><code>wsapi</code> WebSocket port (typically <code>8282</code>).</td>
+</tr>
+<tr>
+<td><code>service_key</code></td>
+<td><code>str</code></td>
+<td>The legacy <code>wsapi</code> service key (an <code>admin</code> of the agent's tenant), sent as the <code>cresco_service_key</code> header. Omit it when giving another credential.</td>
+</tr>
+<tr>
+<td><code>fingerprint</code> / <code>ca_file</code></td>
+<td><code>str</code></td>
+<td>How to trust wsapi's certificate: its pinned SHA-256 or SHA-384 fingerprint (from <code>ws.fingerprint</code>; several allowed for a rotation), or a PEM file (<code>ws.crt.pem</code> or a CA bundle). Unset: <code>CRESCO_TLS_FINGERPRINT</code> / <code>CRESCO_TLS_CA_FILE</code>, then the system trust store.</td>
+</tr>
+<tr>
+<td><code>verify_ssl</code></td>
+<td><code>bool</code></td>
+<td>Not given (the default): verify. <code>False</code> turns verification off; the credentials then go to whoever answers and every connection logs a WARNING.</td>
+</tr>
+<tr>
+<td><code>user</code> / <code>password</code></td>
+<td><code>str</code></td>
+<td>A per-user credential from wsapi's credential file (HTTP Basic inside TLS).</td>
+</tr>
+<tr>
+<td><code>token</code></td>
+<td><code>str</code></td>
+<td>An API token (<code>cwt1_...</code>), sent as <code>Authorization: Bearer</code>; the choice for tools and automation. Unset with no other credential: <code>CRESCO_API_TOKEN</code>.</td>
+</tr>
+<tr>
+<td><code>client_cert</code> / <code>client_key</code> / <code>client_key_password</code></td>
+<td><code>str</code></td>
+<td>A client certificate (PEM with its key, or PKCS12) presented on every connection; the only credential wsapi accepts under the <code>production</code> profile.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../../security/api-auth/">API authentication</a> for the credentials and how wsapi checks them.</p>
+<p>Constructing a <code>clientlib</code> wires up the transport and the interface objects but does <strong>not</strong>
+open the socket. Call <code>connect()</code> to establish the connection:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"connected:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">connected</span><span class="p">())</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="c1"># ... use the client ...</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"failed to connect"</span><span class="p">)</span>
+</code></pre></div>
+<p>Under the hood, <code>connect()</code> checks wsapi's certificate, opens <code>wss://{host}:{port}/api/apisocket</code>, authenticates with
+the client's credential, verifies the socket is live, and reads the mesh identity (region / agent / plugin)
+out of the server certificate's Distinguished Name (<code>O</code>=region, <code>OU</code>=agent, <code>CN</code>=plugin).</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Construct</td>
+<td><code>clientlib(host, port, service_key=None, verify_ssl=None, *, ...)</code></td>
+<td>Create the client for a <code>wsapi</code> endpoint (does not connect).</td>
+</tr>
+<tr>
+<td>Connect</td>
+<td><code>connect() -&gt; bool</code></td>
+<td>Open and verify the control connection. Returns <code>True</code> on success.</td>
+</tr>
+<tr>
+<td>Status</td>
+<td><code>connected() -&gt; bool</code></td>
+<td>Whether the control connection is currently live.</td>
+</tr>
+<tr>
+<td>Close</td>
+<td><code>close() -&gt; None</code></td>
+<td>Close the control connection and every managed stream.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="context-management">Context management<a class="headerlink" href="#context-management" title="Permanent link">&para;</a></h3>
+<p><code>clientlib.connection()</code> is a context manager that connects on entry and always closes on
+exit (including on exception). It raises <code>ConnectionError</code> if the connection cannot be
+established:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="s2">"sha384:AB:CD:..."</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">connection</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_region_list</span><span class="p">())</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># connection is closed automatically here</span>
+</code></pre></div>
+<h3 id="tls-verification">TLS verification<a class="headerlink" href="#tls-verification" title="Permanent link">&para;</a></h3>
+<p>Since 1.4.0 every connection (the API socket, every dataplane and every log stream) verifies wsapi's certificate
+before it sends anything; 1.3.2 and earlier did not verify. wsapi makes its own certificate, so pin it or trust its PEM
+file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="s2">"sha384:AB:CD:..."</span><span class="p">)</span>   <span class="c1"># pin it</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">8282</span><span class="p">,</span> <span class="s2">"your-service-key"</span><span class="p">,</span> <span class="n">ca_file</span><span class="o">=</span><span class="s2">"ws.crt.pem"</span><span class="p">)</span>             <span class="c1"># or trust it</span>
+</code></pre></div>
+<p>With neither (and no <code>CRESCO_TLS_*</code> variable) the system trust store applies, which does not trust a self-signed
+wsapi. A server that does not match gets nothing: <code>connect()</code> returns <code>False</code> and <code>client.last_error</code> says why
+(<code>pycrescolib.tls</code>: <code>CertificateMismatch</code>, <code>CertificateVerificationError</code>, <code>AuthenticationError</code>, <code>TLSConfigError</code>).</p>
+<hr />
+<h2 id="async-model">Async model<a class="headerlink" href="#async-model" title="Permanent link">&para;</a></h2>
+<p>Although the calls you make are blocking, it is worth understanding the machinery so you can
+reason about threads and timeouts:</p>
+<ul>
+<li><strong>Dedicated event loop.</strong> The transport (<code>ws_interface</code>) starts its own <code>asyncio</code> event
+  loop on a background daemon thread the first time you <code>connect()</code>. All WebSocket I/O runs on
+  that loop.</li>
+<li><strong>Blocking wrappers.</strong> The control-plane interfaces use <code>messaging_sync</code>, which submits
+  coroutines to the background loop with <code>asyncio.run_coroutine_threadsafe(...)</code> and waits on
+  the result. That is why <code>client.globalcontroller.get_region_list()</code> returns a plain <code>list</code>
+  rather than a coroutine.</li>
+<li><strong>RPC vs. fire-and-forget.</strong> Each messaging call carries an <code>is_rpc</code> flag. When <code>True</code>, the
+  call blocks for the reply and returns it as a <code>dict</code>. When <code>False</code>, the message is flushed
+  and the call returns <code>None</code> without waiting.</li>
+<li><strong>Timeouts.</strong> RPC calls take a <code>timeout</code> (default <code>8.0</code> seconds). A control socket the server
+  closed raises <code>ConnectionError</code> and <code>connected()</code> turns <code>False</code>, so reconnect with <code>connect()</code>.
+  Inventory queries raise (<code>CrescoQueryError</code>, <code>TimeoutError</code>, <code>ConnectionError</code>) when they could not
+  ask, and return an empty list or <code>None</code> only when the fabric answered "none" (since 1.3.2).</li>
+<li><strong>Retries.</strong> Transient <code>ConnectionError</code> / <code>TimeoutError</code> failures are retried with
+  exponential backoff (up to 3 attempts) via <code>backoff</code>.</li>
+<li><strong>Stream sockets self-manage.</strong> Each dataplane and logstreamer spins up its own event loop
+  thread, delivers inbound frames to your callback via an executor, and includes an automatic
+  reconnect monitor.</li>
+</ul>
+<p>You call the client from ordinary synchronous code; no <code>await</code> or <code>asyncio.run(...)</code> is
+required on your side.</p>
+<hr />
+<h2 id="interfaces">Interfaces<a class="headerlink" href="#interfaces" title="Permanent link">&para;</a></h2>
+<p>After <code>connect()</code>, a <code>clientlib</code> exposes the following interface objects as attributes. Each
+groups a set of related operations.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client.api</code></td>
+<td><code>api</code></td>
+<td>Identity of the connected agent and of the global controller.</td>
+</tr>
+<tr>
+<td><code>client.globalcontroller</code></td>
+<td><code>globalcontroller</code></td>
+<td>Fabric-wide operations: regions, agents, pipelines, repos, resources, inventories.</td>
+</tr>
+<tr>
+<td><code>client.agents</code></td>
+<td><code>agents</code></td>
+<td>Per-agent plugin lifecycle, agent info/logs, controller status, CEP.</td>
+</tr>
+<tr>
+<td><code>client.admin</code></td>
+<td><code>admin</code></td>
+<td>Administrative controls: restart / stop controller, restart framework, kill JVM.</td>
+</tr>
+<tr>
+<td><code>client.messaging</code></td>
+<td><code>messaging_sync</code></td>
+<td>Low-level typed message routing (the transport all interfaces build on).</td>
+</tr>
+<tr>
+<td><code>client.stunnel</code></td>
+<td><code>stunnel</code></td>
+<td>Secure TCP tunnels through the <a href="../../plugins/stunnel/">stunnel</a> plugin.</td>
+</tr>
+<tr>
+<td><code>client.executor</code></td>
+<td><code>executor</code></td>
+<td>OS processes and their stdin through the <a href="../../plugins/executor/">executor</a> plugin.</td>
+</tr>
+<tr>
+<td><code>client.filerepo</code></td>
+<td><code>filerepo</code></td>
+<td>Verified file downloads from the <a href="../../plugins/filerepo/">filerepo</a> plugin.</td>
+</tr>
+<tr>
+<td><code>get_dataplane(...)</code></td>
+<td><code>dataplane</code></td>
+<td>Open a data-plane stream socket (created on demand).</td>
+</tr>
+<tr>
+<td><code>get_logstreamer(...)</code></td>
+<td><code>logstreamer</code></td>
+<td>Open a live-log stream socket (created on demand).</td>
+</tr>
+</tbody>
+</table>
+<p>The method tables for <code>stunnel</code>, <code>executor</code> and <code>filerepo</code> are in the
+<a href="https://github.com/CrescoEdge/pycrescolib#api-reference">pycrescolib README</a>; the names match the Java client's
+(see <a href="../java/#stunnel">Java › stunnel</a>).</p>
+<h3 id="api"><code>api</code><a class="headerlink" href="#api" title="Permanent link">&para;</a></h3>
+<p>Identity of the agent hosting the <code>wsapi</code> plugin and of the global controller. The API
+identity values are read from the server certificate at connect time; the global identity is
+fetched lazily on first access.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_api_region_name()</code></td>
+<td><code>-&gt; str</code></td>
+<td>Region of the agent hosting the <code>wsapi</code> plugin.</td>
+</tr>
+<tr>
+<td><code>get_api_agent_name()</code></td>
+<td><code>-&gt; str</code></td>
+<td>Agent name of the agent hosting the <code>wsapi</code> plugin.</td>
+</tr>
+<tr>
+<td><code>get_api_plugin_name()</code></td>
+<td><code>-&gt; str</code></td>
+<td>Plugin name of the <code>wsapi</code> plugin.</td>
+</tr>
+<tr>
+<td><code>get_global_region()</code></td>
+<td><code>-&gt; str \| None</code></td>
+<td>Region of the global controller.</td>
+</tr>
+<tr>
+<td><code>get_global_agent()</code></td>
+<td><code>-&gt; str \| None</code></td>
+<td>Agent of the global controller.</td>
+</tr>
+<tr>
+<td><code>get_global_info()</code></td>
+<td><code>-&gt; tuple[str \| None, str \| None]</code></td>
+<td><code>(global_region, global_agent)</code> in one call.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="globalcontroller"><code>globalcontroller</code><a class="headerlink" href="#globalcontroller" title="Permanent link">&para;</a></h3>
+<p>Fabric-wide operations routed through the global controller.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_region_list()</code></td>
+<td><code>-&gt; list[dict]</code></td>
+<td>List all regions in the mesh.</td>
+</tr>
+<tr>
+<td><code>get_agent_list(dst_region=None)</code></td>
+<td><code>-&gt; list[dict]</code></td>
+<td>List agents, optionally filtered to one region.</td>
+</tr>
+<tr>
+<td><code>get_agent_resources(dst_region, dst_agent)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Resource/perf summary for one agent.</td>
+</tr>
+<tr>
+<td><code>get_region_resources(dst_region)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Resource summary for one region.</td>
+</tr>
+<tr>
+<td><code>submit_pipeline(cadl, tenant_id='0')</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Submit a CADL pipeline; reply carries <code>gpipeline_id</code>.</td>
+</tr>
+<tr>
+<td><code>remove_pipeline(pipeline_id)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Tear down a pipeline.</td>
+</tr>
+<tr>
+<td><code>get_pipeline_list()</code></td>
+<td><code>-&gt; list[dict]</code></td>
+<td>List all pipelines.</td>
+</tr>
+<tr>
+<td><code>get_pipeline_info(pipeline_id)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Full pipeline record.</td>
+</tr>
+<tr>
+<td><code>get_pipeline_status(pipeline_id)</code></td>
+<td><code>-&gt; int</code></td>
+<td>Pipeline status code (<code>10</code> = active).</td>
+</tr>
+<tr>
+<td><code>get_pipeline_id_by_name(pipeline_name)</code></td>
+<td><code>-&gt; str \| None</code></td>
+<td>Resolve a pipeline ID from its name.</td>
+</tr>
+<tr>
+<td><code>get_pipeline_export(pipeline_id)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Exportable representation of a pipeline.</td>
+</tr>
+<tr>
+<td><code>get_pipeline_is_assignment_info(inode_id, resource_id)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>inode-to-resource assignment info.</td>
+</tr>
+<tr>
+<td><code>get_plugin_repo_list()</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Plugins available in each configured repository.</td>
+</tr>
+<tr>
+<td><code>get_repo_plugins()</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Plugins known to the repositories.</td>
+</tr>
+<tr>
+<td><code>upload_plugin_global(jar_file_path)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Upload a plugin jar to the global repository.</td>
+</tr>
+<tr>
+<td><code>get_metric_inventory(scope='global', dst_region=None, dst_agent=None, include_plugins=True, include_resource=True, timeout=45.0)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Unified metric inventory: controller + plugin metrics, optional resource summary. See <a href="../../architecture/metrics/">Metrics &amp; Measurements</a>.</td>
+</tr>
+<tr>
+<td><code>get_capability_inventory(scope='global', dst_region=None, dst_agent=None, include_plugins=True, include_osgi=False, timeout=45.0)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Self-describing capability catalog (LLM-facing tool descriptors). See <a href="../../api/plugin-actions/">Plugin Actions</a>.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Inventory scope</p>
+<p><code>get_metric_inventory</code> and <code>get_capability_inventory</code> take <code>scope</code> = <code>'node'</code>, <code>'region'</code>,
+or <code>'global'</code>. Pass both <code>dst_region</code> and <code>dst_agent</code> to target a single agent's controller
+directly (node scope). Whole-mesh (<code>'global'</code>) queries fan out, so <code>timeout</code> defaults high.</p>
+</div>
+<h3 id="agents"><code>agents</code><a class="headerlink" href="#agents" title="Permanent link">&para;</a></h3>
+<p>Per-agent plugin lifecycle and inspection. <code>dst_region</code> / <code>dst_agent</code> name the target agent.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>is_controller_active(dst_region, dst_agent)</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Whether the target agent's controller is active.</td>
+</tr>
+<tr>
+<td><code>get_controller_status(dst_region, dst_agent)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Controller status of the target agent.</td>
+</tr>
+<tr>
+<td><code>get_agent_info(dst_region, dst_agent)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Agent metadata.</td>
+</tr>
+<tr>
+<td><code>get_agent_log(dst_region, dst_agent)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Recent agent log data.</td>
+</tr>
+<tr>
+<td><code>list_plugin_agent(dst_region, dst_agent)</code></td>
+<td><code>-&gt; list[dict]</code></td>
+<td>Plugins currently on the agent.</td>
+</tr>
+<tr>
+<td><code>status_plugin_agent(dst_region, dst_agent, plugin_id)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Status of one plugin.</td>
+</tr>
+<tr>
+<td><code>add_plugin_agent(dst_region, dst_agent, configparams, edges=None)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Add a plugin; reply carries <code>pluginid</code>.</td>
+</tr>
+<tr>
+<td><code>remove_plugin_agent(dst_region, dst_agent, plugin_id)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Remove a plugin.</td>
+</tr>
+<tr>
+<td><code>repo_pull_plugin_agent(dst_region, dst_agent, jar_file_path)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Pull a plugin jar from a repo onto the agent.</td>
+</tr>
+<tr>
+<td><code>upload_plugin_agent(dst_region, dst_agent, jar_file_path)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Upload a plugin jar directly to the agent.</td>
+</tr>
+<tr>
+<td><code>update_plugin_agent(dst_region, dst_agent, jar_file_path)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Update a plugin on the agent.</td>
+</tr>
+<tr>
+<td><code>get_broadcast_discovery(dst_region, dst_agent)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Broadcast-discovery info from the agent.</td>
+</tr>
+<tr>
+<td><code>cepadd(input_stream, input_stream_desc, output_stream, output_stream_desc, query, dst_region, dst_agent)</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Register a Complex-Event-Processing query on the agent.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="admin"><code>admin</code><a class="headerlink" href="#admin" title="Permanent link">&para;</a></h3>
+<p>Administrative controls for a target agent. These are fire-and-forget (<code>CONFIG</code>) actions and
+return <code>None</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stopcontroller(dst_region, dst_agent)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Stop the agent's controller plugin.</td>
+</tr>
+<tr>
+<td><code>restartcontroller(dst_region, dst_agent)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Restart the agent's controller plugin.</td>
+</tr>
+<tr>
+<td><code>restartframework(dst_region, dst_agent)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Restart the underlying OSGi framework.</td>
+</tr>
+<tr>
+<td><code>killjvm(dst_region, dst_agent)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Force-terminate the agent JVM.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>restartframework</code> and <code>killjvm</code> disrupt the target agent. Guard them behind an
+<code>is_controller_active(...)</code> check (as the <a href="#restart-an-agent-guarded">admin example</a> does).</p>
+</div>
+<h3 id="messaging"><code>messaging</code><a class="headerlink" href="#messaging" title="Permanent link">&para;</a></h3>
+<p>The low-level typed message router that every other interface builds on. Each method takes
+<code>(is_rpc, message_event_type, message_payload, ...)</code> plus optional routing fields, and returns
+the reply <code>dict</code> for RPC calls or <code>None</code> otherwise. <code>message_event_type</code> is a
+<a href="../../api/msgevent/">MsgEvent</a> type such as <code>'EXEC'</code> or <code>'CONFIG'</code>; <code>message_payload</code> is a
+<code>dict</code> whose <code>action</code> selects the operation. See <a href="../../api/msgevent/">MsgEvent</a> for the wire
+contract.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Routes to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>global_controller_msgevent(is_rpc, event_type, payload, timeout=8.0, ...)</code></td>
+<td>the global controller</td>
+</tr>
+<tr>
+<td><code>regional_controller_msgevent(is_rpc, event_type, payload, timeout=8.0, ...)</code></td>
+<td>the regional controller</td>
+</tr>
+<tr>
+<td><code>global_agent_msgevent(is_rpc, event_type, payload, dst_region, dst_agent, timeout=8.0)</code></td>
+<td>an agent, via the global controller</td>
+</tr>
+<tr>
+<td><code>regional_agent_msgevent(is_rpc, event_type, payload, dst_agent, timeout=8.0)</code></td>
+<td>an agent in the local region</td>
+</tr>
+<tr>
+<td><code>agent_msgevent(is_rpc, event_type, payload, timeout=8.0)</code></td>
+<td>the local agent</td>
+</tr>
+<tr>
+<td><code>global_plugin_msgevent(is_rpc, event_type, payload, dst_region, dst_agent, dst_plugin, timeout=8.0)</code></td>
+<td>a plugin, via the global controller</td>
+</tr>
+<tr>
+<td><code>regional_plugin_msgevent(is_rpc, event_type, payload, dst_agent, dst_plugin, timeout=8.0)</code></td>
+<td>a plugin in the local region</td>
+</tr>
+<tr>
+<td><code>plugin_msgevent(is_rpc, event_type, payload, dst_plugin, timeout=8.0)</code></td>
+<td>a local plugin</td>
+</tr>
+</tbody>
+</table>
+<p>Every method raises what went wrong: <code>ConnectionError</code> when the socket is gone, <code>TimeoutError</code> when no answer came in
+time. An empty <code>dict</code> is an answer, never an error. (Before 1.5.0 <code>agent_msgevent</code>, <code>regional_agent_msgevent</code> and
+<code>regional_plugin_msgevent</code> returned <code>{}</code> for both.) A reply may be up to 64 MiB, wsapi's own limit for the API socket
+(<code>CRESCO_API_MAX_MESSAGE</code> changes the client's side); before 1.5.0 a reply over 1 MiB closed the connection.</p>
+<p>Example of a direct RPC through <code>messaging</code> (equivalent to the higher-level helpers):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_controller_msgevent</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="kc">True</span><span class="p">,</span>                       <span class="c1"># is_rpc: block for the reply</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="s2">"EXEC"</span><span class="p">,</span>                     <span class="c1"># MsgEvent type</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"listregions"</span><span class="p">},</span>  <span class="c1"># payload</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="dataplane"><code>dataplane</code><a class="headerlink" href="#dataplane" title="Permanent link">&para;</a></h3>
+<p>A data-plane stream is a separate WebSocket (<code>wss://host:port/api/dataplane</code>) obtained from
+the client. It is created on demand, tracked by stream name, auto-reconnects, and delivers
+inbound frames to the callbacks you supply.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">dp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataplane</span><span class="p">(</span><span class="n">stream_name</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">binary_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client.get_dataplane(stream_name, callback=None, binary_callback=None)</code></td>
+<td><code>-&gt; dataplane</code></td>
+<td>Create or fetch the dataplane for a stream query. <code>callback(msg)</code> handles text frames, <code>binary_callback(bytes)</code> handles binary frames.</td>
+</tr>
+<tr>
+<td><code>connect()</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Open the stream and block (up to 5 s) for activation. <code>False</code> with the reason in <code>last_error</code> when the connection failed or wsapi refused the handshake; raises <code>DataplaneSubscriptionRefused</code> for a receiver whose subscription the broker refused.</td>
+</tr>
+<tr>
+<td><code>connected()</code> / <code>is_active()</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Whether the stream is active.</td>
+</tr>
+<tr>
+<td><code>send(data, timeout=None)</code></td>
+<td><code>-&gt; SendResult</code></td>
+<td>Send a text or bytes payload.</td>
+</tr>
+<tr>
+<td><code>send_binary(data, timeout=None)</code></td>
+<td><code>-&gt; SendResult</code></td>
+<td>Send a <code>bytes</code> payload (raises <code>TypeError</code> if not bytes).</td>
+</tr>
+<tr>
+<td><code>send_binary_file(file_path, timeout=None)</code></td>
+<td><code>-&gt; SendResult</code></td>
+<td>Read a file and send it as one binary message.</td>
+</tr>
+<tr>
+<td><code>send_partial(data, complete, timeout=None)</code></td>
+<td><code>-&gt; SendResult</code></td>
+<td>Append a binary fragment (<code>PENDING</code>); when <code>complete</code> is <code>True</code>, flush the accumulated fragments as one fragmented message (<code>SENT</code>).</td>
+</tr>
+<tr>
+<td><code>update_config(dst_region, dst_agent)</code></td>
+<td><code>-&gt; SendResult</code></td>
+<td>Reconfigure the stream to target an agent.</td>
+</tr>
+<tr>
+<td><code>get_metrics()</code></td>
+<td><code>-&gt; dict</code></td>
+<td>Client-side counters: messages/bytes sent and received, and <code>active</code>.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td><code>-&gt; None</code></td>
+<td>Close the stream.</td>
+</tr>
+<tr>
+<td><code>client.close_dataplane(stream_name)</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Close and deregister a named dataplane on the client.</td>
+</tr>
+<tr>
+<td><code>client.get_active_dataplanes()</code></td>
+<td><code>-&gt; list[str]</code></td>
+<td>Names of currently registered dataplanes.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What a send returns (1.5.0).</strong> A <code>SendResult</code>: <code>SENT</code> (handed to the socket; not an acknowledgement from a
+receiver), <code>PENDING</code> (a fragment waiting for the final one), <code>DROPPED</code> (the stream was not active: nothing was written)
+or <code>FAILED</code> (the write raised or did not finish in time: the stream reconnects). It is true in a condition unless the
+data was lost, and <code>dp.last_send_error</code> says why:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">dp</span><span class="o">.</span><span class="n">send_binary</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"chunk not sent: </span><span class="si">{</span><span class="n">dp</span><span class="o">.</span><span class="n">last_send_error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>A send may take as long as the stream's <code>send_timeout</code> (seconds; <code>CRESCO_DATAPLANE_SEND_TIMEOUT</code>, default 30) or
+  <code>timeout=</code> on the call. wsapi slows a sender down when the fabric cannot keep up
+  (<a href="../../architecture/dataplane/">back-pressure</a>), so a slow send is not a broken one. Before 1.5.0 the limit was a
+  fixed 5 s, after which the stream was torn down.</li>
+<li>A fragmented message goes out whole or not at all: when one fragment is not taken, the rest of that message is
+  <code>DROPPED</code> up to and including its final fragment.</li>
+<li>When wsapi refuses the handshake (the caller's role or tenant, a stream it does not open to this caller),
+  <code>connect()</code> returns <code>False</code> at once, <code>dp.handshake_refused</code> holds wsapi's reason, the <code>refused_callback</code> is called
+  with it, and the stream tries again after 5, 10, 20, 40 and then every 60 s. Before 1.5.0 the refusal looked like a
+  timeout and the stream reconnected every 5 s for ever.</li>
+</ul>
+<p>See <a href="../../architecture/dataplane/">Data Plane</a> for the fabric-side model.</p>
+<h3 id="logstreamer"><code>logstreamer</code><a class="headerlink" href="#logstreamer" title="Permanent link">&para;</a></h3>
+<p>A log stream is a separate WebSocket (<code>wss://host:port/api/logstreamer</code>) that delivers live
+log lines from a target agent to your callback.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">ls</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_logstreamer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client.get_logstreamer(name=None, callback=None)</code></td>
+<td><code>-&gt; logstreamer</code></td>
+<td>Create or fetch a logstreamer. <code>callback(msg)</code> receives each log line. A name is auto-generated if omitted.</td>
+</tr>
+<tr>
+<td><code>connect()</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Open the stream and block (up to 5 s) for activation.</td>
+</tr>
+<tr>
+<td><code>connected()</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Whether the stream is active.</td>
+</tr>
+<tr>
+<td><code>update_config(dst_region, dst_agent)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Point the log stream at an agent (default level).</td>
+</tr>
+<tr>
+<td><code>update_config_class(dst_region, dst_agent, loglevel, baseclass)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Set the log level (e.g. <code>'Trace'</code>) for one base class (e.g. <code>'io.cresco.agent'</code>).</td>
+</tr>
+<tr>
+<td><code>send(message)</code></td>
+<td><code>-&gt; None</code></td>
+<td>Send a raw config/control message over the stream.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td><code>-&gt; None</code></td>
+<td>Close the stream.</td>
+</tr>
+<tr>
+<td><code>client.close_logstreamer(name)</code></td>
+<td><code>-&gt; bool</code></td>
+<td>Close and deregister a named logstreamer on the client.</td>
+</tr>
+<tr>
+<td><code>client.get_active_logstreamers()</code></td>
+<td><code>-&gt; list[str]</code></td>
+<td>Names of currently registered logstreamers.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="worked-examples">Worked examples<a class="headerlink" href="#worked-examples" title="Permanent link">&para;</a></h2>
+<p>These mirror the runnable, standardized examples in
+<code>examples/standard_examples.py</code>, which have byte-for-byte counterparts in the Java client
+(<code>StandardExamples.java</code>). Set <code>HOST</code>, <code>PORT</code>, <code>SERVICE_KEY</code> and <code>FINGERPRINT</code> for your environment.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pycrescolib.clientlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">clientlib</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">HOST</span> <span class="o">=</span> <span class="s2">"127.0.0.1"</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">PORT</span> <span class="o">=</span> <span class="mi">8282</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">SERVICE_KEY</span> <span class="o">=</span> <span class="s2">"a-service-key"</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">FINGERPRINT</span> <span class="o">=</span> <span class="s2">"sha384:AB:CD:..."</span>   <span class="c1"># from ws.fingerprint in the wsapi plugin data directory</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">new_client</span><span class="p">():</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="sd">"""Create a connected client, or None if the connection failed."""</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">clientlib</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="n">SERVICE_KEY</span><span class="p">,</span> <span class="n">fingerprint</span><span class="o">=</span><span class="n">FINGERPRINT</span><span class="p">)</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">():</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Failed to connect"</span><span class="p">)</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    <span class="k">return</span> <span class="n">client</span>
+</code></pre></div>
+<h3 id="connect-and-list-the-mesh">Connect and list the mesh<a class="headerlink" href="#connect-and-list-the-mesh" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_connect</span><span class="p">():</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="sd">"""Connect, print API identity, list regions and agents, disconnect."""</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="k">return</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="c1"># Identity of the agent hosting the wsapi plugin.</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"region:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_region_name</span><span class="p">())</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"agent :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_agent_name</span><span class="p">())</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"plugin:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_api_plugin_name</span><span class="p">())</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="c1"># Identity of the global controller.</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"global region:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_global_region</span><span class="p">())</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"global agent :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_global_agent</span><span class="p">())</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="c1"># List the regions and the agents in the mesh.</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"regions:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_region_list</span><span class="p">())</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"agents :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_agent_list</span><span class="p">())</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="submit-a-pipeline-cadl-and-poll-status">Submit a pipeline (CADL) and poll status<a class="headerlink" href="#submit-a-pipeline-cadl-and-poll-status" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_pipeline</span><span class="p">():</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="sd">"""Submit a CADL pipeline, poll until active, fetch info/export, remove it."""</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="k">return</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="c1"># A minimal CADL pipeline.</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="n">cadl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"pipeline_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"pipeline_name"</span><span class="p">:</span> <span class="s2">"example-pipeline"</span><span class="p">,</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>            <span class="s2">"nodes"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"edges"</span><span class="p">:</span> <span class="p">[]}</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    <span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">submit_pipeline</span><span class="p">(</span><span class="n">cadl</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span>  <span class="c1"># tenant 0</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    <span class="n">pipeline_id</span> <span class="o">=</span> <span class="n">reply</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gpipeline_id"</span><span class="p">)</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"submitted pipeline:"</span><span class="p">,</span> <span class="n">pipeline_id</span><span class="p">)</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="c1"># Poll until the pipeline is active (status code 10).</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>        <span class="n">status</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_status</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">)</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"status:"</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>            <span class="k">break</span>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"info  :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_info</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">))</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"export:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">get_pipeline_export</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">))</span>
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>    <span class="n">client</span><span class="o">.</span><span class="n">globalcontroller</span><span class="o">.</span><span class="n">remove_pipeline</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">)</span>
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="send-a-message-rpc">Send a message / RPC<a class="headerlink" href="#send-a-message-rpc" title="Permanent link">&para;</a></h3>
+<p>Use the <code>messaging</code> interface directly for actions not wrapped by a helper. This RPC lists the
+regions, exactly like <code>globalcontroller.get_region_list()</code> does internally:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_rpc</span><span class="p">():</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">"""Send an EXEC RPC to the global controller and read the reply dict."""</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        <span class="k">return</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="n">reply</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_controller_msgevent</span><span class="p">(</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>        <span class="kc">True</span><span class="p">,</span>                        <span class="c1"># is_rpc -&gt; block for the reply</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>        <span class="s2">"EXEC"</span><span class="p">,</span>                      <span class="c1"># MsgEvent type</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"listregions"</span><span class="p">},</span>   <span class="c1"># payload</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="p">)</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"reply keys:"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    <span class="c1"># Fire-and-forget (is_rpc=False) returns None and does not wait.</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    <span class="n">client</span><span class="o">.</span><span class="n">messaging</span><span class="o">.</span><span class="n">global_agent_msgevent</span><span class="p">(</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>        <span class="kc">False</span><span class="p">,</span> <span class="s2">"CONFIG"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"action"</span><span class="p">:</span> <span class="s2">"restartframework"</span><span class="p">},</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>        <span class="s2">"my-region"</span><span class="p">,</span> <span class="s2">"my-agent"</span><span class="p">,</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    <span class="p">)</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="manage-a-plugin-on-an-agent">Manage a plugin on an agent<a class="headerlink" href="#manage-a-plugin-on-an-agent" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_plugin_lifecycle</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">jar_file_path</span><span class="p">):</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="sd">"""Pull + add a plugin to an agent, inspect it, then remove it."""</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        <span class="k">return</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="c1"># Upload the plugin jar to the agent's repo, then add it as a plugin.</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"repo pull:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">repo_pull_plugin_agent</span><span class="p">(</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">jar_file_path</span><span class="p">))</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="n">configparams</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"pluginname"</span><span class="p">:</span> <span class="s2">"example"</span><span class="p">,</span> <span class="s2">"jarfile"</span><span class="p">:</span> <span class="n">jar_file_path</span><span class="p">}</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>    <span class="n">added</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">add_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">configparams</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="n">plugin_id</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pluginid"</span><span class="p">)</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"added plugin:"</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">)</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>    <span class="c1"># Inspect the agent's plugins.</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"plugins:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">list_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">))</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"status :"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">status_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">))</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>    <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">remove_plugin_agent</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="n">plugin_id</span><span class="p">)</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="subscribe-to-a-dataplane-stream">Subscribe to a dataplane stream<a class="headerlink" href="#subscribe-to-a-dataplane-stream" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_dataplane</span><span class="p">(</span><span class="n">stream_query</span><span class="p">):</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="sd">"""Open a dataplane, receive via callback, send text + binary + fragmented data."""</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="k">return</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"dataplane recv:"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="n">dp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataplane</span><span class="p">(</span><span class="n">stream_query</span><span class="p">,</span> <span class="n">on_message</span><span class="p">)</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># allow the stream to activate</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">"hello dataplane"</span><span class="p">)</span>            <span class="c1"># text frame</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_binary</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x01\x02\x03</span><span class="s2">"</span><span class="p">)</span>   <span class="c1"># binary frame</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_partial</span><span class="p">(</span><span class="sa">b</span><span class="s2">"part-1"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>     <span class="c1"># append a fragment</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>    <span class="n">dp</span><span class="o">.</span><span class="n">send_partial</span><span class="p">(</span><span class="sa">b</span><span class="s2">"part-2"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>      <span class="c1"># flush the fragmented message</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"metrics:"</span><span class="p">,</span> <span class="n">dp</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">())</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close_dataplane</span><span class="p">(</span><span class="n">stream_query</span><span class="p">)</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="stream-logs-from-an-agent">Stream logs from an agent<a class="headerlink" href="#stream-logs-from-an-agent" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_logstreamer</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">):</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="sd">"""Attach a log streamer, set the config, raise one base class to Trace."""</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>        <span class="k">return</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"log:"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    <span class="n">ls</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_logstreamer</span><span class="p">(</span><span class="s2">"example"</span><span class="p">,</span> <span class="n">on_message</span><span class="p">)</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>    <span class="n">ls</span><span class="o">.</span><span class="n">update_config_class</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">,</span> <span class="s2">"Trace"</span><span class="p">,</span> <span class="s2">"io.cresco.agent"</span><span class="p">)</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close_logstreamer</span><span class="p">(</span><span class="s2">"example"</span><span class="p">)</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="restart-an-agent-guarded">Restart an agent (guarded)<a class="headerlink" href="#restart-an-agent-guarded" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">example_admin</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">):</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="sd">"""Check the target controller, then restart its framework (guarded)."""</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">new_client</span><span class="p">()</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        <span class="k">return</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">is_controller_active</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">):</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"controller status:"</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">get_controller_status</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">))</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="n">client</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">restartframework</span><span class="p">(</span><span class="n">dst_region</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"controller not active on"</span><span class="p">,</span> <span class="n">dst_region</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">,</span> <span class="n">dst_agent</span><span class="p">)</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<hr />
+<h2 id="cross-language-parity-and-testing">Cross-language parity and testing<a class="headerlink" href="#cross-language-parity-and-testing" title="Permanent link">&para;</a></h2>
+<p>The clients ship a self-contained conformance suite (no live mesh required) that asserts they
+emit <strong>identical wire messages for identical API calls</strong>, sharing one generated golden corpus.</p>
+<ul>
+<li><strong>Python:</strong> <code>pip install -e .[test] &amp;&amp; pytest</code></li>
+<li><strong>Java:</strong> <code>mvn test</code> — see <a href="../java/">Java Client (feature parity)</a>.</li>
+</ul>
+<hr />
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../overview/">Client Libraries — Overview</a></li>
+<li><a href="../java/">Java Client (feature parity)</a></li>
+<li><a href="../../api/msgevent/">MsgEvent — the message wire contract</a></li>
+<li><a href="../../api/plugin-actions/">Plugin Actions (Capability Inventory)</a></li>
+<li><a href="../../architecture/dataplane/">Data Plane architecture</a></li>
+<li><a href="../../plugins/wsapi/"><code>wsapi</code> plugin</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.instant", "content.code.copy", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
